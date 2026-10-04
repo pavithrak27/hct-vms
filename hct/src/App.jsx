@@ -275,6 +275,7 @@ function App() {
         <Route path="blocked-visitors" element={<ProtectedRoute portalId="security"><BlockedVisitors /></ProtectedRoute>} />
         <Route path="security-reviews" element={<ProtectedRoute portalId="security"><SecurityReviews /></ProtectedRoute>} />
         <Route path="contractor" element={<ProtectedRoute portalId="contractor"><ContractorPortal /></ProtectedRoute>} />
+        <Route path="contractor/:tab" element={<ProtectedRoute portalId="contractor"><ContractorPortal /></ProtectedRoute>} />
         <Route path="contractor-registration" element={<ContractorRegistration />} />
         <Route path="reporting" element={<ProtectedRoute portalId="reporting"><ReportingPortal /></ProtectedRoute>} />
         

@@ -50,3 +50,44 @@ body {
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4); 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6); 
+}
+
+/* Dark mode specific thumb to blend better on very dark backgrounds */
+.dark ::-webkit-scrollbar-thumb,
+.bg-gradient-to-b ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover,
+.bg-gradient-to-b ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+.dark *,
+.bg-gradient-to-b * {
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}

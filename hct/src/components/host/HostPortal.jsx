@@ -14,6 +14,12 @@ const HostPortal = () => {
 
   const [activeTab, setActiveTab] = useState('pending');
   
+  // Approval Flow State
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [acceptModalOpen, setAcceptModalOpen] = useState(false);
+  const [activeRequest, setActiveRequest] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  
   // Invite Flow State
   const [inviteStep, setInviteStep] = useState(0); // 0 = hidden, 1 = form, 2 = review
   const [inviteData, setInviteData] = useState({ 
@@ -31,6 +37,7 @@ const HostPortal = () => {
 
   // Email Simulation State
   const [showEmailSimulation, setShowEmailSimulation] = useState(false);
+  const [emailType, setEmailType] = useState('invite'); // 'invite' or 'approved'
   const [generatedRequestId, setGeneratedRequestId] = useState(null);
 
   // Mock Host Data (Read-only)
@@ -72,6 +79,7 @@ const HostPortal = () => {
 
     setInviteStep(0);
     // Show email simulation immediately
+    setEmailType('invite');
     setTimeout(() => setShowEmailSimulation(true), 500);
   };
 
@@ -173,13 +181,20 @@ const HostPortal = () => {
                   {activeTab === 'pending' && !req.type.includes('Sent') && (
                     <div className="flex gap-3">
                       <button 
-                        onClick={() => handleAction(req.id, 'rejected')}
+                        onClick={() => {
+                          setActiveRequest(req);
+                          setRejectionReason('');
+                          setRejectModalOpen(true);
+                        }}
                         className="px-5 py-2.5 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-xl font-bold flex items-center gap-2 transition-all hover:shadow-md"
                       >
                         <X className="w-5 h-5" /> Reject
                       </button>
                       <button 
-                        onClick={() => handleAction(req.id, 'approved')}
+                        onClick={() => {
+                          setActiveRequest(req);
+                          setAcceptModalOpen(true);
+                        }}
                         className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5"
                       >
                         <Check className="w-5 h-5" /> Accept
@@ -252,7 +267,12 @@ const HostPortal = () => {
 
                     <div>
                       <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Company / Organization</label>
-                      <input type="text" value={inviteData.company} onChange={(e) => setInviteData({...inviteData, company: e.target.value})} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-hct-blue outline-none shadow-sm" placeholder="Tech Corp" />
+                      <select value={inviteData.company} onChange={(e) => setInviteData({...inviteData, company: e.target.value})} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-hct-blue outline-none shadow-sm">
+                        <option value="">Select Company</option>
+                        {["Tech Solutions LLC", "Global Services", "Ministry of Education", "ABC Cleaning Services", "Al Futtaim Group", "Independent Contractor"].map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
                     </div>
 
                     <div className="md:col-span-2 grid grid-cols-3 gap-4">
@@ -341,7 +361,7 @@ const HostPortal = () => {
               {/* Fake Email Browser Bar */}
               <div className="bg-slate-100 border-b border-slate-200 p-3 flex items-center gap-3">
                 <div className="flex gap-1.5"><div className="w-3 h-3 rounded-full bg-red-400"></div><div className="w-3 h-3 rounded-full bg-amber-400"></div><div className="w-3 h-3 rounded-full bg-green-400"></div></div>
-                <div className="bg-white rounded border border-slate-200 text-xs px-3 py-1 flex-1 text-slate-500 text-center font-medium">mail.example.com/inbox/{inviteData.visitorEmail}</div>
+                <div className="bg-white rounded border border-slate-200 text-xs px-3 py-1 flex-1 text-slate-500 text-center font-medium">mail.example.com/inbox/{emailType === 'invite' ? inviteData.visitorEmail : 'visitor@example.com'}</div>
               </div>
               
               {/* Email Content */}
@@ -349,7 +369,7 @@ const HostPortal = () => {
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
                   <div className="flex justify-between items-start mb-8">
                     <div>
-                      <h1 className="text-2xl font-bold text-slate-800 mb-2">Visitor Invitation to HCT</h1>
+                      <h1 className="text-2xl font-bold text-slate-800 mb-2">{emailType === 'invite' ? 'Visitor Invitation to HCT' : 'Your Visitor Request Has Been Approved'}</h1>
                       <div className="flex items-center gap-2 text-sm text-slate-500">
                         <Mail className="w-4 h-4" /> From: noreply@hct.ac.ae
                       </div>
@@ -358,29 +378,102 @@ const HostPortal = () => {
                   </div>
                   
                   <div className="prose prose-slate max-w-none text-slate-700">
-                    <p>Dear <strong>{inviteData.visitorName}</strong>,</p>
-                    <p>You have been invited to visit <strong>{inviteData.campus}</strong> by <strong>{hostDetails.hostName}</strong>.</p>
+                    <p>Dear <strong>{emailType === 'invite' ? inviteData.visitorName : activeRequest?.name}</strong>,</p>
                     
-                    <div className="bg-slate-50 rounded-lg p-5 border border-slate-100 my-6">
-                      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mt-0 mb-3">Visit Details</h3>
-                      <p className="mb-2"><strong>Date:</strong> {inviteData.visitDate}</p>
-                      <p className="mb-2"><strong>Time:</strong> {inviteData.arrivalTime}</p>
-                      <p className="mb-2"><strong>Campus:</strong> {inviteData.campus}</p>
-                      <p className="mb-0"><strong>Purpose:</strong> {inviteData.purpose || 'General Visit'}</p>
-                    </div>
-
-                    <p>To access the campus, you must complete your visitor registration by providing your ID document and vehicle details prior to arrival.</p>
-                    
-                    <div className="mt-8 text-center">
-                      <button onClick={completeRegistration} className="bg-hct-blue text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:bg-blue-800 transition-all hover:scale-105 inline-block">
-                        Complete Visitor Registration
-                      </button>
-                      <p className="text-xs text-slate-400 mt-4">Visit ID: {generatedRequestId}</p>
-                    </div>
+                    {emailType === 'invite' ? (
+                      <>
+                        <p>You have been invited to visit <strong>{inviteData.campus}</strong> by <strong>{hostDetails.hostName}</strong>.</p>
+                        <div className="bg-slate-50 rounded-lg p-5 border border-slate-100 my-6">
+                          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mt-0 mb-3">Visit Details</h3>
+                          <p className="mb-2"><strong>Date:</strong> {inviteData.visitDate}</p>
+                          <p className="mb-2"><strong>Time:</strong> {inviteData.arrivalTime}</p>
+                          <p className="mb-2"><strong>Campus:</strong> {inviteData.campus}</p>
+                          <p className="mb-0"><strong>Purpose:</strong> {inviteData.purpose || 'General Visit'}</p>
+                        </div>
+                        <p>To access the campus, you must complete your visitor registration by providing your ID document and vehicle details prior to arrival.</p>
+                        <div className="mt-8 text-center">
+                          <button onClick={completeRegistration} className="bg-hct-blue text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:bg-blue-800 transition-all hover:scale-105 inline-block">
+                            Complete Visitor Registration
+                          </button>
+                          <p className="text-xs text-slate-400 mt-4">Visit ID: {generatedRequestId}</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p>Your visitor request has been approved by the Host.</p>
+                        <div className="bg-slate-50 rounded-lg p-5 border border-slate-100 my-6">
+                          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mt-0 mb-3">Visit Details</h3>
+                          <p className="mb-2"><strong>Host:</strong> {hostDetails.hostName}</p>
+                          <p className="mb-2"><strong>Campus:</strong> HCT Campus</p>
+                          <p className="mb-2"><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
+                          <p className="mb-0"><strong>Pass ID:</strong> {generatedRequestId}</p>
+                        </div>
+                        <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100 text-center flex flex-col items-center">
+                          <p className="font-bold text-emerald-800 mb-4">Please present this QR code to security upon arrival.</p>
+                          <div className="w-40 h-40 bg-white border border-slate-200 rounded-lg flex items-center justify-center p-2 shadow-sm mb-4">
+                             <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${generatedRequestId}`} alt="QR Code" className="w-full h-full" />
+                          </div>
+                          <div className="flex gap-4 w-full justify-center">
+                            <button onClick={() => setShowEmailSimulation(false)} className="bg-white border border-slate-200 text-slate-700 px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-slate-50 transition-colors">Close</button>
+                            <button className="bg-emerald-500 text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-emerald-600 transition-colors">Download Pass</button>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Accept & Reject Modals */}
+      <AnimatePresence>
+        {acceptModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[150] p-4">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl p-8 max-w-md w-full border border-slate-200 dark:border-slate-800">
+               <h3 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">Approve Visitor Request?</h3>
+               <p className="text-slate-600 dark:text-slate-400 mb-8">Are you sure you want to approve this visitor request for <strong className="text-slate-800 dark:text-white">{activeRequest?.name}</strong>?</p>
+               <div className="flex justify-end gap-4">
+                 <button onClick={() => setAcceptModalOpen(false)} className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700">Cancel</button>
+                 <button onClick={() => {
+                    handleAction(activeRequest?.id, 'approved');
+                    setAcceptModalOpen(false);
+                    setGeneratedRequestId(`VP-2026-${Math.floor(Math.random() * 900) + 100}`);
+                    setEmailType('approved');
+                    setTimeout(() => setShowEmailSimulation(true), 500);
+                 }} className="px-6 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-md">Approve Request</button>
+               </div>
+             </motion.div>
+          </div>
+        )}
+        
+        {rejectModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[150] p-4">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl p-8 max-w-md w-full border border-slate-200 dark:border-slate-800">
+               <h3 className="text-2xl font-bold mb-4 text-slate-800 dark:text-white">Reject Visitor Request</h3>
+               <div className="mb-6">
+                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Rejection Reason *</label>
+                 <textarea 
+                   value={rejectionReason} 
+                   onChange={(e) => setRejectionReason(e.target.value)} 
+                   className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-hct-blue outline-none resize-none h-32 text-slate-800 dark:text-slate-200" 
+                   placeholder="E.g., Requested visit time is outside the permitted schedule."
+                 />
+                 {rejectionReason.trim() === '' && (
+                   <p className="text-red-500 text-xs font-bold mt-2">Rejection reason is required.</p>
+                 )}
+               </div>
+               <div className="flex justify-end gap-4">
+                 <button onClick={() => setRejectModalOpen(false)} className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700">Cancel</button>
+                 <button onClick={() => {
+                    if (rejectionReason.trim() === '') return;
+                    handleAction(activeRequest?.id, 'rejected');
+                    setRejectModalOpen(false);
+                 }} disabled={rejectionReason.trim() === ''} className="px-6 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Confirm Rejection</button>
+               </div>
+             </motion.div>
           </div>
         )}
       </AnimatePresence>

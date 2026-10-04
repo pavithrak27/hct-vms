@@ -1,29 +1,10 @@
 import React, { useState } from 'react';
 import { FileSignature, Search, ShieldCheck, CheckCircle2, ArrowRight, AlertCircle, Edit3, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useContractor } from '../../context/ContractorContext';
 
 const PassApprovals = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: 'CPR-2026-0002',
-      company: 'Tech Solutions LLC',
-      contractId: 'CON-2026-101',
-      contractNumber: 'CT-2025-9981',
-      employees: [
-        { name: 'John Smith', id: 'EMP-CT-2026-001', nationality: 'UK', status: 'Approved' },
-        { name: 'Ravi Kumar', id: 'EMP-CT-2026-002', nationality: 'India', status: 'Approved' }
-      ],
-      requestedStart: '2026-11-05 08:00',
-      requestedEnd: '2026-11-10 18:00',
-      modifiedStart: null,
-      modifiedEnd: null,
-      hseCompleted: true,
-      declaration: true,
-      submissionDate: '2026-10-04 09:15 AM',
-      approvalLevel: 1,
-      status: 'Pending Level 1 Approval'
-    }
-  ]);
+  const { passRequests: requests, updatePassRequest, approvePassRequest, approvalHierarchyLevels } = useContractor();
 
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedReq, setSelectedReq] = useState(null);
@@ -34,6 +15,7 @@ const PassApprovals = () => {
   const [editPeriod, setEditPeriod] = useState({ start: '', end: '' });
 
   const [showSuccessSim, setShowSuccessSim] = useState(false);
+  const [finalDurationConfirmed, setFinalDurationConfirmed] = useState(false);
 
   const filteredRequests = requests.filter(r => 
     activeTab === 'pending' ? r.status.includes('Pending') : r.status === 'Approved' || r.status === 'Rejected'
@@ -41,33 +23,20 @@ const PassApprovals = () => {
 
   const openReq = (req) => {
     setSelectedReq(req);
-    setEditPeriod({ start: req.modifiedStart || req.requestedStart, end: req.modifiedEnd || req.requestedEnd });
+    setEditPeriod({ start: req.modifiedStart || req.start, end: req.modifiedEnd || req.end });
     setIsEditingPeriod(false);
+    setFinalDurationConfirmed(false);
   };
 
   const saveEditPeriod = () => {
-    setRequests(requests.map(r => r.id === selectedReq.id ? { ...r, modifiedStart: editPeriod.start, modifiedEnd: editPeriod.end } : r));
+    updatePassRequest(selectedReq.id, editPeriod.start, editPeriod.end);
     setSelectedReq({ ...selectedReq, modifiedStart: editPeriod.start, modifiedEnd: editPeriod.end });
     setIsEditingPeriod(false);
   };
 
   const handleApprove = (req) => {
-    let newStatus = '';
-    let newLevel = req.approvalLevel;
-    let isFinal = false;
-
-    if (req.approvalLevel === 1) {
-      newStatus = 'Pending Level 2 Approval';
-      newLevel = 2;
-    } else if (req.approvalLevel === 2) {
-      newStatus = 'Pending Final Approval';
-      newLevel = 3;
-    } else {
-      newStatus = 'Approved';
-      isFinal = true;
-    }
-
-    setRequests(requests.map(r => r.id === req.id ? { ...r, status: newStatus, approvalLevel: newLevel } : r));
+    const isFinal = req.approvalLevel === approvalHierarchyLevels;
+    approvePassRequest(req.id, isFinal);
     setSelectedReq(null);
 
     if (isFinal) {
@@ -77,7 +46,7 @@ const PassApprovals = () => {
 
   const handleReject = () => {
     if (!rejectionReason.trim()) { alert("Rejection reason is mandatory."); return; }
-    setRequests(requests.map(r => r.id === selectedReq.id ? { ...r, status: 'Rejected', rejectionReason } : r));
+    approvePassRequest(selectedReq.id, false, rejectionReason);
     setShowRejectModal(false);
     setSelectedReq(null);
     setRejectionReason('');
@@ -110,7 +79,7 @@ const PassApprovals = () => {
                   <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center"><FileSignature className="w-6 h-6" /></div>
                   <div>
                     <h4 className="font-bold text-lg">{req.id} • {req.company}</h4>
-                    <p className="text-sm text-slate-500">{req.employees.length} Employees • {req.requestedStart} to {req.requestedEnd}</p>
+                    <p className="text-sm text-slate-500">{Array.isArray(req.employees) ? req.employees.length : 1} Employees • {req.start} to {req.end}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -169,7 +138,7 @@ const PassApprovals = () => {
                    </div>
                  ) : (
                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center gap-8">
-                     <div><p className="text-xs font-bold text-slate-500 uppercase">Requested Duration</p><p className={`font-bold text-base ${selectedReq.modifiedStart ? 'line-through text-slate-400' : 'text-slate-800'}`}>{selectedReq.requestedStart} <ArrowRight className="inline w-3 h-3"/> {selectedReq.requestedEnd}</p></div>
+                     <div><p className="text-xs font-bold text-slate-500 uppercase">Requested Duration</p><p className={`font-bold text-base ${selectedReq.modifiedStart ? 'line-through text-slate-400' : 'text-slate-800'}`}>{selectedReq.start} <ArrowRight className="inline w-3 h-3"/> {selectedReq.end}</p></div>
                      {selectedReq.modifiedStart && (
                        <div><p className="text-xs font-bold text-blue-600 uppercase">Approved/Modified Duration</p><p className="font-bold text-base text-blue-700">{selectedReq.modifiedStart} <ArrowRight className="inline w-3 h-3"/> {selectedReq.modifiedEnd}</p></div>
                      )}
@@ -178,21 +147,39 @@ const PassApprovals = () => {
                </div>
 
                <div className="mb-8">
-                 <h4 className="font-bold text-lg text-slate-800 mb-4">Selected Employees ({selectedReq.employees.length})</h4>
+                 <h4 className="font-bold text-lg text-slate-800 mb-4">Selected Employees ({Array.isArray(selectedReq.employees) ? selectedReq.employees.length : 1})</h4>
                  <div className="border border-slate-200 rounded-xl overflow-hidden">
                    <table className="w-full text-left text-sm">
-                     <thead className="bg-slate-50 border-b"><tr><th className="p-3">Name</th><th className="p-3">ID</th><th className="p-3">Status</th></tr></thead>
-                     <tbody>{selectedReq.employees.map(e => <tr key={e.id} className="border-b last:border-b-0"><td className="p-3 font-bold">{e.name}</td><td className="p-3">{e.id}</td><td className="p-3 text-emerald-600 font-bold">{e.status}</td></tr>)}</tbody>
+                     <thead className="bg-slate-50 border-b"><tr><th className="p-3">Employee ID</th><th className="p-3">Status</th></tr></thead>
+                     <tbody>
+                       {Array.isArray(selectedReq.employees) ? selectedReq.employees.map((e, idx) => (
+                         <tr key={idx} className="border-b last:border-b-0"><td className="p-3 font-bold">{e}</td><td className="p-3 text-emerald-600 font-bold">Approved</td></tr>
+                       )) : (
+                         <tr className="border-b"><td className="p-3 font-bold text-red-500">Error: Invalid employee data</td><td className="p-3"></td></tr>
+                       )}
+                     </tbody>
                    </table>
                  </div>
                </div>
 
                {selectedReq.status.includes('Pending') && (
-                 <div className="flex justify-end gap-4 border-t pt-6 bg-slate-50 -mx-8 -mb-8 p-6 rounded-b-[24px]">
-                   <button onClick={() => setShowRejectModal(true)} className="px-6 py-3 bg-white text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-50">Reject Request</button>
-                   <button onClick={() => handleApprove(selectedReq)} className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-500/30">
-                     {selectedReq.approvalLevel === 3 ? 'Confirm Final Approval' : 'Approve & Forward'}
-                   </button>
+                 <div className="flex flex-col border-t pt-6 bg-slate-50 -mx-8 -mb-8 p-6 rounded-b-[24px]">
+                   {selectedReq.approvalLevel === approvalHierarchyLevels && (
+                     <label className="flex items-center gap-3 mb-4 p-4 border border-blue-200 bg-blue-50 rounded-xl cursor-pointer">
+                       <input type="checkbox" checked={finalDurationConfirmed} onChange={() => setFinalDurationConfirmed(!finalDurationConfirmed)} className="w-5 h-5" />
+                       <span className="font-bold text-blue-900">I confirm the final approved visit duration is correct.</span>
+                     </label>
+                   )}
+                   <div className="flex justify-end gap-4">
+                     <button onClick={() => setShowRejectModal(true)} className="px-6 py-3 bg-white text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-50">Reject Request</button>
+                     <button 
+                       onClick={() => handleApprove(selectedReq)} 
+                       disabled={selectedReq.approvalLevel === approvalHierarchyLevels && !finalDurationConfirmed}
+                       className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                     >
+                       {selectedReq.approvalLevel === approvalHierarchyLevels ? 'Confirm & Final Approve' : 'Approve & Forward'}
+                     </button>
+                   </div>
                  </div>
                )}
             </motion.div>

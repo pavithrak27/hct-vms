@@ -6,6 +6,7 @@ import { RoleProvider } from './context/RoleContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { CampusProvider } from './context/CampusContext.jsx'
 import { CheckInProvider } from './context/CheckInContext.jsx'
+import { ContractorProvider } from './context/ContractorContext.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -14,9 +15,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ThemeProvider>
         <CampusProvider>
           <RoleProvider>
-            <CheckInProvider>
-              <App />
-            </CheckInProvider>
+            <ContractorProvider>
+              <CheckInProvider>
+                <App />
+              </CheckInProvider>
+            </ContractorProvider>
           </RoleProvider>
         </CampusProvider>
       </ThemeProvider>

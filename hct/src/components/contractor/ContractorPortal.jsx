@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Building2, Users, FileSignature, CheckCircle2, UploadCloud, Camera, Search, UserPlus, Trash2, ArrowRight, Video, FileText, CheckSquare, Plus, AlertCircle, Clock, ShieldCheck, QrCode, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PassViewer from './PassViewer';
+import { useContractor } from '../../context/ContractorContext';
 
 const ContractorPortal = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const { tab } = useParams();
+  const navigate = useNavigate();
+  const activeTab = tab || 'dashboard';
   
   const companyInfo = {
     name: 'Tech Solutions LLC',
@@ -16,15 +20,7 @@ const ContractorPortal = () => {
     gatePassValidity: '2026-11-01 to 2027-10-31'
   };
 
-  const [employees, setEmployees] = useState([
-    { id: 'EMP-CT-2026-001', name: 'John Smith', nationality: 'UK', mobile: '+971501234567', jobTitle: 'Site Engineer', status: 'Approved', docExpiry: '2027-12-31' },
-    { id: 'EMP-CT-2026-002', name: 'Ravi Kumar', nationality: 'India', mobile: '+971509876543', jobTitle: 'Technician', status: 'Approved', docExpiry: '2027-05-15' },
-    { id: 'EMP-CT-2026-003', name: 'Alex Johnson', nationality: 'Canada', mobile: '+971551122334', jobTitle: 'Safety Officer', status: 'Rejected', rejectionReason: 'Passport copy unclear' }
-  ]);
-
-  const [passRequests, setPassRequests] = useState([
-    { id: 'CPR-2026-0001', employees: 2, start: '2026-11-05 08:00', end: '2026-11-10 18:00', status: 'Approved', submissionDate: '2026-10-01' }
-  ]);
+  const { employees, addEmployee, passRequests, addPassRequest, generatedPasses } = useContractor();
 
   // Add Employee State
   const [addStep, setAddStep] = useState(1);
@@ -41,15 +37,19 @@ const ContractorPortal = () => {
   const [declaration, setDeclaration] = useState(false);
   const [signature, setSignature] = useState('');
 
-  const [showPassViewer, setShowPassViewer] = useState(false);
+  const [selectedPass, setSelectedPass] = useState(null);
 
   const submitEmployee = () => {
-    setEmployees([{
+    addEmployee({
       id: `EMP-CT-2026-${Math.floor(Math.random() * 900) + 100}`,
       ...empForm,
-      status: 'Pending Approval'
-    }, ...employees]);
-    setActiveTab('employees');
+      company: companyInfo.name,
+      status: 'Pending Approval',
+      photo: 'https://i.pravatar.cc/300?img=' + (Math.floor(Math.random() * 70) + 1),
+      document: 'Uploaded_Doc.pdf',
+      submissionDate: new Date().toISOString().split('T')[0]
+    });
+    navigate('/contractor/employees');
     setAddStep(1);
     setEmpForm({ name: '', nationality: '', mobile: '', jobTitle: '', docExpiry: '' });
   };
@@ -91,13 +91,17 @@ const ContractorPortal = () => {
   const submitPassRequest = () => {
     const newReq = {
       id: `CPR-2026-${Math.floor(Math.random() * 900) + 100}`,
-      employees: selectedEmps.length,
+      company: companyInfo.name,
+      contractId: companyInfo.id,
+      contractNumber: companyInfo.contractNumber,
+      employees: selectedEmps, // array of IDs
       start: `${visitPeriod.startDate} ${visitPeriod.startTime}`,
       end: `${visitPeriod.endDate} ${visitPeriod.endTime}`,
-      status: 'Pending Approval',
+      status: 'Pending Level 1 Approval',
+      approvalLevel: 1,
       submissionDate: new Date().toISOString().split('T')[0]
     };
-    setPassRequests([newReq, ...passRequests]);
+    addPassRequest(newReq);
     setPassStep(5); // Success screen
   };
 
@@ -114,24 +118,6 @@ const ContractorPortal = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
-        <div className="w-full lg:w-64 shrink-0">
-          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 p-2 space-y-2">
-             <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all font-bold ${activeTab === 'dashboard' ? 'bg-hct-blue text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>
-               <Building2 className="w-5 h-5" /> Dashboard
-             </button>
-             <button onClick={() => setActiveTab('employees')} className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all font-bold ${activeTab === 'employees' ? 'bg-hct-blue text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>
-               <Users className="w-5 h-5" /> My Employees
-             </button>
-             <button onClick={() => {setActiveTab('add-employee'); setAddStep(1);}} className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all font-bold ${activeTab === 'add-employee' ? 'bg-hct-blue text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>
-               <UserPlus className="w-5 h-5" /> Add Employee
-             </button>
-             <button onClick={() => {setActiveTab('passes'); setPassStep(0);}} className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all font-bold ${activeTab === 'passes' ? 'bg-hct-blue text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>
-               <FileSignature className="w-5 h-5" /> Pass Requests
-             </button>
-          </div>
-        </div>
-
         {/* Main Content */}
         <div className="flex-1 bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 p-8 min-h-[600px]">
           
@@ -294,14 +280,14 @@ const ContractorPortal = () => {
                         {passRequests.map(req => (
                           <tr key={req.id} className="hover:bg-slate-50">
                             <td className="p-4 font-bold">{req.id}<div className="text-xs text-slate-500 font-normal">Sub: {req.submissionDate}</div></td>
-                            <td className="p-4 font-medium">{req.employees} Staff</td>
+                            <td className="p-4 font-medium">{req.employees.length} Staff</td>
                             <td className="p-4"><p className="text-xs">{req.start}</p><p className="text-xs">{req.end}</p></td>
                             <td className="p-4"><span className={`px-3 py-1 rounded-full text-xs font-bold ${req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{req.status}</span></td>
                             <td className="p-4 text-right">
                               {req.status === 'Approved' ? (
-                                <button onClick={() => setShowPassViewer(true)} className="text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 flex items-center gap-1 ml-auto hover:bg-emerald-100"><QrCode className="w-4 h-4"/> View Passes</button>
+                                <button className="text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">Approved</button>
                               ) : (
-                                <button className="text-slate-600 font-bold bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-200">View</button>
+                                <button className="text-slate-600 font-bold bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">Pending</button>
                               )}
                             </td>
                           </tr>
@@ -482,8 +468,40 @@ const ContractorPortal = () => {
                    <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Pass Request Submitted!</h3>
                    <p className="text-slate-500 max-w-md mx-auto mb-6">Your pass request has been successfully submitted for {selectedEmps.length} employees and is pending approval.</p>
                    <p className="text-2xl font-bold text-hct-blue mb-8">{passRequests[0].id}</p>
-                   <button onClick={() => {setPassStep(0); setActiveTab('passes');}} className="px-8 py-3 bg-slate-100 rounded-xl font-bold hover:bg-slate-200">Return to Requests</button>
+                   <button onClick={() => {setPassStep(0); navigate('/contractor/passes');}} className="px-8 py-3 bg-slate-100 rounded-xl font-bold hover:bg-slate-200">Return to Requests</button>
                  </div>
+              )}
+            </div>
+          )}
+          
+          {/* GENERATED PASSES TAB */}
+          {activeTab === 'generated-passes' && (
+            <div className="animate-in fade-in space-y-6">
+              <h3 className="text-xl font-bold border-b pb-4">Generated QR Passes</h3>
+              {generatedPasses.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">No passes have been generated yet.</div>
+              ) : (
+                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-500">
+                      <tr><th className="p-4 font-bold uppercase">Employee</th><th className="p-4 font-bold uppercase">Pass ID</th><th className="p-4 font-bold uppercase">Valid From</th><th className="p-4 font-bold uppercase">Valid To</th><th className="p-4 font-bold uppercase">Status</th><th className="p-4 font-bold uppercase text-right">Action</th></tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {generatedPasses.map(pass => (
+                        <tr key={pass.passId} className="hover:bg-slate-50">
+                          <td className="p-4 font-bold">{pass.empName}</td>
+                          <td className="p-4">{pass.passId}</td>
+                          <td className="p-4">{pass.validFrom}</td>
+                          <td className="p-4">{pass.validTo}</td>
+                          <td className="p-4"><span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">{pass.status}</span></td>
+                          <td className="p-4 text-right">
+                            <button onClick={() => setSelectedPass(pass)} className="text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-100"><QrCode className="w-4 h-4 inline mr-1"/> View Pass</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}
@@ -492,7 +510,7 @@ const ContractorPortal = () => {
       </div>
       
       <AnimatePresence>
-        {showPassViewer && <PassViewer onClose={() => setShowPassViewer(false)} />}
+        {selectedPass && <PassViewer pass={selectedPass} onClose={() => setSelectedPass(null)} />}
       </AnimatePresence>
     </motion.div>
   );

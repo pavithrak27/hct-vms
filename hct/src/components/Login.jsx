@@ -26,6 +26,7 @@ const Login = () => {
       else if (eLower.includes('host')) roleToLog = 'host';
       else if (eLower.includes('security')) roleToLog = 'security';
       else if (eLower.includes('reception')) roleToLog = 'reception';
+      else if (eLower.includes('contractor')) roleToLog = 'contractor';
     }
     
     // Simulate AD / SAML Flow
@@ -49,7 +50,7 @@ const Login = () => {
         else if (roleToLog === 'campusadmin') navigate('/');
         else if (roleToLog === 'host') navigate('/host');
         else if (roleToLog === 'security') navigate('/check-in-out');
-        else if (roleToLog === 'reception') navigate('/visitors');
+        else if (roleToLog === 'reception') navigate('/visitor');
         else if (roleToLog === 'contractor') navigate('/contractor');
         else navigate('/');
 

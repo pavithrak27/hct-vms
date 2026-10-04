@@ -39,6 +39,10 @@ export const roles = [
   { 
     id: 'reception', label: 'Reception', portals: ['dashboard', 'visitor'],
     defaultPermissions: ['create_visitor', 'manual_checkin', 'view_active_visits'], defaultCampuses: ['CMP-01']
+  },
+  {
+    id: 'contractor', label: 'Contractor', portals: ['contractor'],
+    defaultPermissions: ['view_employees', 'create_pass_request'], defaultCampuses: ['ALL']
   }
 ];
 

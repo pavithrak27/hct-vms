@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Building2, CheckCircle2, XCircle, FileText, Search, ShieldAlert, Calendar, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useRole } from '../../context/RoleContext';
 
 const ContractorApprovals = () => {
+  const navigate = useNavigate();
+  const { logout } = useRole();
   const [requests, setRequests] = useState([
     {
       id: 'CON-2026-101',
@@ -214,7 +218,10 @@ const ContractorApprovals = () => {
                     <p><strong>Contractor ID:</strong> CON-2026-101</p>
                   </div>
                   <p className="text-red-500 font-bold mb-6">You will be required to change this temporary password upon first login.</p>
-                  <button onClick={() => setShowEmailSim(false)} className="bg-hct-blue text-white px-6 py-2 rounded-lg font-bold w-full">Close Simulation</button>
+                  <div className="flex gap-4">
+                    <button onClick={() => setShowEmailSim(false)} className="bg-slate-200 text-slate-800 px-6 py-2 rounded-lg font-bold flex-1 hover:bg-slate-300 transition-colors">Close Simulation</button>
+                    <button onClick={() => { setShowEmailSim(false); logout(); navigate('/login'); }} className="bg-hct-blue text-white px-6 py-2 rounded-lg font-bold flex-1 hover:bg-blue-700 transition-colors">Proceed to Contractor Login</button>
+                  </div>
                 </div>
               </div>
             </motion.div>

@@ -263,7 +263,12 @@ const VisitorPortal = () => {
                 </div>
                 <div>
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Company / Organization</label>
-                  <input type="text" value={visitors[0].company} onChange={(e) => handleVisitorChange(0, 'company', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
+                  <select value={visitors[0].company} onChange={(e) => handleVisitorChange(0, 'company', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
+                    <option value="">Select Company</option>
+                    {["Tech Solutions LLC", "Global Services", "Ministry of Education", "ABC Cleaning Services", "Al Futtaim Group", "Independent Contractor"].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -272,9 +277,17 @@ const VisitorPortal = () => {
                 <div>
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Host *</label>
                   <div className="relative">
-                    {!isPreScheduled && <Search className="absolute left-3 top-3.5 w-5 h-5 text-slate-400" />}
                     {isPreScheduled && <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />}
-                    <input type="text" placeholder="Search by name..." value={hostDetails.hostName} readOnly={isPreScheduled} onChange={(e) => setHostDetails({...hostDetails, hostName: e.target.value})} className={`w-full pl-10 p-3 rounded-xl border border-slate-300 dark:border-slate-700 outline-none ${isPreScheduled ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue'}`} />
+                    {isPreScheduled ? (
+                      <input type="text" value={hostDetails.hostName} readOnly className="w-full pl-10 p-3 rounded-xl border border-slate-300 dark:border-slate-700 outline-none bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" />
+                    ) : (
+                      <select value={hostDetails.hostName} onChange={(e) => setHostDetails({...hostDetails, hostName: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
+                        <option value="">Select a Host</option>
+                        {["Dr. Ahmed", "Jane Doe", "Prof. Tariq", "Sarah Parker", "Michael Chang", "Facilities Dept"].map(h => (
+                          <option key={h} value={h}>{h}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                   {isPreScheduled && <p className="text-xs text-slate-500 mt-1">Host assignment is locked by invitation.</p>}
                 </div>
@@ -282,7 +295,16 @@ const VisitorPortal = () => {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Campus / Location</label>
                   <div className="relative">
                      {isPreScheduled && <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />}
-                     <input type="text" value={hostDetails.campus || hostDetails.department} readOnly={isPreScheduled} onChange={(e) => setHostDetails({...hostDetails, department: e.target.value})} className={`w-full ${isPreScheduled ? 'pl-10' : ''} p-3 rounded-xl border border-slate-300 dark:border-slate-700 outline-none ${isPreScheduled ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue'}`} />
+                     {isPreScheduled ? (
+                       <input type="text" value={hostDetails.department || ''} readOnly className="w-full pl-10 p-3 rounded-xl border border-slate-300 dark:border-slate-700 outline-none bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" />
+                     ) : (
+                       <select value={hostDetails.department || ''} onChange={(e) => setHostDetails({...hostDetails, department: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
+                         <option value="">Select Campus</option>
+                         {["Abu Dhabi Men's Campus", "Abu Dhabi Women's Campus", "Dubai Men's Campus", "Dubai Women's Campus", "Sharjah Men's Campus", "Sharjah Women's Campus"].map(camp => (
+                           <option key={camp} value={camp}>{camp}</option>
+                         ))}
+                       </select>
+                     )}
                   </div>
                 </div>
                 
@@ -397,20 +419,7 @@ const VisitorPortal = () => {
                     <label className="text-sm font-bold mb-1 block">Vehicle Number *</label>
                     <input type="text" placeholder="e.g. Dubai A 12345" value={vehicleDetails.vehicleNumber} onChange={(e) => setVehicleDetails({...vehicleDetails, vehicleNumber: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none uppercase font-mono text-lg tracking-wider" />
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-sm font-bold mb-1 block">Type</label>
-                      <input type="text" value={vehicleDetails.vehicleType} onChange={(e) => setVehicleDetails({...vehicleDetails, vehicleType: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" placeholder="SUV, Sedan" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-bold mb-1 block">Make/Model</label>
-                      <input type="text" value={vehicleDetails.vehicleMake} onChange={(e) => setVehicleDetails({...vehicleDetails, vehicleMake: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" placeholder="Toyota" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-bold mb-1 block">Color</label>
-                      <input type="text" value={vehicleDetails.vehicleColor} onChange={(e) => setVehicleDetails({...vehicleDetails, vehicleColor: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" placeholder="White" />
-                    </div>
-                  </div>
+
                   {vehicleDetails.vehicleNumber && (
                     <div className="mt-4 flex items-center gap-2 text-sm font-bold text-emerald-600 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
                       <Shield className="w-5 h-5" /> Vehicle number linked to ANPR system for automated gate access.
@@ -547,29 +556,40 @@ const VisitorPortal = () => {
             </div>
           )}
 
-          {/* STEP 8: Success & Host Action Mock */}
+          {/* STEP 8: Success */}
           {step === 8 && (
             <div className="text-center space-y-8 max-w-2xl mx-auto py-8">
               {hostAction === 'pending' && (
                 <div className="animate-pulse">
                   <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6"><ClockIcon className="w-10 h-10 text-amber-500" /></div>
                   <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Registration Submitted Successfully</h3>
-                  <p className="text-lg text-slate-500">Waiting for host approval...</p>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 mt-6 text-left max-w-md mx-auto">
+                    <p className="mb-2"><strong className="text-slate-500">Visit Request ID:</strong> <span className="font-bold text-slate-800 dark:text-white">{visitRequestId}</span></p>
+                    <p className="mb-4"><strong className="text-slate-500">Status:</strong> <span className="font-bold text-amber-600">Pending Host Approval</span></p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Your visit request has been submitted successfully. The selected Host has been notified and will review your request.</p>
+                  </div>
                 </div>
               )}
               {hostAction === 'approved' && (
                 <div>
                   <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-12 h-12 text-emerald-500" /></div>
                   <h3 className="text-3xl font-bold text-emerald-600 mb-2">Visit Approved</h3>
-                  <p className="text-lg text-slate-500 mb-6">QR Visitor Pass has been generated and emailed.</p>
+                  <p className="text-lg text-slate-500 mb-6">Your visit request has been approved.</p>
                   <div className="bg-white p-6 rounded-2xl border shadow-lg max-w-sm mx-auto">
-                    <div className="border-b pb-4 mb-4 text-left">
-                       <p className="font-bold">Visitor Pass</p>
-                       <p className="text-sm text-slate-500">VR-2026-00125</p>
+                    <div className="border-b pb-4 mb-4 text-left flex justify-between items-center">
+                       <div>
+                         <p className="font-bold">Visitor Pass</p>
+                         <p className="text-sm text-slate-500">VP-{visitRequestId?.split('-')[1]}-{visitRequestId?.split('-')[2]}</p>
+                       </div>
+                       <button className="text-hct-blue text-xs font-bold px-3 py-1 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">Download</button>
                     </div>
                     <QrCode className="w-48 h-48 mx-auto text-slate-800" />
-                    <p className="font-bold mt-4 text-lg">{visitors[0].fullName}</p>
-                    <p className="text-sm text-slate-500">Host: {hostDetails.hostName}</p>
+                    <div className="mt-4 text-left text-sm space-y-1">
+                      <p className="font-bold text-lg mb-2 text-center">{visitors[0].fullName}</p>
+                      <p className="grid grid-cols-3 gap-2"><span className="text-slate-500">Host:</span> <span className="col-span-2 font-medium">{hostDetails.hostName}</span></p>
+                      <p className="grid grid-cols-3 gap-2"><span className="text-slate-500">Campus:</span> <span className="col-span-2 font-medium">{hostDetails.campus || hostDetails.department || '-'}</span></p>
+                      <p className="grid grid-cols-3 gap-2"><span className="text-slate-500">Date:</span> <span className="col-span-2 font-medium">{hostDetails.visitDate || 'Today'}</span></p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -577,26 +597,10 @@ const VisitorPortal = () => {
                 <div>
                   <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6"><ShieldAlert className="w-12 h-12 text-red-500" /></div>
                   <h3 className="text-3xl font-bold text-red-600 mb-2">Visit Rejected</h3>
-                  <div className="bg-red-50 p-4 rounded-xl border border-red-200 mt-6 text-left">
-                    <p className="text-sm font-bold text-red-800 mb-1">Reason for Rejection:</p>
-                    <p className="text-red-700">{rejectionReason}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* DEMO CONTROLS - To simulate host action */}
-              {hostAction === 'pending' && (
-                <div className="mt-12 pt-8 border-t border-dashed border-slate-300">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Demo: Simulate Host Action</p>
-                  <div className="flex justify-center gap-4">
-                    <button onClick={() => setHostAction('approved')} className="bg-emerald-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-emerald-600 shadow-md">Accept Request</button>
-                    <button onClick={() => {
-                      const reason = prompt("Enter mandatory rejection reason:");
-                      if (reason) {
-                        setRejectionReason(reason);
-                        setHostAction('rejected');
-                      }
-                    }} className="bg-red-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-600 shadow-md">Reject Request</button>
+                  <p className="text-lg text-slate-500">Your visitor request has been rejected by the Host.</p>
+                  <div className="bg-red-50 p-6 rounded-xl border border-red-200 mt-6 text-left max-w-md mx-auto">
+                    <p className="text-sm text-red-800 mb-1 font-bold uppercase tracking-wider">Rejection Reason</p>
+                    <p className="text-red-700">{rejectionReason || 'No reason provided.'}</p>
                   </div>
                 </div>
               )}

@@ -1,36 +1,10 @@
 import React, { useState } from 'react';
 import { Users, CheckCircle2, XCircle, Search, ShieldAlert, FileText, ArrowRight, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useContractor } from '../../context/ContractorContext';
 
 const EmployeeApprovals = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: 'EMP-CT-2026-002',
-      name: 'Ravi Kumar',
-      nationality: 'India',
-      mobile: '+971509876543',
-      jobTitle: 'Technician',
-      company: 'Tech Solutions LLC',
-      contractId: 'CON-2026-101',
-      submissionDate: '2026-10-04 10:15 AM',
-      document: 'Passport_Copy_RKumar.pdf',
-      photo: 'https://i.pravatar.cc/300?img=11',
-      status: 'Pending Approval'
-    },
-    {
-      id: 'EMP-CT-2026-004',
-      name: 'Maria Garcia',
-      nationality: 'Philippines',
-      mobile: '+971502233445',
-      jobTitle: 'Cleaning Supervisor',
-      company: 'Global Facilities Mgt',
-      contractId: 'CON-2026-102',
-      submissionDate: '2026-10-04 11:20 AM',
-      document: 'EmiratesID_MGarcia.pdf',
-      photo: 'https://i.pravatar.cc/300?img=5',
-      status: 'Pending Approval'
-    }
-  ]);
+  const { employees: requests, approveEmployee, rejectEmployee } = useContractor();
 
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedReq, setSelectedReq] = useState(null);
@@ -42,7 +16,7 @@ const EmployeeApprovals = () => {
   );
 
   const handleApprove = () => {
-    setRequests(requests.map(r => r.id === selectedReq.id ? { ...r, status: 'Approved' } : r));
+    approveEmployee(selectedReq.id);
     setSelectedReq(null);
   };
 
@@ -51,7 +25,7 @@ const EmployeeApprovals = () => {
       alert("Rejection reason is mandatory.");
       return;
     }
-    setRequests(requests.map(r => r.id === selectedReq.id ? { ...r, status: 'Rejected', rejectionReason } : r));
+    rejectEmployee(selectedReq.id, rejectionReason);
     setShowRejectModal(false);
     setSelectedReq(null);
     setRejectionReason('');

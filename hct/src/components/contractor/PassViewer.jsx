@@ -2,46 +2,22 @@ import React from 'react';
 import { Download, Printer, QrCode, Shield, CheckCircle2, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const PassViewer = ({ onClose }) => {
-  // Simulated pass data based on the approved request
-  const passes = [
-    {
-      passId: 'PASS-00125',
-      company: 'Tech Solutions LLC',
-      contractId: 'CON-2026-101',
-      empName: 'John Smith',
-      empId: 'EMP-CT-2026-001',
-      photo: 'https://i.pravatar.cc/300?img=11',
-      validFrom: '10-Oct-2026 08:00 AM',
-      validTo: '13-Oct-2026 06:00 PM',
-    },
-    {
-      passId: 'PASS-00126',
-      company: 'Tech Solutions LLC',
-      contractId: 'CON-2026-101',
-      empName: 'Ravi Kumar',
-      empId: 'EMP-CT-2026-002',
-      photo: 'https://i.pravatar.cc/300?img=52',
-      validFrom: '10-Oct-2026 08:00 AM',
-      validTo: '13-Oct-2026 06:00 PM',
-    }
-  ];
+const PassViewer = ({ pass, onClose }) => {
+  if (!pass) return null;
 
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="fixed inset-0 bg-slate-100 dark:bg-slate-900 z-[100] overflow-y-auto">
       
       {/* Top Action Bar */}
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 sticky top-0 z-10 flex justify-between items-center shadow-sm">
-        <button onClick={onClose} className="flex items-center gap-2 font-bold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"><ChevronLeft className="w-5 h-5"/> Back to Portal</button>
+        <button onClick={onClose} className="flex items-center gap-2 font-bold text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"><ChevronLeft className="w-5 h-5"/> Back to Passes</button>
         <div className="flex gap-4">
-          <button className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-bold transition-colors"><Printer className="w-4 h-4"/> Print All</button>
-          <button className="flex items-center gap-2 bg-hct-blue hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors"><Download className="w-4 h-4"/> Download All (PDF)</button>
+          <button className="flex items-center gap-2 bg-hct-blue hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors"><Download className="w-4 h-4"/> Download Pass (PDF)</button>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto py-8 px-4 space-y-12">
-        {passes.map(pass => (
-          <div key={pass.passId} className="bg-white rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-slate-200 overflow-hidden relative print:shadow-none print:border-none print:m-0 print:p-0">
+          <div className="bg-white rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-slate-200 overflow-hidden relative print:shadow-none print:border-none print:m-0 print:p-0">
             
             {/* Pass Header */}
             <div className="bg-[#00249c] p-6 text-white flex justify-between items-center relative overflow-hidden">
@@ -105,7 +81,6 @@ const PassViewer = ({ onClose }) => {
             </div>
 
           </div>
-        ))}
       </div>
     </motion.div>
   );

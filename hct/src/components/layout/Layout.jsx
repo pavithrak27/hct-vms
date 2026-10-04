@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, LayoutDashboard, Users, UserCheck, Briefcase, BarChart3, ChevronDown, ChevronRight, Settings, Bell, Mail, MessageSquare, Smartphone, Sun, Moon, MapPin, LogOut, Plus, Building, Trash2, Menu, FileSignature, QrCode, CheckSquare, ScanLine, Clock, History, ShieldAlert, FileSearch, FileText, BookOpen, HardHat, FileSpreadsheet, Database, Building2, Sliders, ShieldCheck, Cpu, KeyRound, UserCog } from 'lucide-react';
+import { Shield, LayoutDashboard, Users, UserCheck, Briefcase, BarChart3, ChevronDown, ChevronRight, Settings, Bell, Mail, MessageSquare, Smartphone, Sun, Moon, MapPin, LogOut, Plus, Building, Trash2, Menu, FileSignature, QrCode, CheckSquare, ScanLine, Clock, History, ShieldAlert, FileSearch, FileText, BookOpen, HardHat, FileSpreadsheet, Database, Building2, Sliders, ShieldCheck, Cpu, KeyRound, UserCog, UserPlus } from 'lucide-react';
 import { useRole, CAMPUSES } from '../../context/RoleContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useCampus } from '../../context/CampusContext';
@@ -70,7 +70,12 @@ const Layout = () => {
     { id: 'security', name: 'Integrations', href: '/settings/integrations', icon: Cpu, isSubItem: true },
     { id: 'security', name: 'System Configuration', href: '/settings/system', icon: Sliders, isSubItem: true },
 
-    { id: 'contractor', name: 'Contractor Management', href: '/contractor', icon: Briefcase },
+    { id: 'contractor', name: 'Contractor Menu', href: '#', icon: Briefcase, isHeader: true },
+    { id: 'contractor', name: 'Dashboard', href: '/contractor', icon: LayoutDashboard, isSubItem: true },
+    { id: 'contractor', name: 'My Employees', href: '/contractor/employees', icon: Users, isSubItem: true },
+    { id: 'contractor', name: 'Add Employee', href: '/contractor/add-employee', icon: UserPlus, isSubItem: true },
+    { id: 'contractor', name: 'Pass Requests', href: '/contractor/passes', icon: FileSignature, isSubItem: true },
+    { id: 'contractor', name: 'Generated Passes', href: '/contractor/generated-passes', icon: QrCode, isSubItem: true },
     { id: 'dashboard', name: 'Contractor Reg Form', href: '/contractor-registration', icon: Plus },
   ];
 
@@ -118,7 +123,10 @@ const Layout = () => {
               let currentHeader = null;
               return navigation.map((item, index) => {
                 const Icon = item.icon;
-                const isActive = item.href !== '#' && (location.pathname === item.href || (item.href !== '/' && location.pathname.startsWith(item.href)));
+                const isActive = item.href !== '#' && (
+                  location.pathname === item.href || 
+                  (item.href !== '/' && item.href !== '/contractor' && location.pathname.startsWith(item.href))
+                );
                 
                 if (item.isHeader) {
                   currentHeader = item.name;

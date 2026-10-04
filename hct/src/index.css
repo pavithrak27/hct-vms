@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-hct-blue: #00249c;
+  --color-hct-gold: #c29b0c;
+  --color-hct-light: #f8fafc;
+  --color-hct-dark: #0f172a;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300;
+  font-family: "Aktiv Grotesk", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+@keyframes colorfulMesh {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-colorful-mesh {
+  background: linear-gradient(-45deg, #e6ecf8, #ccdbf1, #99b6e3, #f2f5fb);
+  background-size: 400% 400%;
+  animation: colorfulMesh 15s ease infinite;
+}
+
+.dark .bg-colorful-mesh {
+  background: linear-gradient(-45deg, #000b2e, #00124d, #001b73, #00249c);
+  background-size: 400% 400%;
+  animation: colorfulMesh 15s ease infinite;
+}
+
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(50px, -70px) scale(1.1); }
+  66% { transform: translate(-40px, 40px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 15s infinite ease-in-out;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}

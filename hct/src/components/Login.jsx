@@ -8,6 +8,8 @@ const Login = () => {
   const { login, roles } = useRole();
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState('superadmin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   
   // Simulated Authentication States
   const [authState, setAuthState] = useState('idle'); // 'idle', 'saml_redirect', 'ad_mapping', 'error'
@@ -15,6 +17,16 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    
+    let roleToLog = selectedRole;
+    if (email) {
+      const eLower = email.toLowerCase();
+      if (eLower.includes('super')) roleToLog = 'superadmin';
+      else if (eLower.includes('campus')) roleToLog = 'campusadmin';
+      else if (eLower.includes('host')) roleToLog = 'host';
+      else if (eLower.includes('security')) roleToLog = 'security';
+      else if (eLower.includes('reception')) roleToLog = 'reception';
+    }
     
     // Simulate AD / SAML Flow
     setAuthState('saml_redirect');
@@ -24,21 +36,21 @@ const Login = () => {
       
       setTimeout(() => {
         // Simulate an authorization error randomly (10% chance) for realism if not superadmin
-        if (Math.random() < 0.1 && selectedRole !== 'superadmin') {
+        if (Math.random() < 0.1 && roleToLog !== 'superadmin') {
           setAuthState('error');
           setErrorMsg('Unauthorized Role. Your Active Directory group is not mapped to a Pro-Visit role. Please contact IT.');
           return;
         }
         
-        login(selectedRole);
+        login(roleToLog);
         
         // Redirect based on Role mapping
-        if (selectedRole === 'superadmin') navigate('/');
-        else if (selectedRole === 'campusadmin') navigate('/');
-        else if (selectedRole === 'host') navigate('/host');
-        else if (selectedRole === 'security') navigate('/check-in-out');
-        else if (selectedRole === 'reception') navigate('/visitors');
-        else if (selectedRole === 'contractor') navigate('/contractor');
+        if (roleToLog === 'superadmin') navigate('/');
+        else if (roleToLog === 'campusadmin') navigate('/');
+        else if (roleToLog === 'host') navigate('/host');
+        else if (roleToLog === 'security') navigate('/check-in-out');
+        else if (roleToLog === 'reception') navigate('/visitors');
+        else if (roleToLog === 'contractor') navigate('/contractor');
         else navigate('/');
 
       }, 1500);
@@ -80,8 +92,31 @@ const Login = () => {
                 )}
 
                 <div>
+                  <label htmlFor="email" className="block text-sm font-bold text-slate-700">Email Address</label>
+                  <div className="mt-2">
+                    <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-hct-blue focus:border-hct-blue sm:text-sm font-medium" placeholder="name@hct.ac.ae" />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-bold text-slate-700">Password</label>
+                  <div className="mt-2">
+                    <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-hct-blue focus:border-hct-blue sm:text-sm font-medium" placeholder="••••••••" />
+                  </div>
+                </div>
+
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-slate-500 font-medium">Or simulate SSO role</span>
+                  </div>
+                </div>
+
+                <div>
                   <label htmlFor="role" className="block text-sm font-bold text-slate-700">
-                    Authenticate as Role (Simulated SSO)
+                    Authenticate as Role
                   </label>
                   <div className="mt-2">
                     <select

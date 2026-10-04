@@ -39,14 +39,6 @@ export const roles = [
   { 
     id: 'reception', label: 'Reception', portals: ['dashboard', 'visitor'],
     defaultPermissions: ['create_visitor', 'manual_checkin', 'view_active_visits'], defaultCampuses: ['CMP-01']
-  },
-  {
-    id: 'contractor', label: 'Contractor', portals: ['contractor'],
-    defaultPermissions: ['view_contractors', 'create_pass_request', 'view_employees'], defaultCampuses: ['CMP-01']
-  },
-  {
-    id: 'approver', label: 'Approver', portals: ['dashboard', 'security'],
-    defaultPermissions: ['approve_contractor', 'approve_pass_request', 'approve_visitor'], defaultCampuses: ['CMP-01']
   }
 ];
 

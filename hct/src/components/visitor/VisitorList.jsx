@@ -226,7 +226,7 @@ const VisitorList = () => {
       {/* Header & Main Tabs */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-slate-800 dark:text-white">Visitor Management</h2>
+          <h2 className="text-base font-bold text-slate-800 dark:text-white">Visitor Management</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2">Manage all registered visitors and new registrations.</p>
         </div>
         
@@ -238,14 +238,14 @@ const VisitorList = () => {
                 setStep(2); 
                 setVisitRequestId(null);
               }} 
-              className="px-5 py-2.5 rounded-2xl font-bold text-sm transition-all border-2 border-hct-blue bg-hct-blue text-white shadow-lg shadow-blue-900/20 flex items-center gap-2 hover:bg-[#001a66]"
+              className="px-5 py-2.5 rounded-2xl font-bold text-xs transition-all border-2 border-hct-blue bg-hct-blue text-white shadow-lg shadow-blue-900/20 flex items-center gap-2 hover:bg-[#001a66]"
             >
               <UserPlus className="w-4 h-4" /> Add New Visitor
             </button>
           ) : (
             <button 
               onClick={() => { setActiveTab('list'); }} 
-              className="px-5 py-2.5 rounded-2xl font-bold text-sm transition-all border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 flex items-center gap-2"
+              className="px-5 py-2.5 rounded-2xl font-bold text-xs transition-all border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 flex items-center gap-2"
             >
               <ChevronLeft className="w-4 h-4" /> Back to List
             </button>
@@ -265,7 +265,7 @@ const VisitorList = () => {
                    placeholder="Search visitors..." 
                    value={searchTerm}
                    onChange={(e) => setSearchTerm(e.target.value)}
-                   className="w-full pl-9 pr-4 py-2 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-hct-blue shadow-sm"
+                   className="w-full pl-9 pr-4 py-2 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-hct-blue shadow-sm"
                  />
                </div>
                <div className="flex items-center gap-3">
@@ -283,7 +283,7 @@ const VisitorList = () => {
                          <button 
                            key={status} 
                            onClick={() => { setStatusFilter(status); setIsFilterOpen(false); }}
-                           className={`w-full text-left px-4 py-2 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${statusFilter === status ? 'text-hct-blue bg-blue-50 dark:bg-blue-900/30' : 'text-slate-700 dark:text-slate-300'}`}
+                           className={`w-full text-left px-4 py-2 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${statusFilter === status ? 'text-hct-blue bg-blue-50 dark:bg-blue-900/30' : 'text-slate-700 dark:text-slate-300'}`}
                          >
                            {status}
                          </button>
@@ -291,7 +291,7 @@ const VisitorList = () => {
                      </div>
                    )}
                  </div>
-                 <button className="flex items-center gap-2 px-4 py-2 bg-hct-blue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm">
+                 <button className="flex items-center gap-2 px-4 py-2 bg-hct-blue text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm">
                     <Download className="w-4 h-4" /> Export
                  </button>
                </div>
@@ -299,7 +299,7 @@ const VisitorList = () => {
 
             <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
               <div className="overflow-x-auto min-h-[400px]">
-                <table className="w-full text-left text-sm whitespace-nowrap">
+                <table className="w-full text-left text-xs whitespace-nowrap">
                   <thead className="bg-slate-50/50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700/50">
                     <tr>
                       <th className="px-6 py-4 font-bold">ID</th>
@@ -353,7 +353,7 @@ const VisitorList = () => {
                                          setShowBlockModal(true);
                                          setActiveMenuId(null); 
                                        }} 
-                                       className="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold transition-colors flex items-center gap-2"
+                                       className="w-full text-left px-4 py-3 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold transition-colors flex items-center gap-2"
                                      >
                                        <ShieldAlert className="w-4 h-4"/> Security Action
                                      </button>
@@ -367,7 +367,7 @@ const VisitorList = () => {
                   </tbody>
                 </table>
               </div>
-              <div className="p-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between text-sm text-slate-500">
+              <div className="p-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between text-xs text-slate-500">
                 <span>Showing {filteredVisitors.length} entries</span>
                 <div className="flex gap-1">
                   <button className="px-3 py-1 rounded border border-slate-200 hover:bg-slate-50 disabled:opacity-50" disabled>Prev</button>
@@ -394,7 +394,7 @@ const VisitorList = () => {
                   const isPast = step > stepNum;
                   return (
                     <div key={label} className="flex flex-col items-center min-w-[80px] gap-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isActive ? 'bg-hct-blue text-white ring-4 ring-blue-100 dark:ring-blue-900/50' : isPast ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-colors ${isActive ? 'bg-hct-blue text-white ring-4 ring-blue-100 dark:ring-blue-900/50' : isPast ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
                         {isPast ? <Check className="w-4 h-4" /> : stepNum - 1}
                       </div>
                       <span className={`text-xs font-bold ${isActive ? 'text-hct-blue dark:text-blue-400' : 'text-slate-500'}`}>{label}</span>
@@ -410,7 +410,7 @@ const VisitorList = () => {
               {step < 8 && (
                 <button 
                   onClick={() => setShowSendLinkModal(true)}
-                  className="absolute top-6 right-6 flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl font-bold text-sm transition-colors border border-indigo-100"
+                  className="absolute top-6 right-6 flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl font-bold text-xs transition-colors border border-indigo-100"
                 >
                   <Send className="w-4 h-4" /> Send Link
                 </button>
@@ -419,17 +419,17 @@ const VisitorList = () => {
               {/* Registration Type Selector */}
               {step < 8 && (
                 <div className="flex flex-col items-center mb-8 border-b border-slate-200 dark:border-slate-700 pb-6">
-                  <h3 className="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">Registration Type</h3>
+                  <h3 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Registration Type</h3>
                   <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl inline-flex shadow-inner">
                     <button 
                       onClick={() => setActiveTab('walkin')} 
-                      className={`px-6 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'walkin' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      className={`px-6 py-2 rounded-lg font-bold text-xs transition-colors ${activeTab === 'walkin' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                     >
                       Walk-In
                     </button>
                     <button 
                       onClick={() => setActiveTab('preapproved')} 
-                      className={`px-6 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'preapproved' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      className={`px-6 py-2 rounded-lg font-bold text-xs transition-colors ${activeTab === 'preapproved' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                     >
                       Pre-Approved
                     </button>
@@ -440,22 +440,22 @@ const VisitorList = () => {
               {/* STEP 2: Details */}
               {step === 2 && (
                 <div className="space-y-8 mt-2">
-                  <h3 className="text-xl font-bold border-b pb-2">Primary Visitor Information</h3>
+                  <h3 className="text-base font-bold border-b pb-2">Primary Visitor Information</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Full Name *</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Full Name *</label>
                       <input type="text" value={formVisitors[0].fullName} onChange={(e) => handleVisitorChange(0, 'fullName', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
                     </div>
                     <div>
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Mobile Number *</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Mobile Number *</label>
                       <input type="tel" value={formVisitors[0].mobileNumber} onChange={(e) => handleVisitorChange(0, 'mobileNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
                     </div>
                     <div>
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Email Address</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Email Address</label>
                       <input type="email" value={formVisitors[0].email} onChange={(e) => handleVisitorChange(0, 'email', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
                     </div>
                     <div>
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Type *</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Type *</label>
                       <select value={formVisitors[0].visitorType} onChange={(e) => handleVisitorChange(0, 'visitorType', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
                         <option value="">Select Type</option>
                         <option value="Guest">Guest</option>
@@ -466,11 +466,11 @@ const VisitorList = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Nationality</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Nationality</label>
                       <input type="text" value={formVisitors[0].nationality} onChange={(e) => handleVisitorChange(0, 'nationality', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
                     </div>
                     <div>
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Company / Organization</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Company / Organization</label>
                       <select value={formVisitors[0].company} onChange={(e) => handleVisitorChange(0, 'company', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
                         <option value="">Select Company</option>
                         {["Tech Solutions LLC", "Global Services", "Ministry of Education", "ABC Cleaning Services", "Independent Contractor"].map(c => (
@@ -480,10 +480,10 @@ const VisitorList = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold border-b pb-2 pt-4">Host Information</h3>
+                  <h3 className="text-base font-bold border-b pb-2 pt-4">Host Information</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Host *</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Host *</label>
                       <div className="relative">
                         {isPreScheduled && <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />}
                         {isPreScheduled ? (
@@ -499,7 +499,7 @@ const VisitorList = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Campus / Location</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Campus / Location</label>
                       <div className="relative">
                          {isPreScheduled && <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />}
                          {isPreScheduled ? (
@@ -522,8 +522,8 @@ const VisitorList = () => {
               {step === 3 && (
                 <div className="space-y-8 mt-2">
                   <div className="flex justify-between items-center border-b pb-2">
-                    <h3 className="text-xl font-bold">Identity Verification</h3>
-                    <button onClick={addVisitor} className="flex items-center gap-2 text-sm font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
+                    <h3 className="text-base font-bold">Identity Verification</h3>
+                    <button onClick={addVisitor} className="flex items-center gap-2 text-xs font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
                       <UserPlus className="w-4 h-4" /> Add Another Visitor
                     </button>
                   </div>
@@ -533,12 +533,12 @@ const VisitorList = () => {
                       {index > 0 && (
                         <button onClick={() => removeVisitor(index)} className="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><Trash2 className="w-5 h-5" /></button>
                       )}
-                      <h4 className="font-bold text-lg mb-4">Visitor {index + 1} {visitor.fullName ? `- ${visitor.fullName}` : ''}</h4>
+                      <h4 className="font-bold text-base mb-4">Visitor {index + 1} {visitor.fullName ? `- ${visitor.fullName}` : ''}</h4>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                           <div>
-                            <label className="text-sm font-bold mb-1 block">Document Type *</label>
+                            <label className="text-xs font-bold mb-1 block">Document Type *</label>
                             <select value={visitor.docType} onChange={(e) => handleVisitorChange(index, 'docType', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
                               <option value="">Select ID Type</option>
                               <option value="Emirates ID">Emirates ID</option>
@@ -546,11 +546,11 @@ const VisitorList = () => {
                             </select>
                           </div>
                           <div>
-                            <label className="text-sm font-bold mb-1 block">Document Number</label>
+                            <label className="text-xs font-bold mb-1 block">Document Number</label>
                             <input type="text" value={visitor.docNumber} onChange={(e) => handleVisitorChange(index, 'docNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
                           </div>
                           <div>
-                            <label className="text-sm font-bold mb-1 block">Document Expiry Date</label>
+                            <label className="text-xs font-bold mb-1 block">Document Expiry Date</label>
                             <input type="date" value={visitor.docExpiry} onChange={(e) => handleVisitorChange(index, 'docExpiry', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
                           </div>
                         </div>
@@ -578,7 +578,7 @@ const VisitorList = () => {
               {/* STEP 4: Vehicle */}
               {step === 4 && (
                 <div className="space-y-6 max-w-2xl mx-auto mt-2">
-                  <h3 className="text-xl font-bold border-b pb-2 text-center">Vehicle Information</h3>
+                  <h3 className="text-base font-bold border-b pb-2 text-center">Vehicle Information</h3>
                   <div className="flex justify-center gap-8 py-6">
                     <label className="flex flex-col items-center gap-2 cursor-pointer group">
                       <div className={`w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all ${vehicleDetails.hasVehicle === 'Yes' ? 'border-hct-blue bg-blue-50 text-hct-blue' : 'border-slate-200 text-slate-400 group-hover:border-blue-200'}`}>
@@ -598,8 +598,8 @@ const VisitorList = () => {
                   {vehicleDetails.hasVehicle === 'Yes' && (
                     <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="space-y-4 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
                       <div>
-                        <label className="text-sm font-bold mb-1 block">Vehicle Number *</label>
-                        <input type="text" placeholder="e.g. Dubai A 12345" value={vehicleDetails.vehicleNumber} onChange={(e) => setVehicleDetails({...vehicleDetails, vehicleNumber: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none uppercase font-mono text-lg tracking-wider" />
+                        <label className="text-xs font-bold mb-1 block">Vehicle Number *</label>
+                        <input type="text" placeholder="e.g. Dubai A 12345" value={vehicleDetails.vehicleNumber} onChange={(e) => setVehicleDetails({...vehicleDetails, vehicleNumber: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none uppercase font-mono text-base tracking-wider" />
                       </div>
                     </motion.div>
                   )}
@@ -609,7 +609,7 @@ const VisitorList = () => {
               {/* STEP 5: Photo */}
               {step === 5 && (
                 <div className="space-y-6 max-w-xl mx-auto text-center mt-2">
-                  <h3 className="text-xl font-bold border-b pb-2">Live Photograph Capture</h3>
+                  <h3 className="text-base font-bold border-b pb-2">Live Photograph Capture</h3>
                   <div className="bg-slate-100 dark:bg-slate-800 rounded-3xl h-80 flex flex-col items-center justify-center relative overflow-hidden border-4 border-slate-200 dark:border-slate-700 shadow-inner">
                     {livePhotoCaptured ? (
                       <>
@@ -633,11 +633,11 @@ const VisitorList = () => {
               {/* STEP 6: Declaration */}
               {step === 6 && (
                 <div className="space-y-8 max-w-2xl mx-auto mt-2">
-                  <h3 className="text-xl font-bold border-b pb-2 text-center">Visitor Declaration</h3>
+                  <h3 className="text-base font-bold border-b pb-2 text-center">Visitor Declaration</h3>
                   <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-2xl border border-amber-200 dark:border-amber-800">
                     <label className="flex items-start gap-4 cursor-pointer">
                       <input type="checkbox" checked={declarationAccepted} onChange={(e) => setDeclarationAccepted(e.target.checked)} className="mt-1 w-5 h-5 text-hct-blue rounded border-slate-300" />
-                      <span className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                      <span className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
                         <strong>I confirm that the information provided is correct and I agree to comply with the visitor management and security policies of Higher Colleges of Technology (HCT).</strong>
                       </span>
                     </label>
@@ -648,13 +648,13 @@ const VisitorList = () => {
               {/* STEP 7: Review & Submit */}
               {step === 7 && (
                 <div className="space-y-8 mt-2">
-                  <h3 className="text-2xl font-bold text-center border-b pb-4">Review Details</h3>
+                  <h3 className="text-base font-bold text-center border-b pb-4">Review Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
-                      <h4 className="font-bold text-slate-500 uppercase tracking-wider text-sm flex justify-between items-center">
+                      <h4 className="font-bold text-slate-500 uppercase tracking-wider text-xs flex justify-between items-center">
                         Visitor Details <button onClick={() => setStep(2)} className="text-hct-blue normal-case flex items-center gap-1"><Edit2 className="w-3 h-3"/> Edit</button>
                       </h4>
-                      <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 text-sm">
+                      <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 text-xs">
                         {formVisitors.map((v, i) => (
                           <div key={v.id} className={`${i > 0 ? 'mt-4 pt-4 border-t border-slate-200' : ''}`}>
                             <p className="font-bold text-base mb-2">{v.fullName}</p>
@@ -666,10 +666,10 @@ const VisitorList = () => {
                     </div>
                     <div className="space-y-8">
                       <div className="space-y-4">
-                        <h4 className="font-bold text-slate-500 uppercase tracking-wider text-sm flex justify-between items-center">
+                        <h4 className="font-bold text-slate-500 uppercase tracking-wider text-xs flex justify-between items-center">
                           Host Details <button onClick={() => setStep(2)} className="text-hct-blue normal-case flex items-center gap-1"><Edit2 className="w-3 h-3"/> Edit</button>
                         </h4>
-                        <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 text-sm">
+                        <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 text-xs">
                           <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Name:</span> <span className="font-bold text-base">{hostDetails.hostName || (isPreScheduled ? 'Jane Doe' : '-')}</span></p>
                           <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Location:</span> <span className="font-medium">{hostDetails.campus || hostDetails.department || '-'}</span></p>
                         </div>
@@ -684,7 +684,7 @@ const VisitorList = () => {
                 <div className="text-center space-y-8 max-w-2xl mx-auto py-8">
                   <div className="animate-pulse">
                     <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-10 h-10 text-amber-500" /></div>
-                    <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Registration Submitted</h3>
+                    <h3 className="text-base font-bold text-slate-800 dark:text-white mb-2">Registration Submitted</h3>
                     <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 mt-6 text-left max-w-md mx-auto">
                       <p className="mb-2"><strong className="text-slate-500">Visit Request ID:</strong> <span className="font-bold text-slate-800 dark:text-white">{visitRequestId}</span></p>
                       <p className="mb-4"><strong className="text-slate-500">Status:</strong> <span className="font-bold text-amber-600">Pending Host Approval</span></p>
@@ -735,7 +735,7 @@ const VisitorList = () => {
               ✕
             </button>
             <div className="p-8">
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Visitor Details</h3>
+              <h3 className="text-base font-bold text-slate-800 dark:text-white mb-6">Visitor Details</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
                   <span className="text-slate-500 font-medium">Name</span>
@@ -789,13 +789,13 @@ const VisitorList = () => {
               <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
                 <Mail className="w-6 h-6 text-indigo-600" />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Send Registration Link</h3>
-              <p className="text-sm text-slate-500 mb-6">Send an email with a unique registration link to the host or visitor.</p>
+              <h3 className="text-base font-bold text-slate-800 dark:text-white mb-2">Send Registration Link</h3>
+              <p className="text-xs text-slate-500 mb-6">Send an email with a unique registration link to the host or visitor.</p>
               
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Type *</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Type *</label>
                     <select 
                       required
                       value={sendLinkData.visitorType || 'Pre-Approved'} 
@@ -807,7 +807,7 @@ const VisitorList = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Campus *</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Campus *</label>
                     <select 
                       required
                       value={sendLinkData.campus || 'Men\'s College'} 
@@ -822,7 +822,7 @@ const VisitorList = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Host Name *</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Host Name *</label>
                   <input 
                     type="text" 
                     required
@@ -834,7 +834,7 @@ const VisitorList = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Name *</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Name *</label>
                   <input 
                     type="text" 
                     required
@@ -846,7 +846,7 @@ const VisitorList = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Email Address *</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Email Address *</label>
                   <input 
                     type="email" 
                     required
@@ -880,7 +880,7 @@ const VisitorList = () => {
               ✕
             </button>
             <div className="p-8">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white text-center mb-6">
+              <h3 className="text-base font-bold text-slate-800 dark:text-white text-center mb-6">
                 {visitorToBlock.isBlocked ? 'Select Unblock Action' : 'Block Visitor'}
               </h3>
               
@@ -924,7 +924,7 @@ const VisitorList = () => {
 
               {securityActionType === 'temp' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mb-6">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block mb-2">Release Until (Custom Date)</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-2">Release Until (Custom Date)</label>
                   <input 
                     type="date"
                     value={securityReleaseDate}
@@ -935,10 +935,10 @@ const VisitorList = () => {
               )}
 
               <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 mb-6">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-400 block mb-1">Reason / Notes</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-400 block mb-1">Reason / Notes</label>
                 <textarea 
                   placeholder="Provide a brief explanation..."
-                  className="w-full p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-slate-500 text-sm resize-none"
+                  className="w-full p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-slate-500 text-xs resize-none"
                   rows={2}
                 ></textarea>
               </div>

@@ -9,6 +9,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+html {
+  font-size: 14px; /* Scales down the entire UI (text, padding, margins) to 87.5% */
+}
+
 body {
   @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300;
   font-family: "Aktiv Grotesk", ui-sans-serif, system-ui, sans-serif;

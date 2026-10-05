@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Camera, Car, UserCheck, Shield, Trash2, Edit2, Check, Signature, ShieldAlert, Lock, Mail, Send, RefreshCw, XCircle, Clock } from 'lucide-react';
+import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Camera, Car, UserCheck, Shield, Trash2, Edit2, Check, Signature, ShieldAlert, Lock, Mail, Send, RefreshCw, XCircle, Clock, ChevronLeft } from 'lucide-react';
 
 const initialVisitors = [
   { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Checked In', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false },
@@ -46,7 +46,7 @@ const VisitorList = () => {
   // Security Action Modal State
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [visitorToBlock, setVisitorToBlock] = useState(null);
-  const [securityActionType, setSecurityActionType] = useState('deny'); // 'deny', 'temp', 'perm'
+  const [securityActionType, setSecurityActionType] = useState('temp'); // 'temp', 'perm'
   const [securityReleaseDate, setSecurityReleaseDate] = useState('');
 
   // --- LIST HANDLERS ---
@@ -84,11 +84,15 @@ const VisitorList = () => {
       v.id === visitorToBlock.id ? { ...v, isBlocked: securityActionType === 'deny' } : v
     ));
     if (securityActionType === 'temp' && securityReleaseDate) {
-      alert(`${visitorToBlock.name} has been temporarily released until ${securityReleaseDate}.`);
+      alert(`${visitorToBlock.name} has been temporarily unblocked until ${securityReleaseDate}.`);
+    } else if (securityActionType === 'perm') {
+      alert(`${visitorToBlock.name} has been permanently unblocked.`);
+    } else {
+      alert(`${visitorToBlock.name} has been blocked.`);
     }
     setShowBlockModal(false);
     setVisitorToBlock(null);
-    setSecurityActionType('deny');
+    setSecurityActionType('temp');
     setSecurityReleaseDate('');
   };
 
@@ -194,7 +198,7 @@ const VisitorList = () => {
     if (step === 3 && (!formVisitors[0].docType || !formVisitors[0].docNumber)) { alert("Please provide identity documents."); return; }
     if (step === 4 && vehicleDetails.hasVehicle === 'Yes' && !vehicleDetails.vehicleNumber) { alert("Please provide the Vehicle Number."); return; }
     if (step === 5 && !livePhotoCaptured) { alert("Please capture a live photograph."); return; }
-    if (step === 6 && (!declarationAccepted || !hasSignature)) { alert("Please accept the declaration and provide a signature."); return; }
+    if (step === 6 && (!declarationAccepted)) { alert("Please accept the declaration to proceed."); return; }
     setStep(s => s + 1);
   };
   const prevStep = () => setStep(s => s - 1);
@@ -226,33 +230,26 @@ const VisitorList = () => {
           <p className="text-slate-500 dark:text-slate-400 mt-2">Manage all registered visitors and new registrations.</p>
         </div>
         
-        <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex shadow-inner">
-          <button 
-            onClick={() => { setActiveTab('list'); }} 
-            className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'list' ? 'bg-white dark:bg-slate-700 text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Visitor List
-          </button>
-          <button 
-            onClick={() => { 
-              setActiveTab('walkin'); 
-              setStep(2); 
-              setVisitRequestId(null);
-            }} 
-            className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'walkin' ? 'bg-white dark:bg-slate-700 text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            <UserPlus className="w-4 h-4" /> New Walk-In
-          </button>
-          <button 
-            onClick={() => { 
-              setActiveTab('preapproved'); 
-              setStep(2); 
-              setVisitRequestId(null);
-            }} 
-            className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'preapproved' ? 'bg-white dark:bg-slate-700 text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            <UserPlus className="w-4 h-4" /> New Pre-Approved
-          </button>
+        <div className="flex flex-wrap gap-3">
+          {activeTab === 'list' ? (
+            <button 
+              onClick={() => { 
+                setActiveTab('walkin'); 
+                setStep(2); 
+                setVisitRequestId(null);
+              }} 
+              className="px-5 py-2.5 rounded-2xl font-bold text-sm transition-all border-2 border-hct-blue bg-hct-blue text-white shadow-lg shadow-blue-900/20 flex items-center gap-2 hover:bg-[#001a66]"
+            >
+              <UserPlus className="w-4 h-4" /> Add New Visitor
+            </button>
+          ) : (
+            <button 
+              onClick={() => { setActiveTab('list'); }} 
+              className="px-5 py-2.5 rounded-2xl font-bold text-sm transition-all border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 flex items-center gap-2"
+            >
+              <ChevronLeft className="w-4 h-4" /> Back to List
+            </button>
+          )}
         </div>
       </div>
 
@@ -417,6 +414,27 @@ const VisitorList = () => {
                 >
                   <Send className="w-4 h-4" /> Send Link
                 </button>
+              )}
+
+              {/* Registration Type Selector */}
+              {step < 8 && (
+                <div className="flex flex-col items-center mb-8 border-b border-slate-200 dark:border-slate-700 pb-6">
+                  <h3 className="text-sm font-bold text-slate-500 mb-3 uppercase tracking-wider">Registration Type</h3>
+                  <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl inline-flex shadow-inner">
+                    <button 
+                      onClick={() => setActiveTab('walkin')} 
+                      className={`px-6 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'walkin' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      Walk-In
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('preapproved')} 
+                      className={`px-6 py-2 rounded-lg font-bold text-sm transition-colors ${activeTab === 'preapproved' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      Pre-Approved
+                    </button>
+                  </div>
+                </div>
               )}
 
               {/* STEP 2: Details */}
@@ -615,7 +633,7 @@ const VisitorList = () => {
               {/* STEP 6: Declaration */}
               {step === 6 && (
                 <div className="space-y-8 max-w-2xl mx-auto mt-2">
-                  <h3 className="text-xl font-bold border-b pb-2 text-center">Declaration & Digital Signature</h3>
+                  <h3 className="text-xl font-bold border-b pb-2 text-center">Visitor Declaration</h3>
                   <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-2xl border border-amber-200 dark:border-amber-800">
                     <label className="flex items-start gap-4 cursor-pointer">
                       <input type="checkbox" checked={declarationAccepted} onChange={(e) => setDeclarationAccepted(e.target.checked)} className="mt-1 w-5 h-5 text-hct-blue rounded border-slate-300" />
@@ -623,20 +641,6 @@ const VisitorList = () => {
                         <strong>I confirm that the information provided is correct and I agree to comply with the visitor management and security policies of Higher Colleges of Technology (HCT).</strong>
                       </span>
                     </label>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-end mb-2">
-                      <label className="text-sm font-bold block">Digital Signature *</label>
-                      {hasSignature && <button onClick={clearSignature} className="text-xs text-slate-500 hover:text-red-500">Clear</button>}
-                    </div>
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600 overflow-hidden relative">
-                      {!hasSignature && !isDrawing && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 text-slate-500">
-                          <Signature className="w-16 h-16" />
-                        </div>
-                      )}
-                      <canvas ref={canvasRef} width={600} height={200} className="w-full h-48 cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onMouseLeave={stopDrawing} />
-                    </div>
                   </div>
                 </div>
               )}
@@ -876,42 +880,47 @@ const VisitorList = () => {
               ✕
             </button>
             <div className="p-8">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white text-center mb-6">Select Security Action</h3>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white text-center mb-6">
+                {visitorToBlock.isBlocked ? 'Select Unblock Action' : 'Block Visitor'}
+              </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                {/* Deny Visit */}
-                <button
-                  onClick={() => setSecurityActionType('deny')}
-                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${securityActionType === 'deny' ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-red-200 dark:border-red-900/40 hover:border-red-300 bg-white dark:bg-slate-800'}`}
-                >
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${securityActionType === 'deny' ? 'bg-red-100 dark:bg-red-900/50' : 'bg-red-50 dark:bg-red-900/20'}`}>
-                    <XCircle className={`w-6 h-6 ${securityActionType === 'deny' ? 'text-red-600' : 'text-red-400'}`} />
-                  </div>
-                  <span className={`font-bold ${securityActionType === 'deny' ? 'text-red-700 dark:text-red-400' : 'text-red-500 dark:text-red-600'}`}>Deny Visit</span>
-                </button>
+              {visitorToBlock.isBlocked ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                  {/* Temporary Unblock */}
+                  <button
+                    onClick={() => setSecurityActionType('temp')}
+                    className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${securityActionType === 'temp' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-blue-200 dark:border-blue-900/40 hover:border-blue-300 bg-white dark:bg-slate-800'}`}
+                  >
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${securityActionType === 'temp' ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+                      <Clock className={`w-6 h-6 ${securityActionType === 'temp' ? 'text-blue-600' : 'text-blue-400'}`} />
+                    </div>
+                    <span className={`font-bold ${securityActionType === 'temp' ? 'text-blue-700 dark:text-blue-400' : 'text-blue-500 dark:text-blue-600'}`}>Temporary Unblock</span>
+                  </button>
 
-                {/* Temporary Release */}
-                <button
-                  onClick={() => setSecurityActionType('temp')}
-                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${securityActionType === 'temp' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-blue-200 dark:border-blue-900/40 hover:border-blue-300 bg-white dark:bg-slate-800'}`}
-                >
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${securityActionType === 'temp' ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
-                    <Clock className={`w-6 h-6 ${securityActionType === 'temp' ? 'text-blue-600' : 'text-blue-400'}`} />
-                  </div>
-                  <span className={`font-bold ${securityActionType === 'temp' ? 'text-blue-700 dark:text-blue-400' : 'text-blue-500 dark:text-blue-600'}`}>Temporary Release</span>
-                </button>
-
-                {/* Permanent Release */}
-                <button
-                  onClick={() => setSecurityActionType('perm')}
-                  className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${securityActionType === 'perm' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-emerald-200 dark:border-emerald-900/40 hover:border-emerald-300 bg-white dark:bg-slate-800'}`}
-                >
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${securityActionType === 'perm' ? 'bg-emerald-100 dark:bg-emerald-900/50' : 'bg-emerald-50 dark:bg-emerald-900/20'}`}>
-                    <Lock className={`w-6 h-6 ${securityActionType === 'perm' ? 'text-emerald-600' : 'text-emerald-400'}`} />
-                  </div>
-                  <span className={`font-bold ${securityActionType === 'perm' ? 'text-emerald-700 dark:text-emerald-400' : 'text-emerald-500 dark:text-emerald-600'}`}>Permanent Release</span>
-                </button>
-              </div>
+                  {/* Permanent Unblock */}
+                  <button
+                    onClick={() => setSecurityActionType('perm')}
+                    className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${securityActionType === 'perm' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-emerald-200 dark:border-emerald-900/40 hover:border-emerald-300 bg-white dark:bg-slate-800'}`}
+                  >
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${securityActionType === 'perm' ? 'bg-emerald-100 dark:bg-emerald-900/50' : 'bg-emerald-50 dark:bg-emerald-900/20'}`}>
+                      <Lock className={`w-6 h-6 ${securityActionType === 'perm' ? 'text-emerald-600' : 'text-emerald-400'}`} />
+                    </div>
+                    <span className={`font-bold ${securityActionType === 'perm' ? 'text-emerald-700 dark:text-emerald-400' : 'text-emerald-500 dark:text-emerald-600'}`}>Permanent Unblock</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex justify-center mb-8">
+                  <button
+                    className="w-full flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all border-red-500 bg-red-50 dark:bg-red-900/20 cursor-default"
+                  >
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3 bg-red-100 dark:bg-red-900/50">
+                      <XCircle className="w-6 h-6 text-red-600" />
+                    </div>
+                    <span className="font-bold text-red-700 dark:text-red-400">Block Visitor</span>
+                    <p className="text-xs text-red-600 mt-2">This visitor will be prevented from entering the campus.</p>
+                  </button>
+                </div>
+              )}
 
               {securityActionType === 'temp' && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mb-6">

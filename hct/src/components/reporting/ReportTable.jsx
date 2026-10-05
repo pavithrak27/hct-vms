@@ -96,9 +96,7 @@ const ReportTable = ({ title, description, columns, data, searchPlaceholder = "S
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
               <input type="text" value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value); setCurrentPage(1);}} placeholder={searchPlaceholder} className="pl-9 p-2 rounded-lg border border-slate-300 w-80 text-sm outline-none focus:ring-2 focus:ring-hct-blue" />
             </div>
-            <button className="flex items-center gap-2 px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100">
-              <Filter className="w-4 h-4"/> More Filters
-            </button>
+
           </div>
           <div className="text-sm font-bold text-slate-500">
             Total Records: <span className="text-slate-800">{filteredData.length}</span>

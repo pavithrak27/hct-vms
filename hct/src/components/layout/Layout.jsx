@@ -66,9 +66,7 @@ const Layout = () => {
     { id: 'security', name: 'Campus Configuration', href: '/settings/campus', icon: Building2, isSubItem: true },
     { id: 'security', name: 'User Management', href: '/settings/users', icon: UserCog, isSubItem: true },
     { id: 'security', name: 'Roles & Permissions', href: '/settings/roles', icon: ShieldCheck, isSubItem: true },
-    { id: 'security', name: 'Auth & Identity (SSO)', href: '/settings/sso', icon: KeyRound, isSubItem: true },
-    { id: 'security', name: 'Integrations', href: '/settings/integrations', icon: Cpu, isSubItem: true },
-    { id: 'security', name: 'System Configuration', href: '/settings/system', icon: Sliders, isSubItem: true },
+
 
     { id: 'contractor', name: 'Contractor Menu', href: '#', icon: Briefcase, isHeader: true },
     { id: 'contractor', name: 'Dashboard', href: '/contractor', icon: LayoutDashboard, isSubItem: true },
@@ -270,15 +268,7 @@ const Layout = () => {
                {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
              </button>
 
-             {currentRole.id === 'superadmin' && (
-               <button 
-                 onClick={() => setShowConfigModal(true)}
-                 className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-full shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-105 transition-all"
-               >
-                 <Settings className="w-4 h-4" />
-                 Global Config
-               </button>
-             )}
+
            </div>
         </header>
         <main className="p-8 flex-1 relative">

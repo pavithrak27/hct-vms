@@ -91,9 +91,17 @@ export const ContractorProvider = ({ children }) => {
     }));
   };
 
+  const updateEmployee = (updatedEmp) => {
+    setEmployees(employees.map(e => e.id === updatedEmp.id ? updatedEmp : e));
+  };
+
+  const deleteEmployee = (id) => {
+    setEmployees(employees.filter(e => e.id !== id));
+  };
+
   return (
     <ContractorContext.Provider value={{
-      employees, addEmployee, approveEmployee, rejectEmployee,
+      employees, addEmployee, updateEmployee, deleteEmployee, approveEmployee, rejectEmployee,
       passRequests, addPassRequest, updatePassRequest, approvePassRequest,
       generatedPasses, approvalHierarchyLevels, setApprovalHierarchyLevels
     }}>

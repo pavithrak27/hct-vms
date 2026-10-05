@@ -20,7 +20,8 @@ const ContractorPortal = () => {
     gatePassValidity: '2026-11-01 to 2027-10-31'
   };
 
-  const { employees, addEmployee, passRequests, addPassRequest, generatedPasses } = useContractor();
+  const { employees, addEmployee, updateEmployee, deleteEmployee, passRequests, addPassRequest, generatedPasses } = useContractor();
+  const [editingEmp, setEditingEmp] = useState(null);
 
   // Add Employee State
   const [addStep, setAddStep] = useState(1);
@@ -179,8 +180,8 @@ const ContractorPortal = () => {
                       </div>
                     )}
                     <div className="flex gap-2">
-                      <button className="flex-1 text-xs font-bold py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors text-slate-700">Edit Details</button>
-                      <button className="p-2 text-slate-400 border border-slate-200 hover:text-red-500 hover:bg-red-50 hover:border-red-200 rounded-lg transition-colors"><Trash2 className="w-4 h-4"/></button>
+                      <button onClick={() => setEditingEmp({...emp})} className="flex-1 text-xs font-bold py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors text-slate-700">Edit Details</button>
+                      <button onClick={() => { if(window.confirm('Are you sure you want to delete this employee?')) deleteEmployee(emp.id); }} className="p-2 text-slate-400 border border-slate-200 hover:text-red-500 hover:bg-red-50 hover:border-red-200 rounded-lg transition-colors"><Trash2 className="w-4 h-4"/></button>
                     </div>
                   </div>
                 ))}
@@ -511,6 +512,35 @@ const ContractorPortal = () => {
       
       <AnimatePresence>
         {selectedPass && <PassViewer pass={selectedPass} onClose={() => setSelectedPass(null)} />}
+        {editingEmp && (
+          <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+              <h3 className="text-xl font-bold mb-4">Edit Employee</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-bold block mb-1">Full Name</label>
+                  <input type="text" value={editingEmp.name} onChange={e => setEditingEmp({...editingEmp, name: e.target.value})} className="w-full p-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="text-sm font-bold block mb-1">Job Title</label>
+                  <input type="text" value={editingEmp.jobTitle} onChange={e => setEditingEmp({...editingEmp, jobTitle: e.target.value})} className="w-full p-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="text-sm font-bold block mb-1">Mobile</label>
+                  <input type="text" value={editingEmp.mobile} onChange={e => setEditingEmp({...editingEmp, mobile: e.target.value})} className="w-full p-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="text-sm font-bold block mb-1">ID Expiry</label>
+                  <input type="date" value={editingEmp.docExpiry} onChange={e => setEditingEmp({...editingEmp, docExpiry: e.target.value})} className="w-full p-2 border rounded-lg" />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <button onClick={() => setEditingEmp(null)} className="px-4 py-2 bg-slate-100 rounded-lg font-bold text-slate-600">Cancel</button>
+                <button onClick={() => { updateEmployee(editingEmp); setEditingEmp(null); }} className="px-4 py-2 bg-hct-blue text-white rounded-lg font-bold">Save Changes</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
     </motion.div>
   );

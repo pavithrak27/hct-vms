@@ -28,8 +28,13 @@ export const ContractorProvider = ({ children }) => {
 
   const [generatedPasses, setGeneratedPasses] = useState([]);
   
-  // Configurable number of approval levels (as requested in FR)
-  const [approvalHierarchyLevels, setApprovalHierarchyLevels] = useState(3);
+  const [approvalConfig, setApprovalConfig] = useState({
+    mode: 'flow', // 'flow', 'auto-approve', 'auto-reject'
+    levels: [
+      { id: 1, role: 'Department Head of Logistics', note: '' },
+      { id: 2, role: 'Security Manager', note: '' }
+    ]
+  });
 
   const addEmployee = (emp) => {
     setEmployees([emp, ...employees]);
@@ -54,10 +59,14 @@ export const ContractorProvider = ({ children }) => {
   const approvePassRequest = (id, isFinal, rejectReason = null) => {
     setPassRequests(passRequests.map(r => {
       if (r.id === id) {
-        if (rejectReason) {
-          return { ...r, status: 'Rejected', rejectionReason: rejectReason };
+        if (rejectReason || approvalConfig.mode === 'auto-reject') {
+          return { ...r, status: 'Rejected', rejectionReason: rejectReason || 'Auto-rejected by system configuration' };
         }
-        if (isFinal) {
+        
+        // If mode is auto-approve or if it's explicitly the final step in a flow
+        const isFinalApproval = approvalConfig.mode === 'auto-approve' || isFinal;
+        
+        if (isFinalApproval) {
           // Generate individual passes for each employee
           const finalStart = r.modifiedStart || r.start;
           const finalEnd = r.modifiedEnd || r.end;
@@ -79,11 +88,15 @@ export const ContractorProvider = ({ children }) => {
           });
           
           setGeneratedPasses(prev => [...newPasses, ...prev]);
-          return { ...r, status: 'Approved', approvalLevel: 3 };
+          return { ...r, status: 'Approved', approvalLevel: approvalConfig.levels.length || 1 };
         } else {
           // Increment level
           const newLevel = (r.approvalLevel || 1) + 1;
-          const newStatus = newLevel === approvalHierarchyLevels ? 'Pending Final Approval' : `Pending Level ${newLevel} Approval`;
+          const isNextLevelFinal = newLevel === approvalConfig.levels.length;
+          
+          const nextRoleName = approvalConfig.levels[newLevel - 1]?.role || `Level ${newLevel}`;
+          const newStatus = isNextLevelFinal ? 'Pending Final Approval' : `Pending ${nextRoleName} Approval`;
+          
           return { ...r, status: newStatus, approvalLevel: newLevel };
         }
       }
@@ -103,7 +116,7 @@ export const ContractorProvider = ({ children }) => {
     <ContractorContext.Provider value={{
       employees, addEmployee, updateEmployee, deleteEmployee, approveEmployee, rejectEmployee,
       passRequests, addPassRequest, updatePassRequest, approvePassRequest,
-      generatedPasses, approvalHierarchyLevels, setApprovalHierarchyLevels
+      generatedPasses, approvalConfig, setApprovalConfig
     }}>
       {children}
     </ContractorContext.Provider>

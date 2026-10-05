@@ -36,7 +36,7 @@ const Layout = () => {
 
   const allNavigation = [
     { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { id: 'visitor', name: 'Visitor Management', href: '/visitor', icon: Users },
+    { id: 'visitor', name: 'Visitor List', href: '/visitor-list', icon: FileText },
     { id: 'host', name: 'Host Approvals', href: '/host', icon: UserCheck },
     
     { id: 'security', name: 'Visitor Management', href: '#', icon: Users, isHeader: true },
@@ -44,15 +44,12 @@ const Layout = () => {
     { id: 'security', name: 'Check-in / Check-out', href: '/check-in-out', icon: ScanLine, isSubItem: true },
     { id: 'security', name: 'Active Visits', href: '/active-visits', icon: Clock, isSubItem: true },
     { id: 'security', name: 'Visit History', href: '/visit-history', icon: History, isSubItem: true },
-    { id: 'security', name: 'Restricted Visitors', href: '/blocked-visitors', icon: ShieldAlert, isSubItem: true },
     { id: 'security', name: 'Security Reviews', href: '/security-reviews', icon: FileSearch, isSubItem: true },
     
     { id: 'security', name: 'Contractor Management', href: '#', icon: Briefcase, isHeader: true },
-    { id: 'security', name: 'Companies', href: '/contractor-approvals', icon: Building, isSubItem: true },
-    { id: 'security', name: 'Employees', href: '/employee-approvals', icon: Users, isSubItem: true },
-    { id: 'security', name: 'Pass Requests', href: '/admin-pass-requests', icon: Plus, isSubItem: true },
+    { id: 'security', name: 'Contractor', href: '/contractors-hub', icon: Building, isSubItem: true },
+    { id: 'security', name: 'Pass Requests', href: '/admin/pass-requests', icon: Plus, isSubItem: true },
     { id: 'security', name: 'Approvals', href: '/pass-approvals', icon: CheckSquare, isSubItem: true },
-    { id: 'security', name: 'Generated Passes', href: '/admin-generated-passes', icon: QrCode, isSubItem: true },
 
     { id: 'security', name: 'Reports', href: '#', icon: BarChart3, isHeader: true },
     { id: 'security', name: 'Reports Overview', href: '/reporting', icon: LayoutDashboard, isSubItem: true },
@@ -63,18 +60,13 @@ const Layout = () => {
     { id: 'security', name: 'Audit Log', href: '/reports/audit', icon: Database, isSubItem: true },
 
     { id: 'security', name: 'Settings', href: '#', icon: Settings, isHeader: true },
+    { id: 'security', name: 'Approval Configuration', href: '/settings/system', icon: ShieldCheck, isSubItem: true },
     { id: 'security', name: 'Campus Configuration', href: '/settings/campus', icon: Building2, isSubItem: true },
     { id: 'security', name: 'User Management', href: '/settings/users', icon: UserCog, isSubItem: true },
     { id: 'security', name: 'Roles & Permissions', href: '/settings/roles', icon: ShieldCheck, isSubItem: true },
 
 
-    { id: 'contractor', name: 'Contractor Menu', href: '#', icon: Briefcase, isHeader: true },
-    { id: 'contractor', name: 'Dashboard', href: '/contractor', icon: LayoutDashboard, isSubItem: true },
-    { id: 'contractor', name: 'My Employees', href: '/contractor/employees', icon: Users, isSubItem: true },
-    { id: 'contractor', name: 'Add Employee', href: '/contractor/add-employee', icon: UserPlus, isSubItem: true },
-    { id: 'contractor', name: 'Pass Requests', href: '/contractor/passes', icon: FileSignature, isSubItem: true },
-    { id: 'contractor', name: 'Generated Passes', href: '/contractor/generated-passes', icon: QrCode, isSubItem: true },
-    { id: 'dashboard', name: 'Contractor Reg Form', href: '/contractor-registration', icon: Plus },
+
   ];
 
   const navigation = allNavigation.filter(nav => currentRole.portals.includes(nav.id));
@@ -101,8 +93,7 @@ const Layout = () => {
               </div>
             {!isCollapsed && (
               <div>
-                <h1 className="font-black text-white leading-tight">Pro-Visit <span className="text-xs text-blue-400 ml-1">v3.4</span></h1>
-                <p className="text-[10px] text-blue-200/70 uppercase tracking-wider font-bold truncate">Autonomous Access Suite</p>
+                <h1 className="font-black text-white leading-tight text-lg">Pro-Visit</h1>
               </div>
             )}
             </div>
@@ -112,18 +103,18 @@ const Layout = () => {
         <div className={`p-4 flex-1 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'px-2' : ''}`}>
           {!isCollapsed && (
             <div className="flex items-center justify-between mb-4 px-4">
-              <span className="text-[10px] font-black text-blue-200/50 uppercase tracking-widest">{currentRole.label} Menu</span>
+              <span className="text-xs font-bold text-blue-200/50">{currentRole.label} Menu</span>
               <div className="w-1.5 h-1.5 rounded-full bg-hct-blue shadow-[0_0_8px_rgba(0,36,156,0.8)]"></div>
             </div>
           )}
-          <nav className="space-y-2">
+          <nav className="space-y-1 pb-4">
             {(() => {
               let currentHeader = null;
               return navigation.map((item, index) => {
                 const Icon = item.icon;
                 const isActive = item.href !== '#' && (
                   location.pathname === item.href || 
-                  (item.href !== '/' && item.href !== '/contractor' && location.pathname.startsWith(item.href))
+                  (item.href !== '/' && item.href !== '/contractor' && location.pathname.startsWith(item.href + '/'))
                 );
                 
                 if (item.isHeader) {
@@ -133,14 +124,14 @@ const Layout = () => {
                     <button 
                       key={`header-${index}`} 
                       onClick={() => toggleMenu(item.name)}
-                      className={`w-full pt-4 pb-2 px-4 flex items-center justify-between group outline-none ${isCollapsed ? 'justify-center' : ''}`}
+                      className={`w-full pt-6 pb-2 flex items-center justify-between group outline-none ${isCollapsed ? 'justify-center px-4' : 'px-6'}`}
                     >
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4 text-blue-200/40 group-hover:text-blue-200/60 transition-colors" />
-                        {!isCollapsed && <span className="text-[10px] font-black text-blue-200/40 group-hover:text-blue-200/60 uppercase tracking-widest transition-colors">{item.name}</span>}
+                      <div className="flex items-center gap-3">
+                        {isCollapsed && <Icon className="w-5 h-5 text-blue-200/40 group-hover:text-blue-200/80 transition-colors" />}
+                        {!isCollapsed && <span className="text-sm font-bold text-blue-200/50 group-hover:text-blue-200/90 transition-colors">{item.name}</span>}
                       </div>
                       {!isCollapsed && (
-                        isExpanded ? <ChevronDown className="w-3 h-3 text-blue-200/40" /> : <ChevronRight className="w-3 h-3 text-blue-200/40" />
+                        isExpanded ? <ChevronDown className="w-4 h-4 text-blue-200/40 group-hover:text-blue-200/80 transition-colors" /> : <ChevronRight className="w-4 h-4 text-blue-200/40 group-hover:text-blue-200/80 transition-colors" />
                       )}
                     </button>
                   );
@@ -154,21 +145,25 @@ const Layout = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`flex items-center justify-between px-4 py-3 rounded-2xl font-bold transition-all group relative overflow-hidden ${isCollapsed ? 'justify-center' : ''} ${item.isSubItem && !isCollapsed ? 'ml-4 py-2.5 text-sm' : ''} ${
+                    className={`flex items-center gap-3 py-2.5 transition-all group relative overflow-hidden ${isCollapsed ? 'justify-center px-4 mx-2 rounded-xl' : 'px-6'} ${item.isSubItem && !isCollapsed ? 'pl-10 text-sm' : ''} ${
                       isActive 
-                        ? 'bg-hct-blue text-white shadow-lg shadow-black/20' 
-                        : 'text-blue-100/70 hover:text-white hover:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10'
+                        ? 'text-white bg-white/5' 
+                        : 'text-blue-100/60 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className={`${item.isSubItem ? 'w-4 h-4' : 'w-5 h-5'} shrink-0 ${isActive ? 'text-white' : 'text-blue-200/50 group-hover:text-white transition-colors'}`} />
-                      {!isCollapsed && <span className="whitespace-nowrap">{item.name}</span>}
-                    </div>
-                    
-                    {/* Active Indicator Line */}
-                    {isActive && (
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]"></div>
+                    {/* Active Left Border Indicator */}
+                    {isActive && !isCollapsed && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.8)]"></div>
                     )}
+                    
+                    {/* Active dot indicator for collapsed mode */}
+                    {isActive && isCollapsed && (
+                      <div className="absolute top-1/2 right-2 -translate-y-1/2 w-1.5 h-1.5 bg-blue-400 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.8)]"></div>
+                    )}
+                    
+                    <Icon className={`${item.isSubItem ? 'w-[18px] h-[18px]' : 'w-5 h-5'} shrink-0 ${isActive ? 'text-blue-400' : 'text-blue-200/40 group-hover:text-blue-200/80 transition-colors'}`} />
+                    
+                    {!isCollapsed && <span className={`font-medium tracking-wide ${isActive ? 'font-bold' : ''}`}>{item.name}</span>}
                   </Link>
                 );
               });
@@ -218,12 +213,6 @@ const Layout = () => {
                <span className="text-slate-400 font-normal">{currentRole.label} View /</span>
                {location.pathname === '/' ? 'Dashboard' : location.pathname.split('/')[1].replace('-', ' ')}
              </h1>
-             {location.pathname === '/' && (
-               <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider rounded-full">
-                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                 Live Sync
-               </div>
-             )}
            </div>
            
            <div className="flex items-center gap-4">

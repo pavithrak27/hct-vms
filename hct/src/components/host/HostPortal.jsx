@@ -111,22 +111,6 @@ const HostPortal = () => {
           <h2 className="text-4xl font-bold text-slate-800 dark:text-white">Host Dashboard</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage your visitor requests and schedule upcoming visits.</p>
         </div>
-        <div className="flex gap-4">
-          <button 
-            onClick={startInvite}
-            className="px-6 py-3 bg-hct-blue text-white rounded-xl font-bold shadow-lg hover:bg-blue-800 transition-all flex items-center gap-2 hover:-translate-y-1 hover:shadow-blue-500/30"
-          >
-            <UserPlus className="w-5 h-5" /> Invite Visitor
-          </button>
-          <div className="relative">
-            <button className="p-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-2xl shadow-sm border border-white/60 dark:border-white/10 hover:shadow-md transition-all h-full">
-              <Bell className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-              {requests.filter(r => r.status === 'pending').length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></span>
-              )}
-            </button>
-          </div>
-        </div>
       </div>
 
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 dark:border-white/10 overflow-hidden">

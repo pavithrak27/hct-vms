@@ -10,6 +10,7 @@ const VisitorPortal = () => {
 
   const [step, setStep] = useState(isPreScheduled ? 2 : 1);
   const [entryMode, setEntryMode] = useState(isPreScheduled ? 'pre-scheduled' : null); 
+  const [activeTab, setActiveTab] = useState(isPreScheduled ? 'preapproved' : 'walkin'); 
 
   // Step 2 & 3: Visitors & Host
   const [visitors, setVisitors] = useState([
@@ -167,9 +168,27 @@ const VisitorPortal = () => {
 
   return (
     <div className="w-full max-w-5xl mx-auto min-h-[80vh] flex flex-col">
-      {/* Header */}
+      {/* Header & Tabs */}
       <div className="mb-6 text-center">
-        <h2 className="text-3xl font-bold text-slate-800 dark:text-white">Walk-In Visitor Management</h2>
+        <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-6">Visitor Management</h2>
+        
+        <div className="flex justify-center mb-2">
+          <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl inline-flex shadow-inner">
+            <button 
+              onClick={() => { setActiveTab('walkin'); setStep(1); }} 
+              className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'walkin' ? 'bg-white dark:bg-slate-700 text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Walk-In
+            </button>
+            <button 
+              onClick={() => { setActiveTab('preapproved'); setStep(1); }} 
+              className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${activeTab === 'preapproved' ? 'bg-white dark:bg-slate-700 text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Pre-Approved
+            </button>
+          </div>
+        </div>
+        
         {visitRequestId && step === 8 && (
           <p className="text-hct-blue dark:text-blue-400 font-bold mt-2">Visit Request: {visitRequestId}</p>
         )}
@@ -207,7 +226,9 @@ const VisitorPortal = () => {
           {/* STEP 1: Modes */}
           {step === 1 && (
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-center mb-8">Select Registration Method</h3>
+              <h3 className="text-xl font-bold text-center mb-8">
+                {activeTab === 'walkin' ? 'Walk-In Registration Method' : 'Pre-Approved Entry Method'}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <button onClick={() => { setEntryMode('qr'); setStep(2); }} className="p-8 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:border-hct-blue hover:bg-blue-50 dark:hover:bg-slate-800 transition-all text-center group flex flex-col items-center">
                   <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mb-4 text-hct-blue group-hover:scale-110 transition-transform"><QrCode className="w-8 h-8" /></div>

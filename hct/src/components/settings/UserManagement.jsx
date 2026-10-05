@@ -32,11 +32,11 @@ const UserManagement = () => {
       <div className="flex justify-between items-end mb-8">
         <div>
           <h2 className="text-4xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
-            <UserCog className="w-8 h-8 text-blue-500" /> User Management
+            <UserCog className="w-8 h-8 text-hct-blue" /> User Management
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage user identities, assign roles, and map campus access scope.</p>
         </div>
-        <button onClick={() => setIsAddingUser(true)} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-md">
+        <button onClick={() => setIsAddingUser(true)} className="bg-hct-blue text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-[#001a66] transition-colors shadow-md">
           <Plus className="w-5 h-5"/> Provision New User
         </button>
       </div>
@@ -45,7 +45,7 @@ const UserManagement = () => {
         <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by Name or Email..." className="pl-9 p-2 rounded-lg border border-slate-300 w-80 text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+            <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by Name or Email..." className="pl-9 p-2 rounded-lg border border-slate-300 w-80 text-sm outline-none focus:ring-2 focus:ring-hct-blue" />
           </div>
           <div className="text-xs font-bold text-slate-500 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-500"/> Users provisioned automatically via SSO will appear here.
@@ -82,7 +82,7 @@ const UserManagement = () => {
                 <td className="p-4">
                   <div className="flex flex-wrap gap-1">
                     {u.campuses.map(c => (
-                      <span key={c} className={`px-2 py-0.5 rounded text-[10px] font-bold ${c === 'ALL' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+                      <span key={c} className={`px-2 py-0.5 rounded text-[10px] font-bold ${c === 'ALL' ? 'bg-hct-blue/10 text-hct-blue' : 'bg-slate-100 text-slate-600'}`}>
                         {c === 'ALL' ? 'Global Access' : CAMPUSES.find(cam => cam.id === c)?.name}
                       </span>
                     ))}
@@ -106,39 +106,39 @@ const UserManagement = () => {
       <AnimatePresence>
         {(selectedUser || isAddingUser) && (
           <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-slate-200 bg-slate-50">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+              <div className="p-6 border-b border-slate-200 bg-slate-50 shrink-0">
                 <h3 className="text-xl font-bold text-slate-800">{isAddingUser ? 'Provision New User' : `Edit User Scope: ${selectedUser?.name}`}</h3>
                 <p className="text-sm text-slate-500">{isAddingUser ? 'Configure RBAC and campus access for a new identity.' : selectedUser?.email}</p>
               </div>
-              <div className="p-6 space-y-6">
+              <div className="p-6 space-y-6 overflow-y-auto">
                 
                 {isAddingUser && (
                   <>
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
-                      <input type="text" placeholder="e.g. John Doe" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-blue-500 font-medium" />
+                      <input type="text" placeholder="e.g. John Doe" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-2">Email Address (AD Mapped)</label>
-                      <input type="email" placeholder="e.g. jdoe@hct.ac.ae" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-blue-500 font-medium" />
+                      <input type="email" placeholder="e.g. jdoe@hct.ac.ae" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
                     </div>
                   </>
                 )}
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-blue-500"/> System Role Assignment</label>
-                  <select defaultValue={selectedUser?.role || 'Host'} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-blue-500 font-medium">
+                  <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-hct-blue"/> System Role Assignment</label>
+                  <select defaultValue={selectedUser?.role || 'Host'} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium">
                     {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><MapPin className="w-4 h-4 text-blue-500"/> Campus Access Scope</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><MapPin className="w-4 h-4 text-hct-blue"/> Campus Access Scope</label>
                   <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
                     {CAMPUSES.map(c => (
                       <label key={c.id} className="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" defaultChecked={selectedUser ? (selectedUser.campuses.includes(c.id) || selectedUser.campuses.includes('ALL')) : false} className="w-4 h-4 accent-blue-600" />
+                        <input type="checkbox" defaultChecked={selectedUser ? (selectedUser.campuses.includes(c.id) || selectedUser.campuses.includes('ALL')) : false} className="w-4 h-4 accent-hct-blue" />
                         <span className="text-sm font-bold text-slate-700">{c.name}</span>
                       </label>
                     ))}
@@ -148,16 +148,16 @@ const UserManagement = () => {
 
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">Account Status</label>
-                  <select defaultValue={selectedUser?.status || 'Active'} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-blue-500 font-medium">
+                  <select defaultValue={selectedUser?.status || 'Active'} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium">
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                   </select>
                 </div>
 
               </div>
-              <div className="p-6 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
+              <div className="p-6 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 shrink-0">
                 <button onClick={() => { setSelectedUser(null); setIsAddingUser(false); }} className="px-6 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl font-bold text-slate-700">Cancel</button>
-                <button onClick={() => { alert('User profile saved and synced to Audit Log.'); setSelectedUser(null); setIsAddingUser(false); }} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md flex items-center gap-2">
+                <button onClick={() => { alert('User profile saved and synced to Audit Log.'); setSelectedUser(null); setIsAddingUser(false); }} className="px-6 py-2.5 bg-hct-blue hover:bg-[#001a66] transition-colors text-white rounded-xl font-bold shadow-md flex items-center gap-2">
                   <Save className="w-4 h-4"/> Save Changes
                 </button>
               </div>

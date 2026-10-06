@@ -226,11 +226,6 @@ const AdminPassRequests = () => {
                         <td className="p-4 font-medium text-slate-700">{pass.company}</td>
                         <td className="p-4 text-xs text-slate-600 leading-tight">From: {pass.validFrom}<br/>To: {pass.validTo}</td>
                         <td className="p-4 text-right flex items-center justify-end gap-2">
-                          {pass.status === 'Expired' && (
-                            <button onClick={() => setRenewModalData(pass)} className="p-2 text-hct-blue hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold" title="Renew Pass">
-                              <RefreshCw className="w-4 h-4"/> Renew
-                            </button>
-                          )}
                           <button onClick={() => setSelectedPass(pass)} className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Eye className="w-5 h-5"/></button>
                           <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Download className="w-5 h-5"/></button>
                         </td>

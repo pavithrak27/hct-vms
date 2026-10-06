@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ShieldCheck, Search, Users, Check, Save, Plus, Edit2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const INITIAL_ROLES = ['Super Admin', 'Security Admin', 'Reception', 'Approver', 'Host'];
+const INITIAL_ROLES = ['Superadmin', 'Campus Admin', 'Host', 'Security', 'Reception', 'Visitor', 'Contractor', 'Approver'];
 
 const WEB_MODULES = [
   { name: 'Visitor Management', perms: ['web_View Visitors', 'web_Create Visitor', 'web_Edit Visitor', 'web_Delete Visitor'] },
@@ -100,7 +100,7 @@ const RolesPermissions = () => {
                   ) : (
                     <div className="flex items-center justify-between">
                       <span>{r}</span>
-                      {r !== 'Super Admin' && (
+                      {r !== 'Superadmin' && (
                         <div className="hidden group-hover:flex items-center gap-2">
                           <button onClick={(e) => { e.stopPropagation(); setEditingRole(r); setEditingRoleName(r); }} className="text-slate-400 hover:text-emerald-600"><Edit2 className="w-3.5 h-3.5"/></button>
                           <button onClick={(e) => { e.stopPropagation(); const newRoles = roles.filter(x => x !== r); setRoles(newRoles); if (selectedRole === r) setSelectedRole(newRoles[0]); }} className="text-slate-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5"/></button>
@@ -140,22 +140,22 @@ const RolesPermissions = () => {
                   <h4 className="font-bold text-emerald-800">Access Mobile Application</h4>
                   <p className="text-sm text-emerald-600">If disabled, the user must not be able to log into or use the Pro-Visit mobile application.</p>
                 </div>
-                <label className={`flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer border ${(selectedRole === 'Super Admin' || activePerms['mob_Access Mobile Application']) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 bg-white'}`}>
-                  {(selectedRole === 'Super Admin' || activePerms['mob_Access Mobile Application']) && <Check className="w-5 h-5"/>}
-                  <input type="checkbox" className="hidden" checked={selectedRole === 'Super Admin' || !!activePerms['mob_Access Mobile Application']} onChange={() => selectedRole !== 'Super Admin' && togglePerm('mob_Access Mobile Application')} disabled={selectedRole === 'Super Admin'} />
+                <label className={`flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer border ${(selectedRole === 'Superadmin' || activePerms['mob_Access Mobile Application']) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 bg-white'}`}>
+                  {(selectedRole === 'Superadmin' || activePerms['mob_Access Mobile Application']) && <Check className="w-5 h-5"/>}
+                  <input type="checkbox" className="hidden" checked={selectedRole === 'Superadmin' || !!activePerms['mob_Access Mobile Application']} onChange={() => selectedRole !== 'Superadmin' && togglePerm('mob_Access Mobile Application')} disabled={selectedRole === 'Superadmin'} />
                 </label>
               </div>
             )}
             
-            <div className={`grid grid-cols-1 md:grid-cols-2 gap-8 ${(platformTab === 'mobile' && selectedRole !== 'Super Admin' && !activePerms['mob_Access Mobile Application']) ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className={`grid grid-cols-1 md:grid-cols-2 gap-8 ${(platformTab === 'mobile' && selectedRole !== 'Superadmin' && !activePerms['mob_Access Mobile Application']) ? 'opacity-50 pointer-events-none' : ''}`}>
               {(platformTab === 'web' ? WEB_MODULES : MOBILE_MODULES).map(mod => (
                 <div key={mod.name} className="border border-slate-200 rounded-xl overflow-hidden">
                   <div className="bg-slate-50 p-3 border-b border-slate-200 font-bold text-slate-700 text-sm">{mod.name}</div>
                   <div className="p-2 space-y-1">
                     {mod.perms.map(p => {
-                      // Super admin gets everything
-                      const isChecked = selectedRole === 'Super Admin' ? true : !!activePerms[p];
-                      const disabled = selectedRole === 'Super Admin';
+                      // Superadmin gets everything
+                      const isChecked = selectedRole === 'Superadmin' ? true : !!activePerms[p];
+                      const disabled = selectedRole === 'Superadmin';
                       const displayName = p.replace('web_', '').replace('mob_', '');
                       
                       return (

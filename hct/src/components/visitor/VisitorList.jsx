@@ -4,7 +4,7 @@ import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Ca
 
 const initialVisitors = [
   { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Checked In', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false },
-  { id: 'V-1022', name: 'Sarah Parker', company: 'Independent', host: 'Jane Doe', type: 'Pre-Approved', date: '2026-10-05', time: '10:30 AM', status: 'Expected', phone: '+971 55 987 6543', docId: 'P-98765432', isBlocked: false },
+  
   { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Contractor', date: '2026-10-05', time: '11:15 AM', status: 'Completed', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false },
   { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Facilities Dept', type: 'Guest', date: '2026-10-05', time: '01:00 PM', status: 'Checked In', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false },
   { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Delivery', date: '2026-10-05', time: '02:45 PM', status: 'Expected', phone: '+971 56 777 8888', docId: 'P-11223344', isBlocked: true },
@@ -205,7 +205,7 @@ const VisitorList = () => {
 
   const submitRequest = () => {
     setVisitRequestId('VR-2026-00125');
-    setStep(8);
+    setStep(4);
   };
 
   const handleSendLink = (e) => {
@@ -385,29 +385,10 @@ const VisitorList = () => {
         <AnimatePresence mode="wait">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col max-w-5xl w-full mx-auto">
             
-            {/* Progress Indicator */}
-            {step >= 2 && step < 8 && (
-              <div className="flex justify-between items-center mb-8 px-4 overflow-x-auto pb-4 gap-4">
-                {['Details', 'Identity', 'Vehicle', 'Photo', 'Declaration', 'Review'].map((label, i) => {
-                  const stepNum = i + 2;
-                  const isActive = step === stepNum;
-                  const isPast = step > stepNum;
-                  return (
-                    <div key={label} className="flex flex-col items-center min-w-[80px] gap-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-colors ${isActive ? 'bg-hct-blue text-white ring-4 ring-blue-100 dark:ring-blue-900/50' : isPast ? 'bg-emerald-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
-                        {isPast ? <Check className="w-4 h-4" /> : stepNum - 1}
-                      </div>
-                      <span className={`text-xs font-bold ${isActive ? 'text-hct-blue dark:text-blue-400' : 'text-slate-500'}`}>{label}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
             <div className="flex-1 bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 p-6 md:p-8 relative">
               
               {/* Send Link Button Floating Top Right */}
-              {step < 8 && (
+              {step < 4 && (
                 <button 
                   onClick={() => setShowSendLinkModal(true)}
                   className="absolute top-6 right-6 flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl font-bold text-xs transition-colors border border-indigo-100"
@@ -417,7 +398,7 @@ const VisitorList = () => {
               )}
 
               {/* Registration Type Selector */}
-              {step < 8 && (
+              {step < 4 && (
                 <div className="flex flex-col items-center mb-8 border-b border-slate-200 dark:border-slate-700 pb-6">
                   <h3 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Registration Type</h3>
                   <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl inline-flex shadow-inner">
@@ -437,192 +418,194 @@ const VisitorList = () => {
                 </div>
               )}
 
-              {/* STEP 2: Details */}
+                            {/* STEP 2: Unified Form */}
               {step === 2 && (
-                <div className="space-y-8 mt-2">
-                  <h3 className="text-base font-bold border-b pb-2">Primary Visitor Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Full Name *</label>
-                      <input type="text" value={formVisitors[0].fullName} onChange={(e) => handleVisitorChange(0, 'fullName', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Mobile Number *</label>
-                      <input type="tel" value={formVisitors[0].mobileNumber} onChange={(e) => handleVisitorChange(0, 'mobileNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Email Address</label>
-                      <input type="email" value={formVisitors[0].email} onChange={(e) => handleVisitorChange(0, 'email', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Nationality</label>
-                      <input type="text" value={formVisitors[0].nationality} onChange={(e) => handleVisitorChange(0, 'nationality', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Host *</label>
-                      <div className="relative">
-                        {isPreScheduled && <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />}
-                        {isPreScheduled ? (
-                          <input type="text" value={hostDetails.hostName || "Jane Doe (Locked)"} readOnly className="w-full pl-10 p-3 rounded-xl border border-slate-300 dark:border-slate-700 outline-none bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" />
-                        ) : (
-                          <select value={hostDetails.hostName} onChange={(e) => setHostDetails({...hostDetails, hostName: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
-                            <option value="">Select a Host</option>
-                            {["Dr. Ahmed", "Jane Doe", "Prof. Tariq", "Sarah Parker"].map(h => (
-                              <option key={h} value={h}>{h}</option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Campus / Location</label>
-                      <div className="relative">
-                         {isPreScheduled && <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />}
-                         {isPreScheduled ? (
-                           <input type="text" value={hostDetails.department || "Dubai Women's Campus"} readOnly className="w-full pl-10 p-3 rounded-xl border border-slate-300 dark:border-slate-700 outline-none bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" />
-                         ) : (
-                           <select value={hostDetails.department} onChange={(e) => setHostDetails({...hostDetails, department: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
-                             <option value="">Select Campus</option>
-                             {["Abu Dhabi Men's Campus", "Dubai Men's Campus", "Dubai Women's Campus", "Sharjah Men's Campus"].map(camp => (
-                               <option key={camp} value={camp}>{camp}</option>
-                             ))}
-                           </select>
-                         )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 3: Identity */}
-              {step === 3 && (
-                <div className="space-y-8 mt-2">
-                  <div className="flex justify-between items-center border-b pb-2">
-                    <h3 className="text-base font-bold">Identity Verification</h3>
-                    <button onClick={addVisitor} className="flex items-center gap-2 text-xs font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
-                      <UserPlus className="w-4 h-4" /> Add Another Visitor
-                    </button>
-                  </div>
-
-                  {formVisitors.map((visitor, index) => (
-                    <div key={visitor.id} className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 relative">
-                      {index > 0 && (
-                        <button onClick={() => removeVisitor(index)} className="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><Trash2 className="w-5 h-5" /></button>
-                      )}
-                      <h4 className="font-bold text-base mb-4">Visitor {index + 1} {visitor.fullName ? `- ${visitor.fullName}` : ''}</h4>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-xs font-bold mb-1 block">Document Type *</label>
-                            <select value={visitor.docType} onChange={(e) => handleVisitorChange(index, 'docType', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
-                              <option value="">Select ID Type</option>
-                              <option value="Emirates ID">Emirates ID</option>
-                              <option value="Passport">Passport</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="text-xs font-bold mb-1 block">Document Number</label>
-                            <input type="text" value={visitor.docNumber} onChange={(e) => handleVisitorChange(index, 'docNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-bold mb-1 block">Document Expiry Date</label>
-                            <input type="date" value={visitor.docExpiry} onChange={(e) => handleVisitorChange(index, 'docExpiry', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col justify-center">
-                          {visitor.docScanned ? (
-                            <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl p-6 text-center">
-                               <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
-                               <p className="font-bold text-emerald-700 dark:text-emerald-400">Document Scanned</p>
-                               <button onClick={() => handleVisitorChange(index, 'docScanned', false)} className="mt-4 text-xs font-bold text-emerald-700 underline">Rescan</button>
-                            </div>
+                <div className="space-y-12 mt-2 max-w-4xl mx-auto">
+                  
+                  {/* Host & Campus Info */}
+                  <div className="space-y-6">
+                    <h3 className="text-base font-bold border-b pb-2">Visit Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Host *</label>
+                        <div className="relative">
+                          {isPreScheduled && <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />}
+                          {isPreScheduled ? (
+                            <input type="text" value={hostDetails.hostName || "Jane Doe (Locked)"} readOnly className="w-full pl-10 p-3 rounded-xl border border-slate-300 dark:border-slate-700 outline-none bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" />
                           ) : (
-                            <button onClick={() => simulateScan(index)} disabled={!visitor.docType} className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 flex flex-col items-center justify-center text-slate-500 hover:bg-slate-50 hover:border-hct-blue transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                              <Camera className="w-10 h-10 mb-2" />
-                              <span className="font-bold">Scan Document (OCR)</span>
-                            </button>
+                            <select value={hostDetails.hostName} onChange={(e) => setHostDetails({...hostDetails, hostName: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
+                              <option value="">Select a Host</option>
+                              {["Dr. Ahmed", "Jane Doe", "Prof. Tariq", "Sarah Parker"].map(h => (
+                                <option key={h} value={h}>{h}</option>
+                              ))}
+                            </select>
                           )}
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* STEP 4: Vehicle */}
-              {step === 4 && (
-                <div className="space-y-6 max-w-2xl mx-auto mt-2">
-                  <h3 className="text-base font-bold border-b pb-2 text-center">Vehicle Information</h3>
-                  <div className="flex justify-center gap-8 py-6">
-                    <label className="flex flex-col items-center gap-2 cursor-pointer group">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all ${vehicleDetails.hasVehicle === 'Yes' ? 'border-hct-blue bg-blue-50 text-hct-blue' : 'border-slate-200 text-slate-400 group-hover:border-blue-200'}`}>
-                        <Car className="w-8 h-8" />
-                      </div>
-                      <input type="radio" name="hasVehicle" value="Yes" checked={vehicleDetails.hasVehicle === 'Yes'} onChange={(e) => setVehicleDetails({...vehicleDetails, hasVehicle: e.target.value})} className="hidden" />
-                      <span className="font-bold">Arriving by vehicle</span>
-                    </label>
-                    <label className="flex flex-col items-center gap-2 cursor-pointer group">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center border-4 transition-all ${vehicleDetails.hasVehicle === 'No' ? 'border-slate-800 bg-slate-50 text-slate-800 dark:border-slate-400 dark:text-white' : 'border-slate-200 text-slate-400 group-hover:border-slate-300'}`}>
-                        <UserCheck className="w-8 h-8" />
-                      </div>
-                      <input type="radio" name="hasVehicle" value="No" checked={vehicleDetails.hasVehicle === 'No'} onChange={(e) => setVehicleDetails({...vehicleDetails, hasVehicle: e.target.value})} className="hidden" />
-                      <span className="font-bold">No Vehicle</span>
-                    </label>
-                  </div>
-                  {vehicleDetails.hasVehicle === 'Yes' && (
-                    <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="space-y-4 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
                       <div>
-                        <label className="text-xs font-bold mb-1 block">Vehicle Number *</label>
-                        <input type="text" placeholder="e.g. Dubai A 12345" value={vehicleDetails.vehicleNumber} onChange={(e) => setVehicleDetails({...vehicleDetails, vehicleNumber: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none uppercase font-mono text-base tracking-wider" />
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Campus / Location</label>
+                        <div className="relative">
+                           {isPreScheduled && <Lock className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />}
+                           {isPreScheduled ? (
+                             <input type="text" value={hostDetails.department || "Dubai Women's Campus"} readOnly className="w-full pl-10 p-3 rounded-xl border border-slate-300 dark:border-slate-700 outline-none bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed" />
+                           ) : (
+                             <select value={hostDetails.department} onChange={(e) => setHostDetails({...hostDetails, department: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
+                               <option value="">Select Campus</option>
+                               {["Abu Dhabi Men's Campus", "Dubai Men's Campus", "Dubai Women's Campus", "Sharjah Men's Campus"].map(camp => (
+                                 <option key={camp} value={camp}>{camp}</option>
+                               ))}
+                             </select>
+                           )}
+                        </div>
                       </div>
-                    </motion.div>
-                  )}
-                </div>
-              )}
-
-              {/* STEP 5: Photo */}
-              {step === 5 && (
-                <div className="space-y-6 max-w-xl mx-auto text-center mt-2">
-                  <h3 className="text-base font-bold border-b pb-2">Live Photograph Capture</h3>
-                  <div className="bg-slate-100 dark:bg-slate-800 rounded-3xl h-80 flex flex-col items-center justify-center relative overflow-hidden border-4 border-slate-200 dark:border-slate-700 shadow-inner">
-                    {livePhotoCaptured ? (
-                      <>
-                        <img src="https://i.pravatar.cc/300" alt="Captured" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                          <button onClick={() => setLivePhotoCaptured(false)} className="bg-white text-slate-800 px-6 py-2 rounded-full font-bold shadow-lg">Retake Photo</button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-24 h-24 rounded-full border-4 border-dashed border-slate-300 flex items-center justify-center mb-4">
-                           <Camera className="w-10 h-10 text-slate-400" />
-                        </div>
-                        <button onClick={() => setLivePhotoCaptured(true)} className="bg-hct-blue text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-700 transition-colors">Open Camera & Capture</button>
-                      </>
-                    )}
+                    </div>
                   </div>
-                </div>
-              )}
 
-              {/* STEP 6: Declaration */}
-              {step === 6 && (
-                <div className="space-y-8 max-w-2xl mx-auto mt-2">
-                  <h3 className="text-base font-bold border-b pb-2 text-center">Visitor Declaration</h3>
-                  <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-2xl border border-amber-200 dark:border-amber-800">
-                    <label className="flex items-start gap-4 cursor-pointer">
-                      <input type="checkbox" checked={declarationAccepted} onChange={(e) => setDeclarationAccepted(e.target.checked)} className="mt-1 w-5 h-5 text-hct-blue rounded border-slate-300" />
-                      <span className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                        <strong>I confirm that the information provided is correct and I agree to comply with the visitor management and security policies of Higher Colleges of Technology (HCT).</strong>
-                      </span>
-                    </label>
+                  {/* Visitors Information Loop */}
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center border-b pb-2">
+                      <h3 className="text-base font-bold">Visitor Information & Identity</h3>
+                      <button onClick={addVisitor} className="flex items-center gap-2 text-xs font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
+                        <UserPlus className="w-4 h-4" /> Add Another Visitor
+                      </button>
+                    </div>
+
+                    {formVisitors.map((visitor, index) => (
+                      <div key={visitor.id} className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 relative space-y-6">
+                        {index > 0 && (
+                          <button onClick={() => removeVisitor(index)} className="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><Trash2 className="w-5 h-5" /></button>
+                        )}
+                        <h4 className="font-bold text-base">Visitor {index + 1} {visitor.fullName ? `- ${visitor.fullName}` : ''}</h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Full Name *</label>
+                            <input type="text" value={visitor.fullName} onChange={(e) => handleVisitorChange(index, 'fullName', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Mobile Number *</label>
+                            <input type="tel" value={visitor.mobileNumber} onChange={(e) => handleVisitorChange(index, 'mobileNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Email Address</label>
+                            <input type="email" value={visitor.email} onChange={(e) => handleVisitorChange(index, 'email', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Nationality</label>
+                            <input type="text" value={visitor.nationality} onChange={(e) => handleVisitorChange(index, 'nationality', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
+                          </div>
+                        </div>
+
+                        <div className="border-t border-slate-200 dark:border-slate-700 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <div>
+                              <label className="text-xs font-bold mb-1 block">Document Type *</label>
+                              <select value={visitor.docType} onChange={(e) => handleVisitorChange(index, 'docType', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none">
+                                <option value="">Select ID Type</option>
+                                <option value="Emirates ID">Emirates ID</option>
+                                <option value="Passport">Passport</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold mb-1 block">Document Number</label>
+                              <input type="text" value={visitor.docNumber} onChange={(e) => handleVisitorChange(index, 'docNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold mb-1 block">Document Expiry Date</label>
+                              <input type="date" value={visitor.docExpiry} onChange={(e) => handleVisitorChange(index, 'docExpiry', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col justify-center">
+                            {visitor.docScanned ? (
+                              <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl p-6 text-center">
+                                 <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
+                                 <p className="font-bold text-emerald-700 dark:text-emerald-400">Document Scanned</p>
+                                 <button onClick={() => handleVisitorChange(index, 'docScanned', false)} className="mt-4 text-xs font-bold text-emerald-700 underline">Rescan</button>
+                              </div>
+                            ) : (
+                              <button onClick={() => simulateScan(index)} disabled={!visitor.docType} className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 flex flex-col items-center justify-center text-slate-500 hover:bg-slate-50 hover:border-hct-blue transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                <Camera className="w-10 h-10 mb-2" />
+                                <span className="font-bold">Scan Document (OCR)</span>
+                              </button>
+                            )}
+
+                        {/* Vehicle Information */}
+                        <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+                          <h3 className="text-sm font-bold border-b pb-2 mb-4">Vehicle Information</h3>
+                          <div className="flex flex-col gap-6">
+                            <div className="flex justify-start gap-8">
+                              <label className="flex items-center gap-2 cursor-pointer group">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${visitor.hasVehicle === 'Yes' ? 'border-hct-blue bg-blue-50 text-hct-blue' : 'border-slate-200 text-slate-400 group-hover:border-blue-200'}`}>
+                                  <Car className="w-6 h-6" />
+                                </div>
+                                <input type="radio" name={`hasVehicle-${index}`} value="Yes" checked={visitor.hasVehicle === 'Yes'} onChange={(e) => handleVisitorChange(index, 'hasVehicle', e.target.value)} className="hidden" />
+                                <span className="font-bold text-sm">Arriving by vehicle</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer group">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${visitor.hasVehicle === 'No' ? 'border-slate-800 bg-slate-50 text-slate-800 dark:border-slate-400 dark:text-white' : 'border-slate-200 text-slate-400 group-hover:border-slate-300'}`}>
+                                  <UserCheck className="w-6 h-6" />
+                                </div>
+                                <input type="radio" name={`hasVehicle-${index}`} value="No" checked={visitor.hasVehicle === 'No'} onChange={(e) => handleVisitorChange(index, 'hasVehicle', e.target.value)} className="hidden" />
+                                <span className="font-bold text-sm">No Vehicle</span>
+                              </label>
+                            </div>
+                            {visitor.hasVehicle === 'Yes' && (
+                              <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <div>
+                                  <label className="text-xs font-bold mb-1 block">Vehicle Number *</label>
+                                  <input type="text" placeholder="e.g. Dubai A 12345" value={visitor.vehicleNumber} onChange={(e) => handleVisitorChange(index, 'vehicleNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none uppercase font-mono text-sm tracking-wider" />
+                                </div>
+                              </motion.div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Live Photograph */}
+                        <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+                          <h3 className="text-sm font-bold border-b pb-2 mb-4">Live Photograph Capture</h3>
+                          <div className="bg-white dark:bg-slate-800 rounded-2xl h-64 flex flex-col items-center justify-center relative overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-inner">
+                            {visitor.photoCaptured ? (
+                              <>
+                                <img src="https://i.pravatar.cc/300" alt="Captured" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                  <button onClick={() => handleVisitorChange(index, 'photoCaptured', false)} className="bg-white text-slate-800 px-6 py-2 rounded-full font-bold shadow-lg">Retake Photo</button>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center mb-4">
+                                   <Camera className="w-8 h-8 text-slate-400" />
+                                </div>
+                                <button onClick={() => handleVisitorChange(index, 'photoCaptured', true)} className="bg-slate-800 dark:bg-slate-700 text-white px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-slate-900 transition-colors">Start Camera</button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+
+                  {/* Declaration */}
+                  <div className="space-y-6">
+                    <h3 className="text-base font-bold border-b pb-2">Visitor Declaration</h3>
+                    <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-2xl border border-amber-200 dark:border-amber-800">
+                      <label className="flex items-start gap-4 cursor-pointer">
+                        <input type="checkbox" checked={declarationAccepted} onChange={(e) => setDeclarationAccepted(e.target.checked)} className="mt-1 w-5 h-5 text-hct-blue rounded border-slate-300" />
+                        <span className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                          <strong>I confirm that the information provided is correct and I agree to comply with the visitor management and security policies of Higher Colleges of Technology (HCT).</strong>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
                 </div>
               )}
 
-              {/* STEP 7: Review & Submit */}
-              {step === 7 && (
+{/* STEP 3: Review & Submit */}
+              {step === 3 && (
                 <div className="space-y-8 mt-2">
                   <h3 className="text-base font-bold text-center border-b pb-4">Review Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -655,8 +638,8 @@ const VisitorList = () => {
                 </div>
               )}
 
-              {/* STEP 8: Success */}
-              {step === 8 && (
+              {/* STEP 4: Success */}
+              {step === 4 && (
                 <div className="text-center space-y-8 max-w-2xl mx-auto py-8">
                   <div className="animate-pulse">
                     <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-10 h-10 text-amber-500" /></div>
@@ -673,7 +656,7 @@ const VisitorList = () => {
               )}
 
               {/* Form Footer Navigation */}
-              {step >= 2 && step < 8 && (
+              {step >= 2 && step < 4 && (
                 <div className="mt-8 flex justify-between items-center border-t border-slate-200 dark:border-slate-700 pt-6">
                   {step > 2 ? (
                     <button onClick={prevStep} className="px-6 py-3 rounded-full font-bold text-slate-600 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
@@ -813,14 +796,18 @@ const VisitorList = () => {
 
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Host Name *</label>
-                  <input 
-                    type="text" 
+                  <select 
                     required
                     value={sendLinkData.hostName || ''} 
                     onChange={(e) => setSendLinkData({...sendLinkData, hostName: e.target.value})} 
                     className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
-                    placeholder="e.g. Dr. Ahmed"
-                  />
+                  >
+                    <option value="">Select a Host</option>
+                    <option value="Dr. Ahmed">Dr. Ahmed</option>
+                    <option value="Jane Doe">Jane Doe</option>
+                    <option value="Prof. Tariq">Prof. Tariq</option>
+                    <option value="Sarah Parker">Sarah Parker</option>
+                  </select>
                 </div>
 
                 <div>

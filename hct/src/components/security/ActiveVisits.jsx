@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, LogOut, Clock, AlertTriangle, MessageSquare, Star } from 'lucide-react';
+import { Search, LogOut, Clock, AlertTriangle, MessageSquare, Star, FileText, X, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCheckIn } from '../../context/CheckInContext';
 
@@ -7,6 +7,7 @@ const ActiveVisits = () => {
   const { activeVisits, checkOut } = useCheckIn();
   const [searchQuery, setSearchQuery] = useState('');
   const [forceCheckoutVisit, setForceCheckoutVisit] = useState(null);
+  const [viewVisitor, setViewVisitor] = useState(null);
   const [forceReason, setForceReason] = useState('');
   const [showFeedbackSimulator, setShowFeedbackSimulator] = useState(null); // The visit that was checked out
 
@@ -85,6 +86,60 @@ const ActiveVisits = () => {
           </tbody>
         </table>
       </div>
+
+            {/* View Visitor Modal */}
+      <AnimatePresence>
+        {viewVisitor && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl p-8 max-w-lg w-full border border-slate-200 dark:border-slate-800 relative">
+               <button onClick={() => setViewVisitor(null)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-white"><X className="w-6 h-6"/></button>
+               <h3 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white flex items-center gap-3"><User className="w-6 h-6 text-hct-blue" /> Visitor Details</h3>
+               
+               <div className="space-y-4">
+                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+                      <img src={viewVisitor.photo || "https://i.pravatar.cc/150"} alt="Visitor Photo" className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" />
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Full Name</p>
+                        <p className="text-xl font-bold text-slate-800 dark:text-white">{viewVisitor.visitorName}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Pass ID</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.passId}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Company</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.company || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Host</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.host || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Visit Type</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.visitorType}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Check-In Time</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.checkInTime}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Check-In Method</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.checkInMethod}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Gate</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.gate}</p>
+                      </div>
+                    </div>
+                 </div>
+               </div>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Force Check-out Modal */}
       <AnimatePresence>

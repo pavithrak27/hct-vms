@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X, UploadCloud, Trash2, Camera, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContractorRegistration from '../contractor/ContractorRegistration';
@@ -32,6 +32,12 @@ const ContractorHub = () => {
   const isAdmin = currentRole?.id === 'security' || currentRole?.id === 'superadmin' || currentRole?.portals?.includes('dashboard');
 
   const [selectedContractor, setSelectedContractor] = useState(null);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setSelectedContractor(contractorsList[0]);
+    }
+  }, [isAdmin]);
   const [activeTab, setActiveTab] = useState('overview'); // overview, employees, passes
   const [search, setSearch] = useState('');
   const [isAddingContractor, setIsAddingContractor] = useState(false);
@@ -219,9 +225,11 @@ const ContractorHub = () => {
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
           <div className="p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <button onClick={() => setSelectedContractor(null)} className="flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-hct-blue mb-2 transition-colors">
-                <ChevronLeft className="w-4 h-4" /> Back to Contractors
-              </button>
+              {isAdmin && (
+                <button onClick={() => setSelectedContractor(null)} className="flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-hct-blue mb-2 transition-colors">
+                  <ChevronLeft className="w-4 h-4" /> Back to Contractors
+                </button>
+              )}
               <h2 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
                 <Building2 className="w-8 h-8 text-hct-blue" /> {selectedContractor.name}
               </h2>
@@ -229,8 +237,8 @@ const ContractorHub = () => {
             </div>
             <div className="flex items-center gap-3">
               {selectedContractor.status === 'Expired' && (
-                <button onClick={() => showToast('Renewal email has been sent. Please check your mail.')} className="flex items-center gap-2 px-4 py-2 bg-hct-blue hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">
-                  <RefreshCw className="w-4 h-4"/> Renew Contract
+                <button onClick={() => setShowRenewRequest(true)} className="flex items-center gap-2 px-4 py-2 bg-hct-blue hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">
+                  <RefreshCw className="w-4 h-4"/> Renew Request
                 </button>
               )}
               <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm ${selectedContractor.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : selectedContractor.status === 'Expired' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
@@ -266,25 +274,23 @@ const ContractorHub = () => {
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-slate-800 dark:text-white">Contract Documents</h3>
-                    <button onClick={() => setShowRenewRequest(true)} className="bg-hct-blue text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center gap-2"><RefreshCw className="w-4 h-4"/> Renew Request</button>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {(selectedContractor.documents || [
                       { id: 1, title: 'Trade License', fileName: 'trade_license_2026.pdf', size: '1.2 MB' },
                       { id: 2, title: 'VAT Certificate', fileName: 'vat_certificate.pdf', size: '0.8 MB' },
                       { id: 3, title: 'Commercial Register', fileName: 'commercial_register.pdf', size: '2.1 MB' },
                       { id: 4, title: 'Company Profile', fileName: 'company_profile.pdf', size: '4.5 MB' }
                     ]).map(doc => (
-                      <div key={doc.id} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-start gap-4 hover:shadow-lg transition-all group cursor-pointer hover:border-blue-300">
-                        <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl text-blue-500 group-hover:scale-110 group-hover:bg-blue-100 transition-all">
-                          <FileText className="w-8 h-8" />
+                      <div key={doc.id} className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex items-start gap-3 hover:shadow-lg transition-all group cursor-pointer hover:border-blue-300">
+                        <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-lg text-blue-500 group-hover:scale-110 group-hover:bg-blue-100 transition-all">
+                          <FileText className="w-5 h-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-slate-800 dark:text-white text-base truncate mb-1 group-hover:text-hct-blue transition-colors">{doc.title}</h4>
-                          <p className="text-xs text-slate-500 truncate mb-3">{doc.fileName}</p>
-                          <div className="flex items-center gap-4">
-                            <button className="text-sm font-bold text-hct-blue hover:text-blue-800 transition-colors">View</button>
-                            <button className="text-sm font-bold text-hct-blue hover:text-blue-800 transition-colors flex items-center gap-1"><UploadCloud className="w-4 h-4 rotate-180" /> Download</button>
+                          <h4 className="font-bold text-slate-800 dark:text-white text-sm truncate mb-0.5 group-hover:text-hct-blue transition-colors">{doc.title}</h4>
+                          <p className="text-[10px] text-slate-500 truncate mb-2">{doc.fileName}</p>
+                          <div className="flex items-center gap-3">
+                            <button className="text-xs font-bold text-hct-blue hover:text-blue-800 transition-colors">View</button>
                           </div>
                         </div>
                       </div>

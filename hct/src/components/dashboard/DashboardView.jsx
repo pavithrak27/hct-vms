@@ -117,15 +117,7 @@ export default function DashboardView() {
       {/* ─────────────────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
         <div>
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Campus Gateway Live</span>
-            <span className="text-slate-300 dark:text-slate-700">|</span>
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Main Campus &amp; Remote Nodes</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 tracking-tight">
-            Enterprise Visitor &amp; Security Hub
-          </h1>
+          
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -237,7 +229,7 @@ export default function DashboardView() {
           <div>
             <div className="flex justify-between items-start">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-snug">
-                Checked-In<br />On-Premises
+                Checked-In<br />
               </span>
               <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                 <LogIn className="w-4 h-4" />
@@ -458,7 +450,7 @@ export default function DashboardView() {
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100/70 dark:hover:bg-slate-800 transition-colors">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Kiosk Direct Walk-ins</span>
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Walk-ins</span>
                 </div>
                 <div className="text-xs font-bold text-slate-900 dark:text-white">
                   5 <span className="text-slate-400 font-normal text-[11px]">(21%)</span>
@@ -478,20 +470,7 @@ export default function DashboardView() {
           </div>
 
           {/* Footer Bar */}
-          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>Kiosk lane:</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">Online</span>
-            </div>
-            <button 
-              onClick={() => setShowLiveStreamModal(true)}
-              className="text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1 group"
-            >
-              <span>Live Stream</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
+         
         </div>
 
         {/* ─── COLUMN 2: CONTRACTOR PASSES (Simple term & removed Revoked/Suspended) ─── */}

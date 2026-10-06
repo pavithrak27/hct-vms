@@ -483,11 +483,14 @@ const HostPortal = () => {
                
                <div className="space-y-4">
                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+                      <img src="https://i.pravatar.cc/150" alt="Visitor Photo" className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" />
                       <div>
                         <p className="text-sm text-slate-500 mb-1">Full Name</p>
-                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.name}</p>
+                        <p className="text-xl font-bold text-slate-800 dark:text-white">{viewVisitor.name}</p>
                       </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-slate-500 mb-1">Request ID</p>
                         <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.id}</p>

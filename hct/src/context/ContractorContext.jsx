@@ -29,11 +29,13 @@ export const ContractorProvider = ({ children }) => {
   const [generatedPasses, setGeneratedPasses] = useState([]);
   
   const [approvalConfig, setApprovalConfig] = useState({
-    mode: 'flow', // 'flow', 'auto-approve', 'auto-reject'
-    levels: [
-      { id: 1, role: 'Department Head of Logistics', note: '' },
-      { id: 2, role: 'Security Manager', note: '' }
-    ]
+    contractor: {
+      mode: 'flow', // 'flow', 'auto-approve', 'auto-reject'
+      levels: [
+        { id: 1, role: 'Department Head of Logistics', note: '' },
+        { id: 2, role: 'Security Manager', note: '' }
+      ]
+    }
   });
 
   const addEmployee = (emp) => {
@@ -59,12 +61,14 @@ export const ContractorProvider = ({ children }) => {
   const approvePassRequest = (id, isFinal, rejectReason = null) => {
     setPassRequests(passRequests.map(r => {
       if (r.id === id) {
-        if (rejectReason || approvalConfig.mode === 'auto-reject') {
+        const currentConfig = approvalConfig.contractor || { mode: 'flow', levels: [] };
+        
+        if (rejectReason || currentConfig.mode === 'auto-reject') {
           return { ...r, status: 'Rejected', rejectionReason: rejectReason || 'Auto-rejected by system configuration' };
         }
         
         // If mode is auto-approve or if it's explicitly the final step in a flow
-        const isFinalApproval = approvalConfig.mode === 'auto-approve' || isFinal;
+        const isFinalApproval = currentConfig.mode === 'auto-approve' || isFinal;
         
         if (isFinalApproval) {
           // Generate individual passes for each employee
@@ -88,13 +92,13 @@ export const ContractorProvider = ({ children }) => {
           });
           
           setGeneratedPasses(prev => [...newPasses, ...prev]);
-          return { ...r, status: 'Approved', approvalLevel: approvalConfig.levels.length || 1 };
+          return { ...r, status: 'Approved', approvalLevel: currentConfig.levels.length || 1 };
         } else {
           // Increment level
           const newLevel = (r.approvalLevel || 1) + 1;
-          const isNextLevelFinal = newLevel === approvalConfig.levels.length;
+          const isNextLevelFinal = newLevel === currentConfig.levels.length;
           
-          const nextRoleName = approvalConfig.levels[newLevel - 1]?.role || `Level ${newLevel}`;
+          const nextRoleName = currentConfig.levels[newLevel - 1]?.role || `Level ${newLevel}`;
           const newStatus = isNextLevelFinal ? 'Pending Final Approval' : `Pending ${nextRoleName} Approval`;
           
           return { ...r, status: newStatus, approvalLevel: newLevel };

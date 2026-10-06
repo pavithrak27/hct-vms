@@ -70,6 +70,7 @@ const AdminPassRequests = () => {
   ]);
   const [selectedPass, setSelectedPass] = useState(null);
   const [renewModalData, setRenewModalData] = useState(null); // holds pass to renew
+  const [viewEmployee, setViewEmployee] = useState(null);
   
   const contractors = [
     { id: 'CON-2026-101', name: 'Tech Solutions LLC', contractNumber: 'CT-2025-9981', expiry: '2027-11-01', valid: true },
@@ -78,24 +79,16 @@ const AdminPassRequests = () => {
 
   const employeesData = {
     'CON-2026-101': [
-      { id: 'EMP-CT-001', name: 'John Smith', nationality: 'UK', docExpiry: '2027-12-31', status: 'Approved' },
-      { id: 'EMP-CT-002', name: 'Ravi Kumar', nationality: 'India', docExpiry: '2027-05-15', status: 'Approved' },
+      { id: 'EMP-CT-001', name: 'John Smith', nationality: 'UK', docExpiry: '2027-12-31', status: 'Approved', role: 'Technician', mobile: '+971 50 123 4567', email: 'john@techsolutions.com', document: 'Passport.pdf' },
+      { id: 'EMP-CT-002', name: 'Ravi Kumar', nationality: 'India', docExpiry: '2027-05-15', status: 'Approved', role: 'Engineer', mobile: '+971 55 987 6543', email: 'ravi@techsolutions.com', document: 'Emirates_ID.pdf' },
     ],
     'CON-2026-102': [
-      { id: 'EMP-GF-001', name: 'Maria Garcia', nationality: 'Philippines', docExpiry: '2028-01-01', status: 'Approved' },
-      { id: 'EMP-GF-002', name: 'Ahmed Hassan', nationality: 'Egypt', docExpiry: '2028-01-01', status: 'Approved' }
+      { id: 'EMP-GF-001', name: 'Maria Garcia', nationality: 'Philippines', docExpiry: '2028-01-01', status: 'Approved', role: 'Cleaner', mobile: '+971 56 111 2222', email: 'maria@globalfm.com', document: 'Visa_Copy.pdf' },
+      { id: 'EMP-GF-002', name: 'Ahmed Hassan', nationality: 'Egypt', docExpiry: '2028-01-01', status: 'Approved', role: 'Security', mobile: '+971 54 333 4444', email: 'ahmed@globalfm.com', document: 'Passport.pdf' }
     ]
   };
 
   const handlePeriodNext = () => {
-    const start = new Date(`${visitPeriod.startDate}T${visitPeriod.startTime}`);
-    const end = new Date(`${visitPeriod.endDate}T${visitPeriod.endTime}`);
-    const contractEnd = new Date(selectedCompany.expiry);
-    
-    if (start < new Date()) { setPeriodError('Start date cannot be in the past.'); return; }
-    if (end <= start) { setPeriodError('End date must be after start date.'); return; }
-    if (end > contractEnd) { setPeriodError('Visit period exceeds contract expiry.'); return; }
-    
     setPeriodError('');
     setWizardStep(4);
   };
@@ -105,8 +98,8 @@ const AdminPassRequests = () => {
       id: `CPR-2026-${Math.floor(Math.random()*900)+100}`,
       company: selectedCompany.name,
       employees: selectedEmps.length,
-      requestedStart: `${visitPeriod.startDate} ${visitPeriod.startTime}`,
-      requestedEnd: `${visitPeriod.endDate} ${visitPeriod.endTime}`,
+      requestedStart: visitPeriod.startTime,
+      requestedEnd: visitPeriod.endTime,
       approvedStart: '-',
       approvedEnd: '-',
       submissionDate: new Date().toISOString().split('T')[0],
@@ -299,10 +292,30 @@ const AdminPassRequests = () => {
                      if(selectedEmps.includes(emp.id)) setSelectedEmps(selectedEmps.filter(id=>id!==emp.id));
                      else setSelectedEmps([...selectedEmps, emp.id]);
                    }} className={`border-2 rounded-xl p-4 cursor-pointer transition-all flex gap-4 items-center ${selectedEmps.includes(emp.id) ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300'}`}>
-                     <div className={`w-6 h-6 rounded-md flex items-center justify-center border ${selectedEmps.includes(emp.id) ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-300 bg-white'}`}>
+                     <div className={`w-6 h-6 rounded-md flex items-center justify-center border shrink-0 ${selectedEmps.includes(emp.id) ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-300 bg-white'}`}>
                        {selectedEmps.includes(emp.id) && <Check className="w-4 h-4"/>}
                      </div>
-                     <div><p className="font-bold text-slate-800">{emp.name}</p><p className="text-xs text-slate-500">{emp.id} • {emp.nationality}</p></div>
+                     <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-slate-800 dark:text-white">{emp.name}</p>
+                          <span className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 px-1.5 py-0.5 rounded font-bold">{emp.id}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-6 gap-y-1 mt-1.5">
+                          <div className="text-xs text-slate-500">
+                            <p><span className="font-bold text-slate-400">Role:</span> {emp.role}</p>
+                            <p><span className="font-bold text-slate-400">Nationality:</span> {emp.nationality}</p>
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            <p><span className="font-bold text-slate-400">Mobile:</span> {emp.mobile}</p>
+                            <p><span className="font-bold text-slate-400">Email:</span> {emp.email}</p>
+                          </div>
+                        </div>
+                     </div>
+                     <div className="ml-auto shrink-0 self-start">
+                        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); alert(`Viewing document: ${emp.document || 'Document.pdf'}`); }} className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors border border-blue-100 shadow-sm">
+                          <FileText className="w-3.5 h-3.5" /> View Document
+                        </button>
+                     </div>
                    </div>
                  ))}
                </div>
@@ -321,15 +334,13 @@ const AdminPassRequests = () => {
                {periodError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3"><AlertCircle className="w-5 h-5 shrink-0" /><p className="font-bold text-sm">{periodError}</p></div>}
                
                <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-200">
-                 <div><label className="text-sm font-bold block mb-1">Start Date *</label><input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
                  <div><label className="text-sm font-bold block mb-1">Start Time *</label><input type="time" value={visitPeriod.startTime} onChange={(e) => setVisitPeriod({...visitPeriod, startTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
-                 <div><label className="text-sm font-bold block mb-1">End Date *</label><input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
                  <div><label className="text-sm font-bold block mb-1">End Time *</label><input type="time" value={visitPeriod.endTime} onChange={(e) => setVisitPeriod({...visitPeriod, endTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
                </div>
                
                <div className="flex justify-between pt-6 border-t">
                  <button onClick={() => setWizardStep(2)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
-                 <button onClick={handlePeriodNext} disabled={!visitPeriod.startDate || !visitPeriod.startTime || !visitPeriod.endDate || !visitPeriod.endTime} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                 <button onClick={handlePeriodNext} disabled={!visitPeriod.startTime || !visitPeriod.endTime} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
                </div>
              </div>
            )}
@@ -378,8 +389,8 @@ const AdminPassRequests = () => {
                  </div>
                  <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
                    <h5 className="font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-blue-200 pb-2">Requested Visit Period</h5>
-                   <p className="grid grid-cols-2 text-sm mb-2"><span className="text-slate-600">Start</span><strong className="text-slate-800">{visitPeriod.startDate} {visitPeriod.startTime}</strong></p>
-                   <p className="grid grid-cols-2 text-sm"><span className="text-slate-600">End</span><strong className="text-slate-800">{visitPeriod.endDate} {visitPeriod.endTime}</strong></p>
+                   <p className="grid grid-cols-2 text-sm mb-2"><span className="text-slate-600">Start</span><strong className="text-slate-800">{visitPeriod.startTime}</strong></p>
+                   <p className="grid grid-cols-2 text-sm"><span className="text-slate-600">End</span><strong className="text-slate-800">{visitPeriod.endTime}</strong></p>
                  </div>
                </div>
 
@@ -443,7 +454,7 @@ const AdminPassRequests = () => {
                </div>
                
                <div className="flex gap-2">
-                 <button className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"><Printer className="w-4 h-4"/> Print</button>
+                 
                  <button className="flex-1 bg-hct-blue hover:bg-blue-800 text-white py-3 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2"><Download className="w-4 h-4"/> Download PDF</button>
                </div>
              </div>
@@ -497,8 +508,40 @@ const AdminPassRequests = () => {
         )}
       </AnimatePresence>
 
+
+      {/* View Employee Details Modal */}
+      {viewEmployee && (
+        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[120] p-4">
+          <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl relative">
+            <button onClick={() => setViewEmployee(null)} className="absolute top-4 right-4 p-2 bg-slate-50 text-slate-400 rounded-full hover:bg-slate-100"><X className="w-5 h-5"/></button>
+            <h3 className="text-xl font-bold mb-6">Employee Details</h3>
+            <div className="flex items-center gap-4 mb-6">
+              <img src={viewEmployee.photo || `https://ui-avatars.com/api/?name=${viewEmployee.name}&background=random`} alt={viewEmployee.name} className="w-16 h-16 rounded-full object-cover border-2 border-slate-200" />
+              <div>
+                <p className="font-bold text-lg text-slate-800">{viewEmployee.name}</p>
+                <p className="text-sm text-slate-500">{viewEmployee.id} • {viewEmployee.nationality || 'Nationality N/A'}</p>
+                <p className="text-sm text-slate-500">{viewEmployee.mobile || 'Mobile N/A'}</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-bold text-sm text-slate-700 uppercase tracking-wider">Identity Documents</h4>
+              {viewEmployee.document ? (
+                <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  <FileText className="w-5 h-5 text-hct-blue" />
+                  <span className="font-bold text-slate-700 flex-1">{viewEmployee.document}</span>
+                  <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded">Valid</span>
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500 italic">No documents available.</p>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+
     </motion.div>
   );
 };
 
 export default AdminPassRequests;
+

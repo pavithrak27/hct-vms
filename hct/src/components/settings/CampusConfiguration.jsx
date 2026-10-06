@@ -23,6 +23,8 @@ const CampusConfiguration = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCampus, setSelectedCampus] = useState(null);
   const [isAddingCampus, setIsAddingCampus] = useState(false);
+  const [isAddingGate, setIsAddingGate] = useState(false);
+  const [newGateData, setNewGateData] = useState({ name: '', type: 'Entry & Exit', status: 'Active' });
   
   const [gates, setGates] = useState([
     { id: 1, name: 'Main Entrance', type: 'Entry & Exit', hardware: ['Suprema (x2)', 'ANPR (x1)'], status: 'Active' },
@@ -31,15 +33,20 @@ const CampusConfiguration = () => {
 
   const handleAddGate = (e) => {
     e.preventDefault();
-    const gateName = prompt("Enter new Gate Name (e.g. South Gate):");
-    if (gateName) {
+    setIsAddingGate(true);
+  };
+
+  const handleSaveGate = () => {
+    if (newGateData.name.trim()) {
       setGates([...gates, {
         id: gates.length + 1,
-        name: gateName,
-        type: 'Entry & Exit',
+        name: newGateData.name,
+        type: newGateData.type,
         hardware: ['Suprema (x1)'],
-        status: 'Active'
+        status: newGateData.status
       }]);
+      setIsAddingGate(false);
+      setNewGateData({ name: '', type: 'Entry & Exit', status: 'Active' });
     }
   };
 
@@ -118,23 +125,13 @@ const CampusConfiguration = () => {
                
                <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50">
                  
-                 <div className="grid grid-cols-2 gap-8 mb-8">
+                 <div className="mb-8">
                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                      <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Building2 className="w-5 h-5 text-hct-blue"/> Basic Information</h4>
                      <div className="space-y-4">
                         <div>
                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Campus Name</label>
                          <input type="text" defaultValue={selectedCampus?.name || ''} placeholder="e.g. Fujairah New Campus" className="w-full p-2.5 rounded-lg border border-slate-300 outline-none focus:border-hct-blue" />
-                       </div>
-                       <div className="grid grid-cols-2 gap-4">
-                         <div>
-                           <label className="block text-xs font-bold text-slate-500 uppercase mb-1">City</label>
-                           <input type="text" defaultValue={selectedCampus?.city || ''} placeholder="e.g. Fujairah" className="w-full p-2.5 rounded-lg border border-slate-300 outline-none focus:border-hct-blue" />
-                         </div>
-                         <div>
-                           <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Timezone</label>
-                           <input type="text" defaultValue="Asia/Dubai" disabled className="w-full p-2.5 rounded-lg border border-slate-200 bg-slate-100 outline-none text-slate-500" />
-                         </div>
                        </div>
                        <div>
                          <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Status</label>
@@ -145,27 +142,7 @@ const CampusConfiguration = () => {
                      </div>
                    </div>
 
-                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                     <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Settings className="w-5 h-5 text-hct-blue"/> Security Policies</h4>
-                     <div className="space-y-4">
-                       <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
-                         <span className="font-bold text-slate-700 text-sm">Visitor Registration Enabled</span>
-                         <input type="checkbox" defaultChecked className="w-4 h-4 accent-hct-blue" />
-                       </div>
-                       <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
-                         <span className="font-bold text-slate-700 text-sm">Contractor Access Enabled</span>
-                         <input type="checkbox" defaultChecked className="w-4 h-4 accent-hct-blue" />
-                       </div>
-                       <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
-                         <span className="font-bold text-slate-700 text-sm">QR Check-in Enabled</span>
-                         <input type="checkbox" defaultChecked className="w-4 h-4 accent-hct-blue" />
-                       </div>
-                       <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
-                         <span className="font-bold text-slate-700 text-sm">QR Check-out Enabled</span>
-                         <input type="checkbox" defaultChecked className="w-4 h-4 accent-hct-blue" />
-                       </div>
-                     </div>
-                   </div>
+
                  </div>
 
                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -179,7 +156,6 @@ const CampusConfiguration = () => {
                         <tr>
                           <th className="p-3 font-bold uppercase text-xs">Gate Name</th>
                           <th className="p-3 font-bold uppercase text-xs">Type</th>
-                          <th className="p-3 font-bold uppercase text-xs">Hardware Assigned</th>
                           <th className="p-3 font-bold uppercase text-xs">Status</th>
                         </tr>
                       </thead>
@@ -188,14 +164,7 @@ const CampusConfiguration = () => {
                           <tr key={gate.id} className="hover:bg-slate-50">
                             <td className="p-3 font-bold text-slate-800">{gate.name}</td>
                             <td className="p-3 text-slate-600">{gate.type}</td>
-                            <td className="p-3">
-                              {gate.hardware.map((hw, i) => (
-                                <span key={i} className={`text-[10px] font-bold px-2 py-0.5 rounded mr-1 ${hw.includes('ANPR') ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                                  {hw}
-                                </span>
-                              ))}
-                            </td>
-                            <td className="p-3"><span className="text-emerald-600 font-bold text-xs uppercase">{gate.status}</span></td>
+                            <td className="p-3"><span className={`font-bold text-xs uppercase ${gate.status === 'Active' ? 'text-emerald-600' : gate.status === 'Maintenance' ? 'text-amber-500' : 'text-slate-500'}`}>{gate.status}</span></td>
                           </tr>
                         ))}
                       </tbody>
@@ -211,6 +180,44 @@ const CampusConfiguration = () => {
                  </button>
                </div>
 
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Add New Gate Modal */}
+      <AnimatePresence>
+        {isAddingGate && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[70] p-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-[24px] p-6 w-full max-w-md shadow-2xl relative border-t-4 border-hct-blue">
+              <button onClick={() => setIsAddingGate(false)} className="absolute top-4 right-4 p-2 bg-slate-50 text-slate-400 rounded-full hover:bg-slate-100 transition-colors"><X className="w-5 h-5"/></button>
+              <h3 className="text-xl font-bold mb-6 text-slate-800">Add New Gate</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Gate Name</label>
+                  <input type="text" value={newGateData.name} onChange={(e) => setNewGateData({...newGateData, name: e.target.value})} placeholder="e.g. South Gate" className="w-full p-2.5 rounded-xl border border-slate-300 outline-none focus:border-hct-blue focus:ring-1 focus:ring-hct-blue transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Gate Type</label>
+                  <select value={newGateData.type} onChange={(e) => setNewGateData({...newGateData, type: e.target.value})} className="w-full p-2.5 rounded-xl border border-slate-300 outline-none focus:border-hct-blue focus:ring-1 focus:ring-hct-blue transition-all">
+                    <option>Entry & Exit</option>
+                    <option>Entry Only</option>
+                    <option>Exit Only</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Status</label>
+                  <select value={newGateData.status} onChange={(e) => setNewGateData({...newGateData, status: e.target.value})} className="w-full p-2.5 rounded-xl border border-slate-300 outline-none focus:border-hct-blue focus:ring-1 focus:ring-hct-blue transition-all">
+                    <option>Active</option>
+                    <option>Inactive</option>
+                  </select>
+                </div>
+                <div className="pt-2">
+                  <button onClick={handleSaveGate} disabled={!newGateData.name.trim()} className="w-full py-3 mt-2 bg-hct-blue hover:bg-hct-blue-dark text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    Add Gate
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}

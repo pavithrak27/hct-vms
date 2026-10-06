@@ -133,7 +133,7 @@ const VisitorPortal = () => {
     // Basic validation before moving next
     if (step === 2) {
       const v = visitors[0];
-      if (!v.fullName || !v.mobileNumber || !v.visitorType || !hostDetails.hostName) {
+      if (!v.fullName || !v.mobileNumber || !hostDetails.hostName) {
         alert("Please fill all mandatory fields (*)");
         return;
       }
@@ -267,34 +267,9 @@ const VisitorPortal = () => {
                   <input type="email" value={visitors[0].email} onChange={(e) => handleVisitorChange(0, 'email', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
                 </div>
                 <div>
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Type *</label>
-                  <select value={visitors[0].visitorType} onChange={(e) => handleVisitorChange(0, 'visitorType', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
-                    <option value="">Select Type</option>
-                    <option value="Guest">Guest</option>
-                    <option value="Business Visitor">Business Visitor</option>
-                    <option value="Contractor">Contractor</option>
-                    <option value="Delivery">Delivery</option>
-                    <option value="Interview">Interview</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div>
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Nationality</label>
                   <input type="text" value={visitors[0].nationality} onChange={(e) => handleVisitorChange(0, 'nationality', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
                 </div>
-                <div>
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Company / Organization</label>
-                  <select value={visitors[0].company} onChange={(e) => handleVisitorChange(0, 'company', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
-                    <option value="">Select Company</option>
-                    {["Tech Solutions LLC", "Global Services", "Ministry of Education", "ABC Cleaning Services", "Al Futtaim Group", "Independent Contractor"].map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <h3 className="text-xl font-bold border-b pb-2 pt-4">Host Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Host *</label>
                   <div className="relative">

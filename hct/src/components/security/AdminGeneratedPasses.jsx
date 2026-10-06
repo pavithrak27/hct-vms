@@ -129,7 +129,6 @@ const AdminGeneratedPasses = () => {
                  </div>
                  
                  <div className="flex gap-2">
-                   <button className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"><Printer className="w-4 h-4"/> Print</button>
                    <button className="flex-1 bg-hct-blue hover:bg-blue-800 text-white py-3 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2"><Download className="w-4 h-4"/> Download PDF</button>
                  </div>
                </div>
@@ -142,3 +141,4 @@ const AdminGeneratedPasses = () => {
 };
 
 export default AdminGeneratedPasses;
+

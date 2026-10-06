@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { FileSignature, Search, ShieldCheck, CheckCircle2, ArrowRight, AlertCircle, Edit3, X, Building2, Users } from 'lucide-react';
+import { FileSignature, Search, ShieldCheck, CheckCircle2, ArrowRight, AlertCircle, Edit3, X, Building2, Users, FileText, UploadCloud, Calendar, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useContractor } from '../../context/ContractorContext';
 
 const mockContractors = [
-  { id: 'CON-2026-102', name: 'Global Facilities Mgt', contractNumber: 'FM-2026-1122', status: 'Pending Approval', date: '2026-10-04' },
-  { id: 'CON-2026-103', name: 'Apex Builders', contractNumber: 'AB-2026-3311', status: 'Pending Approval', date: '2026-10-05' }
+  { id: 'CON-2026-102', name: 'Global Facilities Mgt', contractNumber: 'FM-2026-1122', status: 'Pending Approval', date: '2026-10-04', jobDesc: 'Facilities Management', expiry: '2028-10-14', docs: [{ title: 'Trade License', size: '1.2 MB' }, { title: 'VAT Certificate', size: '0.8 MB' }] },
+  { id: 'CON-2026-103', name: 'Apex Builders', contractNumber: 'AB-2026-3311', status: 'Pending Approval', date: '2026-10-05', jobDesc: 'Construction', expiry: '2027-12-31', docs: [{ title: 'Trade License', size: '1.5 MB' }, { title: 'Commercial Register', size: '2.1 MB' }] }
 ];
 
 const PassApprovals = () => {
@@ -14,6 +14,8 @@ const PassApprovals = () => {
   const [mainTab, setMainTab] = useState('gate-passes'); // gate-passes, contractors, employees
   const [activeTab, setActiveTab] = useState('pending');
   const [selectedReq, setSelectedReq] = useState(null);
+  const [selectedContractorReq, setSelectedContractorReq] = useState(null);
+  const [selectedEmployeeReq, setSelectedEmployeeReq] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
 
@@ -117,7 +119,7 @@ const PassApprovals = () => {
               {activeTab === 'history' ? (
                 <div className="text-center py-12 text-slate-500">No history found.</div>
               ) : mockContractors.map(c => (
-                <div key={c.id} className="border border-slate-200 rounded-xl p-5 bg-white flex justify-between items-center">
+                <div key={c.id} onClick={() => setSelectedContractorReq(c)} className="border border-slate-200 rounded-xl p-5 bg-white flex justify-between items-center cursor-pointer hover:shadow-md transition-all">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center"><Building2 className="w-6 h-6" /></div>
                     <div>
@@ -126,8 +128,9 @@ const PassApprovals = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-200">Reject</button>
-                    <button className="px-4 py-2 bg-emerald-500 rounded-lg text-sm font-bold text-white hover:bg-emerald-600 shadow-md">Approve</button>
+                    <button onClick={(e) => { e.stopPropagation(); setSelectedContractorReq(c); setShowRejectModal(true); }} className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-200">Reject</button>
+                    <button onClick={(e) => { e.stopPropagation(); alert('Contractor Approved'); }} className="px-4 py-2 bg-emerald-500 rounded-lg text-sm font-bold text-white hover:bg-emerald-600 shadow-md">Approve</button>
+                    <ChevronRight className="w-5 h-5 text-slate-400 ml-2" />
                   </div>
                 </div>
               ))}
@@ -139,7 +142,7 @@ const PassApprovals = () => {
               {employees.filter(e => activeTab === 'pending' ? e.status.includes('Pending') : !e.status.includes('Pending')).length === 0 ? (
                 <div className="text-center py-12 text-slate-500">No requests found.</div>
               ) : employees.filter(e => activeTab === 'pending' ? e.status.includes('Pending') : !e.status.includes('Pending')).map(e => (
-                <div key={e.id} className="border border-slate-200 rounded-xl p-5 bg-white flex justify-between items-center">
+                <div key={e.id} onClick={() => setSelectedEmployeeReq(e)} className="border border-slate-200 rounded-xl p-5 bg-white flex justify-between items-center cursor-pointer hover:shadow-md transition-all">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-purple-50 text-purple-500 rounded-xl flex items-center justify-center"><Users className="w-6 h-6" /></div>
                     <div>
@@ -149,11 +152,15 @@ const PassApprovals = () => {
                   </div>
                   {activeTab === 'pending' ? (
                     <div className="flex items-center gap-2">
-                      <button onClick={() => rejectEmployee(e.id, 'Rejected by Admin')} className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-200">Reject</button>
-                      <button onClick={() => approveEmployee(e.id)} className="px-4 py-2 bg-emerald-500 rounded-lg text-sm font-bold text-white hover:bg-emerald-600 shadow-md">Approve</button>
+                      <button onClick={(ev) => { ev.stopPropagation(); rejectEmployee(e.id, 'Rejected by Admin'); }} className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-200">Reject</button>
+                      <button onClick={(ev) => { ev.stopPropagation(); approveEmployee(e.id); }} className="px-4 py-2 bg-emerald-500 rounded-lg text-sm font-bold text-white hover:bg-emerald-600 shadow-md">Approve</button>
+                      <ChevronRight className="w-5 h-5 text-slate-400 ml-2" />
                     </div>
                   ) : (
-                    <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${e.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{e.status}</span>
+                    <div className="flex items-center gap-4">
+                      <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${e.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{e.status}</span>
+                      <ChevronRight className="w-5 h-5 text-slate-400" />
+                    </div>
                   )}
                 </div>
               ))}
@@ -180,6 +187,7 @@ const PassApprovals = () => {
                    <h4 className="font-bold text-slate-500 uppercase tracking-wider mb-3">Contractor Info</h4>
                    <p className="mb-1"><span className="text-slate-500 inline-block w-24">Company</span><strong className="text-slate-800">{selectedReq.company}</strong></p>
                    <p className="mb-1"><span className="text-slate-500 inline-block w-24">Contract No</span><strong className="text-slate-800">{selectedReq.contractNumber}</strong></p>
+                   <p className="mb-1"><span className="text-slate-500 inline-block w-24">Campus</span><strong className="text-slate-800">{selectedReq.campus || 'Main Campus'}</strong></p>
                  </div>
                  
                  <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
@@ -220,12 +228,24 @@ const PassApprovals = () => {
                  <h4 className="font-bold text-lg text-slate-800 mb-4">Selected Employees ({Array.isArray(selectedReq.employees) ? selectedReq.employees.length : 1})</h4>
                  <div className="border border-slate-200 rounded-xl overflow-hidden">
                    <table className="w-full text-left text-sm">
-                     <thead className="bg-slate-50 border-b"><tr><th className="p-3">Employee ID</th><th className="p-3">Status</th></tr></thead>
+                     <thead className="bg-slate-50 border-b"><tr><th className="p-3">Employee</th><th className="p-3">ID / Job Title</th><th className="p-3">Document</th><th className="p-3">Status</th></tr></thead>
                      <tbody>
-                       {Array.isArray(selectedReq.employees) ? selectedReq.employees.map((e, idx) => (
-                         <tr key={idx} className="border-b last:border-b-0"><td className="p-3 font-bold">{e}</td><td className="p-3 text-emerald-600 font-bold">Approved</td></tr>
-                       )) : (
-                         <tr className="border-b"><td className="p-3 font-bold text-red-500">Error: Invalid employee data</td><td className="p-3"></td></tr>
+                       {Array.isArray(selectedReq.employees) ? selectedReq.employees.map((empId, idx) => {
+                         const empObj = employees.find(e => e.id === empId);
+                         return (
+                           <tr key={idx} className="border-b last:border-b-0">
+                             <td className="p-3 font-bold">{empObj ? empObj.name : empId}</td>
+                             <td className="p-3 text-slate-500">{empObj ? `${empObj.id} • ${empObj.jobTitle}` : 'N/A'}</td>
+                             <td className="p-3">
+                               {empObj?.document ? (
+                                 <button className="text-xs font-bold text-indigo-600 flex items-center gap-1 hover:underline"><FileText className="w-3 h-3"/> View Doc</button>
+                               ) : 'None'}
+                             </td>
+                             <td className="p-3 text-emerald-600 font-bold">Approved</td>
+                           </tr>
+                         );
+                       }) : (
+                         <tr className="border-b"><td className="p-3 font-bold text-red-500" colSpan="4">Error: Invalid employee data</td></tr>
                        )}
                      </tbody>
                    </table>
@@ -250,6 +270,107 @@ const PassApprovals = () => {
                        {(approvalConfig.mode === 'flow' && selectedReq.approvalLevel === approvalConfig.levels.length) || approvalConfig.mode !== 'flow' ? 'Confirm & Final Approve' : 'Approve & Forward'}
                      </button>
                    </div>
+                 </div>
+               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Contractor Detail Modal */}
+      <AnimatePresence>
+        {selectedContractorReq && !showRejectModal && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4">
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-white rounded-[24px] p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+               <div className="flex justify-between items-start mb-6 border-b pb-4">
+                 <div>
+                   <h3 className="text-2xl font-bold flex items-center gap-3"><Building2 className="text-indigo-500 w-8 h-8"/> {selectedContractorReq.name}</h3>
+                   <p className="text-slate-500 mt-1">Contract No: {selectedContractorReq.contractNumber} • Submitted: {selectedContractorReq.date}</p>
+                 </div>
+                 <button onClick={() => setSelectedContractorReq(null)} className="text-slate-400 hover:text-slate-700 p-2 bg-slate-100 rounded-full"><X className="w-5 h-5"/></button>
+               </div>
+
+               <div className="grid grid-cols-2 gap-8 mb-8">
+                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                   <h4 className="font-bold text-slate-800 uppercase tracking-wider mb-4 text-sm flex items-center gap-2"><Building2 className="w-4 h-4"/> Company Details</h4>
+                   <p className="mb-3 flex flex-col"><span className="text-slate-500 text-xs font-bold uppercase mb-1">Company</span><strong className="text-slate-800 text-lg">{selectedContractorReq.name}</strong></p>
+                   <p className="mb-3 flex flex-col"><span className="text-slate-500 text-xs font-bold uppercase mb-1">Contract No</span><strong className="text-slate-800 text-lg">{selectedContractorReq.contractNumber}</strong></p>
+                   <p className="flex flex-col"><span className="text-slate-500 text-xs font-bold uppercase mb-1">Job Description</span><strong className="text-slate-800">{selectedContractorReq.jobDesc}</strong></p>
+                 </div>
+                 
+                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                   <h4 className="font-bold text-slate-800 uppercase tracking-wider mb-4 text-sm flex items-center gap-2"><Calendar className="w-4 h-4"/> Validity</h4>
+                   <p className="mb-3 flex flex-col"><span className="text-slate-500 text-xs font-bold uppercase mb-1">Start Date</span><strong className="text-slate-800">{selectedContractorReq.date}</strong></p>
+                   <p className="mb-3 flex flex-col"><span className="text-slate-500 text-xs font-bold uppercase mb-1">Expiry Date</span><strong className="text-slate-800">{selectedContractorReq.expiry}</strong></p>
+                 </div>
+               </div>
+
+               <div className="mb-8">
+                 <h4 className="font-bold text-lg text-slate-800 mb-4">Uploaded Documents</h4>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   {selectedContractorReq.docs.map((doc, idx) => (
+                     <div key={idx} className="bg-white p-4 rounded-xl border border-slate-200 flex items-start gap-4 hover:border-indigo-300 transition-colors">
+                       <div className="bg-indigo-50 p-2 rounded-lg text-indigo-500"><FileText className="w-6 h-6"/></div>
+                       <div className="flex-1">
+                         <h5 className="font-bold text-slate-800 text-sm mb-1">{doc.title}</h5>
+                         <p className="text-xs text-slate-500 mb-2">{doc.size}</p>
+                         <button className="text-xs font-bold text-indigo-600 flex items-center gap-1 hover:underline"><UploadCloud className="w-3 h-3 rotate-180"/> View Document</button>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+
+               <div className="flex justify-end gap-4 border-t pt-6 bg-slate-50 -mx-8 -mb-8 p-6 rounded-b-[24px]">
+                 <button onClick={() => setShowRejectModal(true)} className="px-6 py-3 bg-white text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-50">Reject Registration</button>
+                 <button onClick={() => { alert('Registration Approved'); setSelectedContractorReq(null); }} className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-500/30">Approve Registration</button>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Employee Detail Modal */}
+      <AnimatePresence>
+        {selectedEmployeeReq && !showRejectModal && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4">
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-white rounded-[24px] p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+               <div className="flex justify-between items-start mb-6 border-b pb-4">
+                 <div>
+                   <h3 className="text-2xl font-bold flex items-center gap-3"><Users className="text-purple-500 w-8 h-8"/> {selectedEmployeeReq.name}</h3>
+                   <p className="text-slate-500 mt-1">ID: {selectedEmployeeReq.id} • {selectedEmployeeReq.company}</p>
+                 </div>
+                 <button onClick={() => setSelectedEmployeeReq(null)} className="text-slate-400 hover:text-slate-700 p-2 bg-slate-100 rounded-full"><X className="w-5 h-5"/></button>
+               </div>
+
+               <div className="grid grid-cols-2 gap-8 mb-8">
+                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                   <h4 className="font-bold text-slate-800 uppercase tracking-wider mb-4 text-sm flex items-center gap-2"><Users className="w-4 h-4"/> Personal Details</h4>
+                   <p className="mb-3 flex flex-col"><span className="text-slate-500 text-xs font-bold uppercase mb-1">Nationality</span><strong className="text-slate-800">{selectedEmployeeReq.nationality || 'N/A'}</strong></p>
+                   <p className="mb-3 flex flex-col"><span className="text-slate-500 text-xs font-bold uppercase mb-1">Mobile</span><strong className="text-slate-800">{selectedEmployeeReq.mobile || 'N/A'}</strong></p>
+                   <p className="flex flex-col"><span className="text-slate-500 text-xs font-bold uppercase mb-1">Job Title</span><strong className="text-slate-800">{selectedEmployeeReq.jobTitle || 'N/A'}</strong></p>
+                 </div>
+                 
+                 <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                   <h4 className="font-bold text-slate-800 uppercase tracking-wider mb-4 text-sm flex items-center gap-2"><FileText className="w-4 h-4"/> Uploaded Document</h4>
+                   {selectedEmployeeReq.document ? (
+                     <div className="bg-white p-4 rounded-xl border border-slate-200 flex items-start gap-3 hover:border-purple-300 transition-colors">
+                       <div className="bg-purple-50 p-2 rounded-lg text-purple-500"><FileText className="w-5 h-5"/></div>
+                       <div className="flex-1">
+                         <h5 className="font-bold text-slate-800 text-sm mb-1 truncate max-w-[150px]">{selectedEmployeeReq.document}</h5>
+                         <button className="text-xs font-bold text-purple-600 flex items-center gap-1 hover:underline"><UploadCloud className="w-3 h-3 rotate-180"/> View Document</button>
+                       </div>
+                     </div>
+                   ) : (
+                     <p className="text-slate-500 text-sm">No document uploaded.</p>
+                   )}
+                 </div>
+               </div>
+
+               {selectedEmployeeReq.status.includes('Pending') && (
+                 <div className="flex justify-end gap-4 border-t pt-6 bg-slate-50 -mx-8 -mb-8 p-6 rounded-b-[24px]">
+                   <button onClick={() => setShowRejectModal(true)} className="px-6 py-3 bg-white text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-50">Reject</button>
+                   <button onClick={() => { approveEmployee(selectedEmployeeReq.id); setSelectedEmployeeReq(null); }} className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-500/30">Approve Employee</button>
                  </div>
                )}
             </motion.div>
@@ -289,3 +410,4 @@ const PassApprovals = () => {
 };
 
 export default PassApprovals;
+

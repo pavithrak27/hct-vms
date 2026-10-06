@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Users, UserCheck, Shield, Briefcase, Activity, CheckCircle, Clock, Building2, FileSignature, AlertTriangle, Camera, Calendar, Smartphone, ChevronDown, BarChart3, TrendingUp, Zap, Server } from 'lucide-react';
+import { Users, UserCheck, Shield, Briefcase, Activity, CheckCircle, Clock, Building2, FileSignature, AlertTriangle, Camera, Calendar, Smartphone, ChevronDown, BarChart3, TrendingUp, Zap, Server, Download, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from './components/layout/Layout';
 import VisitorList from './components/visitor/VisitorList';
@@ -73,19 +73,20 @@ const DashboardView = () => {
             <div className="relative">
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)} 
-                className="px-4 py-2 bg-indigo-50/50 dark:bg-slate-900 border-2 border-indigo-500 rounded-lg text-sm font-medium text-indigo-700 dark:text-indigo-400 outline-none flex items-center gap-6 shadow-sm cursor-pointer"
+                className="px-4 py-2 bg-indigo-50/50 dark:bg-slate-900 border border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 dark:border-indigo-800 rounded-xl text-sm font-semibold text-indigo-700 dark:text-indigo-400 outline-none flex items-center gap-3 shadow-sm cursor-pointer transition-colors"
               >
+                <Calendar className="w-4 h-4" />
                 {dateFilter}
-                <ChevronDown className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
+                <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
               
               {isFilterOpen && (
-                <div className="absolute top-full right-0 mt-1 w-full min-w-[140px] bg-indigo-50/95 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-sm shadow-lg z-50 overflow-hidden">
+                <div className="absolute top-full right-0 mt-1 w-full min-w-[140px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50 overflow-hidden">
                   {['Today', 'Last 7 Days', 'This Month', 'Custom Date'].map(option => (
                     <div 
                       key={option}
                       onClick={() => { setDateFilter(option); setIsFilterOpen(false); }}
-                      className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${dateFilter === option ? 'bg-blue-300 text-slate-800' : 'text-indigo-700 dark:text-indigo-300 hover:bg-blue-300 hover:text-slate-800'}`}
+                      className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${dateFilter === option ? 'bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900'}`}
                     >
                       {option}
                     </div>
@@ -99,140 +100,108 @@ const DashboardView = () => {
                 type="date" 
                 value={customDate} 
                 onChange={(e) => setCustomDate(e.target.value)} 
-                className="px-3 py-2 bg-white dark:bg-slate-900 border-2 border-indigo-200 dark:border-indigo-800 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 outline-none focus:border-indigo-500 shadow-sm"
+                className="px-3 py-2 bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-800 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 outline-none focus:border-indigo-500 shadow-sm"
               />
             )}
           </div>
           <button  
             onClick={() => handleExport('pdf')} 
             disabled={isExporting} 
-            className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50 shadow-sm"
+            className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 rounded-xl text-sm font-semibold flex items-center gap-2 transition-colors disabled:opacity-50 shadow-sm"
           >
-             {isExporting ? '...' : 'PDF'}
+             {isExporting ? <span className="animate-pulse">Exporting...</span> : <><Download className="w-4 h-4" /> PDF</>}
           </button>
           <button 
             onClick={() => handleExport('doc')} 
             disabled={isExporting} 
-            className="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50 shadow-sm"
+            className="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 rounded-xl text-sm font-semibold flex items-center gap-2 transition-colors disabled:opacity-50 shadow-sm"
           >
-             {isExporting ? '...' : 'Document'}
+             {isExporting ? <span className="animate-pulse">Exporting...</span> : <><FileText className="w-4 h-4" /> Document</>}
           </button>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
-        
-        {/* Core Entities - Left Column (Col span 3) */}
-        <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-5">
-          <motion.div whileHover={{ scale: 1.02 }} className="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-3xl p-5 shadow-xl shadow-blue-900/20 text-white relative overflow-hidden h-full flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-            <div className="flex justify-between items-start relative z-10">
-              <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-2xl"><Server className="w-5 h-5 text-white"/></div>
-            </div>
-            <div className="mt-6 relative z-10">
-              <p className="text-blue-100 font-medium text-xs mb-1 uppercase tracking-wider">Total Hosts</p>
-              <h3 className="text-4xl font-black">15</h3>
-            </div>
-          </motion.div>
+      {/* Metrics Grid */}
+      <motion.div 
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+          }
+        }}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+      >
+        {(() => {
+          const dashboardCards = [
+            { title: 'Total No of Host', value: '15', icon: UserCheck, color: 'blue' },
+            { title: 'Total No of Contractor', value: '13', icon: Briefcase, color: 'emerald' },
+            { title: 'Total No of Request', value: '2', icon: FileSignature, color: 'amber' },
+            { title: 'Walkin Approved Count', value: '0', icon: CheckCircle, color: 'cyan' },
+            { title: 'Pre-Approve Approved Count', value: '0', icon: Shield, color: 'indigo' },
+            { title: 'Today Visitor Count', value: '0', icon: Users, color: 'purple' },
+            { title: 'Today Checked In Count', value: '0', icon: Activity, color: 'green' },
+            { title: 'Today Checked Out Count', value: '0', icon: Clock, color: 'slate' },
+            { title: 'Contractor Onboard Request Count', value: '0', icon: Building2, color: 'orange' },
+            { title: 'Contractor Employee Pass Request Count', value: '0', icon: FileSignature, color: 'rose' },
+          ];
 
-          <motion.div whileHover={{ scale: 1.02 }} className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 relative overflow-hidden h-full flex flex-col justify-between">
-            <div className="flex justify-between items-start">
-              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl"><Zap className="w-5 h-5 text-emerald-600 dark:text-emerald-400"/></div>
-            </div>
-            <div className="mt-6">
-              <p className="text-slate-500 font-medium text-xs mb-1 uppercase tracking-wider">Total Contractors</p>
-              <h3 className="text-4xl font-black text-slate-800 dark:text-white">13</h3>
-            </div>
-          </motion.div>
-        </div>
+          const colorMap = {
+            blue: { grad: 'from-blue-500 to-indigo-500', icon: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30' },
+            emerald: { grad: 'from-emerald-500 to-teal-500', icon: 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-900/30' },
+            amber: { grad: 'from-amber-500 to-orange-500', icon: 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30' },
+            cyan: { grad: 'from-cyan-500 to-blue-500', icon: 'text-cyan-600 bg-cyan-50 dark:text-cyan-400 dark:bg-cyan-900/30' },
+            indigo: { grad: 'from-indigo-500 to-purple-500', icon: 'text-indigo-600 bg-indigo-50 dark:text-indigo-400 dark:bg-indigo-900/30' },
+            purple: { grad: 'from-purple-500 to-pink-500', icon: 'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/30' },
+            green: { grad: 'from-green-500 to-emerald-500', icon: 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/30' },
+            slate: { grad: 'from-slate-500 to-gray-500', icon: 'text-slate-600 bg-slate-100 dark:text-slate-400 dark:bg-slate-800' },
+            orange: { grad: 'from-orange-500 to-amber-500', icon: 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-900/30' },
+            rose: { grad: 'from-rose-500 to-pink-500', icon: 'text-rose-600 bg-rose-50 dark:text-rose-400 dark:bg-rose-900/30' },
+          };
 
-        {/* Demographics Chart - Middle Large Section (Col span 6) */}
-        <div className="md:col-span-12 lg:col-span-6 bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 relative overflow-hidden flex flex-col">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl"></div>
-          <div className="flex items-center justify-between mb-4 relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl"><Users className="w-4 h-4 text-emerald-600"/></div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white">Registered Users by Role</h3>
-            </div>
-            <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-[10px] font-bold">
-               <Shield className="w-3.5 h-3.5"/> System Data
-            </div>
-          </div>
-          
-          <div className="flex-1 flex flex-col justify-end mt-6 mb-2 relative z-10">
-            <div className="flex items-end justify-between h-32 gap-3 sm:gap-6">
-              {[
-                { label: 'Hosts', val: 15, max: 20, color: 'from-blue-600 to-blue-400', hov: 'group-hover:from-blue-700 group-hover:to-blue-500' },
-                { label: 'Contractors', val: 13, max: 20, color: 'from-emerald-500 to-emerald-400', hov: 'group-hover:from-emerald-600 group-hover:to-emerald-500' },
-                { label: 'Guards', val: 8, max: 20, color: 'from-purple-600 to-purple-400', hov: 'group-hover:from-purple-700 group-hover:to-purple-500' },
-                { label: 'Reception', val: 5, max: 20, color: 'from-orange-500 to-orange-400', hov: 'group-hover:from-orange-600 group-hover:to-orange-500' },
-                { label: 'Admins', val: 2, max: 20, color: 'from-rose-500 to-rose-400', hov: 'group-hover:from-rose-600 group-hover:to-rose-500' },
-              ].map((item, i) => (
-                <div key={i} className="w-full relative group h-full flex items-end">
-                   <div className="absolute inset-0 bg-slate-50 dark:bg-slate-800/50 rounded-t-lg"></div>
-                   <motion.div 
-                     initial={{ height: 0 }} animate={{ height: `${(item.val / item.max) * 100}%` }} transition={{ duration: 1, delay: i * 0.1 }}
-                     className={`w-full bg-gradient-to-t ${item.color} rounded-t-lg relative z-10 ${item.hov} transition-all cursor-pointer`}
-                   >
-                     {/* Tooltip */}
-                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                        {item.val} {item.label}
-                     </div>
-                   </motion.div>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-3 px-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center">
-              <span className="w-full">Hosts</span>
-              <span className="w-full">Contr.</span>
-              <span className="w-full">Guards</span>
-              <span className="w-full">Recept.</span>
-              <span className="w-full">Admins</span>
-            </div>
-          </div>
-        </div>
+          return dashboardCards.map((card, i) => {
+            const Icon = card.icon;
+            const style = colorMap[card.color];
 
-        {/* Requests & Approvals - Right Column (Col span 3) */}
-        <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-5">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 relative overflow-hidden flex-1">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Pending Requests</h4>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <FileSignature className="w-4 h-4 text-amber-500"/>
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Total Requests</span>
+            return (
+              <motion.div 
+                key={i}
+                variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 }, hover: { y: -5 } }} 
+                whileHover="hover" 
+                className="relative group overflow-hidden bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl rounded-2xl rounded-tr-[3rem] p-6 shadow-xl hover:shadow-2xl border border-white/60 dark:border-slate-700/50 flex flex-col justify-between h-40 transition-all duration-300"
+              >
+                {/* Animated Glow Background */}
+                <div className={`absolute -inset-4 bg-gradient-to-r ${style.grad} opacity-0 group-hover:opacity-[0.15] blur-2xl transition-opacity duration-700 pointer-events-none`} />
+                
+                <div className="relative z-10 flex justify-between items-start mb-4">
+                  <div className="flex flex-col">
+                    <h4 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 line-clamp-2 pr-2">{card.title}</h4>
+                    <div className={`h-0.5 w-8 rounded-full mb-2 bg-gradient-to-r ${style.grad}`}></div>
+                  </div>
+                  
+                  <motion.div 
+                    variants={{ hover: { scale: 1.1, rotate: 5 } }} 
+                    className={`p-3 rounded-2xl shadow-inner border border-white/50 dark:border-slate-700/50 ${style.icon}`}
+                  >
+                    <Icon className="w-5 h-5"/>
+                  </motion.div>
                 </div>
-                <span className="font-black text-slate-800 dark:text-white text-base">2</span>
-              </div>
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-orange-500"/>
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Onboarding</span>
+                
+                <div className="relative z-10 flex items-end justify-between">
+                  <h3 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 tracking-tighter">
+                    {card.value}
+                  </h3>
                 </div>
-                <span className="font-black text-slate-800 dark:text-white text-base">0</span>
-              </div>
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <FileSignature className="w-4 h-4 text-rose-500"/>
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Emp. Passes</span>
-                </div>
-                <span className="font-black text-slate-800 dark:text-white text-base">0</span>
-              </div>
-            </div>
-          </div>
-          
-          <motion.div whileHover={{ scale: 1.02 }} className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-5 shadow-xl shadow-purple-900/20 text-white relative overflow-hidden">
-             <div className="flex justify-between items-center relative z-10">
-               <div>
-                 <p className="text-purple-100 font-medium text-[10px] mb-1 uppercase tracking-wider">Pre-Approve</p>
-                 <h3 className="text-2xl font-black">0</h3>
-               </div>
-               <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-2xl"><Shield className="w-5 h-5 text-white"/></div>
-             </div>
-          </motion.div>
-        </div>
-
-      </div>
+                
+                {/* Animated Bottom Border Line */}
+                <div className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r ${style.grad} w-0 group-hover:w-full transition-all duration-500 ease-out`}></div>
+              </motion.div>
+            );
+          });
+        })()}
+      </motion.div>
 
 
 

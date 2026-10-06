@@ -26,19 +26,42 @@ const ContractorPortal = () => {
   // Add Employee State
   const [addStep, setAddStep] = useState(1);
   const [empForm, setEmpForm] = useState({ name: '', nationality: '', mobile: '', jobTitle: '', docExpiry: '' });
-  const [empDoc, setEmpDoc] = useState(null);
-  const [empPhoto, setEmpPhoto] = useState(false);
+  const [empDocs, setEmpDocs] = useState([{ id: Date.now(), title: '', file: null, fileName: '', size: '' }]);
+  const [empPhoto, setEmpPhoto] = useState(null);
 
   // Create Pass Request State
   const [passStep, setPassStep] = useState(0); // 0=list, 1=select emp, 2=period, 3=hse, 4=review
   const [selectedEmps, setSelectedEmps] = useState([]);
-  const [visitPeriod, setVisitPeriod] = useState({ startDate: '', startTime: '', endDate: '', endTime: '' });
+  const [visitPeriod, setVisitPeriod] = useState({ campus: 'Main Campus', startDate: '', startTime: '', endDate: '', endTime: '' });
   const [periodError, setPeriodError] = useState('');
   const [hseStatus, setHseStatus] = useState('Not Started'); // Not Started, In Progress, Completed
   const [declaration, setDeclaration] = useState(false);
   const [signature, setSignature] = useState('');
-
+  
+  const [viewingRequest, setViewingRequest] = useState(null);
   const [selectedPass, setSelectedPass] = useState(null);
+  const [viewEmployee, setViewEmployee] = useState(null);
+
+  const addDocument = () => {
+    if (empDocs.length >= 4) return;
+    setEmpDocs([...empDocs, { id: Date.now() + Math.random(), title: '', file: null, fileName: '', size: '' }]);
+  };
+
+  const removeDocument = (id) => {
+    setEmpDocs(empDocs.filter(doc => doc.id !== id));
+  };
+
+  const handleDocTitleChange = (id, title) => {
+    setEmpDocs(empDocs.map(doc => doc.id === id ? { ...doc, title } : doc));
+  };
+
+  const handleDocFileUpload = (id, file) => {
+    if (file) {
+      setEmpDocs(empDocs.map(doc => doc.id === id ? {
+        ...doc, file, fileName: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB'
+      } : doc));
+    }
+  };
 
   const submitEmployee = () => {
     addEmployee({
@@ -47,12 +70,14 @@ const ContractorPortal = () => {
       company: companyInfo.name,
       status: 'Pending Approval',
       photo: 'https://i.pravatar.cc/300?img=' + (Math.floor(Math.random() * 70) + 1),
-      document: 'Uploaded_Doc.pdf',
+      document: empDocs[0]?.fileName || 'Uploaded_Doc.pdf',
       submissionDate: new Date().toISOString().split('T')[0]
     });
     navigate('/contractor/employees');
     setAddStep(1);
     setEmpForm({ name: '', nationality: '', mobile: '', jobTitle: '', docExpiry: '' });
+    setEmpDocs([{ id: Date.now(), title: '', file: null, fileName: '', size: '' }]);
+    setEmpPhoto(null);
   };
 
   const toggleEmpSelect = (id) => {
@@ -64,22 +89,7 @@ const ContractorPortal = () => {
   };
 
   const handlePeriodNext = () => {
-    const start = new Date(`${visitPeriod.startDate}T${visitPeriod.startTime}`);
-    const end = new Date(`${visitPeriod.endDate}T${visitPeriod.endTime}`);
-    const contractEnd = new Date(companyInfo.contractExpiry);
-    const today = new Date();
-
-    if (start < today) { setPeriodError('Start date/time cannot be in the past.'); return; }
-    if (end <= start) { setPeriodError('End date/time must be after start date/time.'); return; }
-    if (end > contractEnd) { setPeriodError('Visit period cannot exceed the contract expiry date.'); return; }
-    
-    // Check employee docs
-    const invalidEmp = selectedEmps.map(id => employees.find(e => e.id === id)).find(e => new Date(e.docExpiry) < end);
-    if (invalidEmp) {
-      setPeriodError(`Employee ${invalidEmp.name}'s ID expires before the requested pass end date.`);
-      return;
-    }
-
+    if (!visitPeriod.startTime || !visitPeriod.endTime) { setPeriodError('Please fill in all time fields.'); return; }
     setPeriodError('');
     setPassStep(3);
   };
@@ -95,9 +105,10 @@ const ContractorPortal = () => {
       company: companyInfo.name,
       contractId: companyInfo.id,
       contractNumber: companyInfo.contractNumber,
+      campus: visitPeriod.campus,
       employees: selectedEmps, // array of IDs
-      start: `${visitPeriod.startDate} ${visitPeriod.startTime}`,
-      end: `${visitPeriod.endDate} ${visitPeriod.endTime}`,
+      start: visitPeriod.startTime,
+      end: visitPeriod.endTime,
       status: 'Pending Level 1 Approval',
       approvalLevel: 1,
       submissionDate: new Date().toISOString().split('T')[0]
@@ -222,32 +233,87 @@ const ContractorPortal = () => {
 
               {addStep === 2 && (
                 <div className="space-y-6">
-                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 border-dashed text-center">
-                     <UploadCloud className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-                     <p className="font-bold text-slate-700">Upload Identity Document (Passport/EID)</p>
-                     <p className="text-xs text-slate-500 mb-4">PDF, JPG, PNG up to 5MB</p>
-                     <button className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-bold shadow-sm">Browse Files</button>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center border-b pb-2">
+                      <label className="text-sm font-bold block">Identity Documents * (PDF, JPG, PNG)</label>
+                      {empDocs.length < 4 && (
+                        <button onClick={addDocument} className="text-xs font-bold text-hct-blue bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 flex items-center gap-1 transition-colors">
+                          <Plus className="w-4 h-4"/> Add Document
+                        </button>
+                      )}
+                    </div>
+                    {empDocs.map((doc, index) => (
+                      <div key={doc.id} className="bg-slate-50 p-4 rounded-xl border border-slate-200 relative group flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        {empDocs.length > 1 && (
+                           <button onClick={() => removeDocument(doc.id)} className="absolute top-2 right-2 text-red-400 hover:text-red-600 p-1 bg-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></button>
+                        )}
+                        <div className="flex-1 w-full">
+                           <input type="text" placeholder="Document Name (e.g. Passport, EID)" value={doc.title} onChange={(e) => handleDocTitleChange(doc.id, e.target.value)} className="w-full p-2.5 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue text-sm font-bold text-slate-700 bg-white" />
+                        </div>
+                        <div className="flex-1 w-full">
+                           {doc.fileName ? (
+                             <div className="flex items-center gap-3 bg-white p-2.5 rounded-lg border border-emerald-200 text-sm">
+                               <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0"/>
+                               <div className="flex-1 min-w-0">
+                                 <p className="font-bold text-slate-700 truncate">{doc.fileName}</p>
+                                 <p className="text-xs text-slate-500">{doc.size}</p>
+                               </div>
+                               <button onClick={() => handleDocFileUpload(doc.id, null)} className="text-slate-400 hover:text-red-500 shrink-0"><Trash2 className="w-4 h-4"/></button>
+                             </div>
+                           ) : (
+                             <label className="flex items-center justify-center gap-2 bg-white border border-slate-300 border-dashed rounded-lg p-2.5 cursor-pointer hover:bg-slate-50 hover:border-hct-blue transition-colors text-sm font-bold text-slate-600">
+                               <UploadCloud className="w-5 h-5"/> Browse File
+                               <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => handleDocFileUpload(doc.id, e.target.files[0])} />
+                             </label>
+                           )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
+
                   <div>
                     <label className="text-sm font-bold block mb-1">Document Expiry Date *</label>
                     <input type="date" value={empForm.docExpiry} onChange={e => setEmpForm({...empForm, docExpiry: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
                   </div>
+                  
                   <div className="flex justify-between pt-4 border-t">
                     <button onClick={() => setAddStep(1)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
-                    <button onClick={() => setAddStep(3)} disabled={!empForm.docExpiry} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold disabled:opacity-50">Next: Photo <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                    <button onClick={() => {
+                       const allDocsValid = empDocs.every(d => d.title && d.fileName);
+                       if (!allDocsValid) {
+                         alert("Please provide a name and upload a file for all documents.");
+                         return;
+                       }
+                       setAddStep(3);
+                    }} disabled={!empForm.docExpiry || empDocs.length === 0} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold disabled:opacity-50">Next: Photo <ArrowRight className="inline w-4 h-4 ml-1"/></button>
                   </div>
                 </div>
               )}
 
               {addStep === 3 && (
                 <div className="space-y-6">
-                  <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-center">
-                     <div className="w-32 h-32 bg-slate-200 rounded-full mx-auto mb-4 flex items-center justify-center border-4 border-white shadow-md">
-                       <Camera className="w-8 h-8 text-slate-400" />
+                  {empPhoto ? (
+                     <div className="bg-slate-50 p-6 rounded-xl border border-emerald-200 text-center flex flex-col items-center">
+                       <CheckCircle2 className="w-12 h-12 text-emerald-500 mb-3"/>
+                       <p className="font-bold text-slate-700 truncate mb-1">{empPhoto.fileName}</p>
+                       <p className="text-xs text-slate-500 mb-4">{empPhoto.size}</p>
+                       <button type="button" onClick={() => setEmpPhoto(null)} className="px-6 py-2 bg-white border border-red-200 text-red-500 hover:bg-red-50 transition-colors rounded-xl text-sm font-bold shadow-sm inline-flex items-center gap-2"><Trash2 className="w-4 h-4"/> Remove Photo</button>
                      </div>
-                     <p className="font-bold text-slate-700 mb-4">Take Live Photo</p>
-                     <button className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-sm flex items-center gap-2 mx-auto"><Camera className="w-4 h-4"/> Capture Now</button>
-                  </div>
+                  ) : (
+                    <label className="bg-slate-50 p-6 rounded-xl border border-slate-200 border-dashed text-center block cursor-pointer hover:border-hct-blue transition-colors">
+                       <div className="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center border-4 border-slate-100 shadow-sm">
+                         <Camera className="w-8 h-8 text-slate-300" />
+                       </div>
+                       <p className="font-bold text-slate-700 mb-4">Upload Photograph</p>
+                       <span className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-sm inline-flex items-center gap-2"><UploadCloud className="w-4 h-4"/> Browse Photo</span>
+                       <input type="file" className="hidden" accept=".jpg,.jpeg,.png" onChange={(e) => {
+                         const file = e.target.files[0];
+                         if(file) {
+                           setEmpPhoto({ file, fileName: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB' });
+                         }
+                       }} />
+                    </label>
+                  )}
                   <div className="flex justify-between pt-4 border-t">
                     <button onClick={() => setAddStep(2)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
                     <button onClick={submitEmployee} className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/30 flex items-center gap-2"><CheckCircle2 className="w-5 h-5"/> Submit for Approval</button>
@@ -260,7 +326,7 @@ const ContractorPortal = () => {
           {/* PASS REQUESTS TAB */}
           {activeTab === 'passes' && (
             <div className="animate-in fade-in">
-              {passStep === 0 && (
+              {passStep === 0 && !viewingRequest && (
                 <div>
                   <div className="flex justify-between items-center border-b pb-4 mb-6">
                     <h3 className="text-xl font-bold">Pass Requests</h3>
@@ -286,13 +352,89 @@ const ContractorPortal = () => {
                             <td className="p-4"><span className={`px-3 py-1 rounded-full text-xs font-bold ${req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{req.status}</span></td>
                             <td className="p-4 text-right">
                               {req.status === 'Approved' ? (
-                                <button className="text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">Approved</button>
+                                <button onClick={() => setViewingRequest(req)} className="text-emerald-700 font-bold bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors flex items-center gap-2 ml-auto shadow-sm"><QrCode className="w-4 h-4"/> View Passes</button>
                               ) : (
-                                <button className="text-slate-600 font-bold bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">Pending</button>
+                                <span className="text-slate-600 font-bold bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 inline-block">Pending</span>
                               )}
                             </td>
                           </tr>
                         ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* View Generated Passes for Request */}
+              {viewingRequest && (
+                <div className="animate-in fade-in space-y-6">
+                  <div className="flex justify-between items-center border-b pb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-800">Passes for Request {viewingRequest.id}</h3>
+                      <button onClick={() => setViewingRequest(null)} className="text-sm font-bold text-blue-600 hover:underline mt-1">&larr; Back to Requests</button>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                        <input type="text" placeholder="Search by Pass ID, Name, Company..." className="pl-9 p-2 rounded-lg border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue text-sm w-72 bg-white" />
+                      </div>
+                      <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition-colors border border-slate-200 text-sm">
+                        <UploadCloud className="w-4 h-4 rotate-180" /> Download PDFs
+                      </button>
+                    </div>
+                    
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-white border-b border-slate-200 text-slate-500">
+                        <tr>
+                          <th className="p-4 w-12"><input type="checkbox" className="w-4 h-4 rounded border-slate-300" /></th>
+                          <th className="p-4 font-bold uppercase tracking-wider text-xs">Pass ID & Status</th>
+                          <th className="p-4 font-bold uppercase tracking-wider text-xs">Employee</th>
+                          <th className="p-4 font-bold uppercase tracking-wider text-xs">Company</th>
+                          <th className="p-4 font-bold uppercase tracking-wider text-xs">Validity Period</th>
+                          <th className="p-4 font-bold uppercase tracking-wider text-xs text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {viewingRequest.employees.map((empId, index) => {
+                          const emp = employees.find(e => e.id === empId);
+                          const passId = `PASS-0012${5 + index}`;
+                          const isExpired = index === 1; // Just to show different statuses like in screenshot
+                          return (
+                            <tr key={empId} className="hover:bg-slate-50 bg-white">
+                              <td className="p-4"><input type="checkbox" className="w-4 h-4 rounded border-slate-300" /></td>
+                              <td className="p-4">
+                                <p className="font-bold text-slate-800">{passId}</p>
+                                <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase ${isExpired ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                  {isExpired ? 'Expired' : 'Active'}
+                                </span>
+                              </td>
+                              <td className="p-4">
+                                <div className="flex items-center gap-3">
+                                  <img src={emp?.photo || 'https://i.pravatar.cc/150'} alt="avatar" className="w-10 h-10 rounded-full object-cover border border-slate-200" />
+                                  <div>
+                                    <p className="font-bold text-slate-800">{emp?.name}</p>
+                                    <p className="text-xs text-slate-500">{emp?.id}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="p-4 text-slate-600 font-medium">{viewingRequest.company}</td>
+                              <td className="p-4 text-slate-500 text-xs space-y-0.5">
+                                <p>From: {isExpired ? '01-Jan-2023 08:00 AM' : `${viewingRequest.start}`}</p>
+                                <p>To: {isExpired ? '31-Dec-2023 06:00 PM' : `${viewingRequest.end}`}</p>
+                              </td>
+                              <td className="p-4 text-right">
+                                <div className="flex justify-end items-center gap-3 text-slate-400">
+                                  {isExpired && <button className="text-blue-600 font-bold text-xs flex items-center gap-1 hover:underline"><ArrowRight className="w-3 h-3" /> Renew</button>}
+                                  <button onClick={() => setSelectedPass({passId, empName: emp?.name, validFrom: viewingRequest.start, validTo: viewingRequest.end, status: isExpired ? 'Expired' : 'Active'})} className="hover:text-hct-blue transition-colors"><FileText className="w-5 h-5" /></button>
+                                  <button className="hover:text-hct-blue transition-colors"><UploadCloud className="w-5 h-5 rotate-180" /></button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -344,17 +486,18 @@ const ContractorPortal = () => {
                        {periodError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3"><AlertCircle className="w-5 h-5 shrink-0" /><p className="font-bold text-sm">{periodError}</p></div>}
                        
                        <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-200">
-                         <div>
-                           <label className="text-sm font-bold block mb-1">Start Date *</label>
-                           <input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
+                         <div className="col-span-2">
+                           <label className="text-sm font-bold block mb-1">Campus *</label>
+                           <select value={visitPeriod.campus} onChange={(e) => setVisitPeriod({...visitPeriod, campus: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue bg-white">
+                             <option value="Main Campus">Main Campus</option>
+                             <option value="Men's College">Men's College</option>
+                             <option value="Women's College">Women's College</option>
+                             <option value="Innovation Hub">Innovation Hub</option>
+                           </select>
                          </div>
                          <div>
                            <label className="text-sm font-bold block mb-1">Start Time *</label>
                            <input type="time" value={visitPeriod.startTime} onChange={(e) => setVisitPeriod({...visitPeriod, startTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
-                         </div>
-                         <div>
-                           <label className="text-sm font-bold block mb-1">End Date *</label>
-                           <input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
                          </div>
                          <div>
                            <label className="text-sm font-bold block mb-1">End Time *</label>
@@ -364,7 +507,7 @@ const ContractorPortal = () => {
                        
                        <div className="flex justify-between pt-6 border-t">
                          <button onClick={() => setPassStep(1)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
-                         <button onClick={handlePeriodNext} disabled={!visitPeriod.startDate || !visitPeriod.startTime || !visitPeriod.endDate || !visitPeriod.endTime} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold disabled:opacity-50">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                         <button onClick={handlePeriodNext} disabled={!visitPeriod.startTime || !visitPeriod.endTime} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold disabled:opacity-50">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
                        </div>
                      </div>
                    )}
@@ -425,10 +568,11 @@ const ContractorPortal = () => {
                            </div>
                          </div>
                          <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-                           <h5 className="font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-blue-200 pb-2">Requested Visit Period</h5>
+                           <h5 className="font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-blue-200 pb-2">Requested Visit Details</h5>
                            <div className="text-sm space-y-2">
-                             <p className="grid grid-cols-2"><span className="text-slate-600">Start</span><strong className="text-slate-800">{visitPeriod.startDate} {visitPeriod.startTime}</strong></p>
-                             <p className="grid grid-cols-2"><span className="text-slate-600">End</span><strong className="text-slate-800">{visitPeriod.endDate} {visitPeriod.endTime}</strong></p>
+                             <p className="grid grid-cols-2"><span className="text-slate-600">Campus</span><strong className="text-slate-800">{visitPeriod.campus}</strong></p>
+                             <p className="grid grid-cols-2"><span className="text-slate-600">Start</span><strong className="text-slate-800">{visitPeriod.startTime}</strong></p>
+                             <p className="grid grid-cols-2"><span className="text-slate-600">End</span><strong className="text-slate-800">{visitPeriod.endTime}</strong></p>
                            </div>
                          </div>
                        </div>
@@ -495,8 +639,9 @@ const ContractorPortal = () => {
                           <td className="p-4">{pass.validFrom}</td>
                           <td className="p-4">{pass.validTo}</td>
                           <td className="p-4"><span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">{pass.status}</span></td>
-                          <td className="p-4 text-right">
-                            <button onClick={() => setSelectedPass(pass)} className="text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-100"><QrCode className="w-4 h-4 inline mr-1"/> View Pass</button>
+                          <td className="p-4 text-right flex justify-end gap-2">
+                            <button onClick={() => setSelectedPass(pass)} className="text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 hover:bg-emerald-100"><QrCode className="w-4 h-4 inline mr-1"/> View</button>
+                            <button onClick={() => alert('Downloading PDF pass...')} className="text-blue-700 font-bold bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-100"><FileText className="w-4 h-4 inline mr-1"/> PDF</button>
                           </td>
                         </tr>
                       ))}

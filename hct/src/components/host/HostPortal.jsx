@@ -8,8 +8,8 @@ const HostPortal = () => {
 
   // Mock initial requests
   const [requests, setRequests] = useState([
-    { id: 'REQ-1002', name: 'John Doe', type: 'Walk-in', time: 'Just now', status: 'pending' },
-    { id: 'REQ-1003', name: 'Jane Smith', type: 'Pre-Scheduled', time: '2 hours ago', status: 'approved' },
+    { id: 'REQ-1002', name: 'John Doe', type: 'Walk-in', time: 'Just now', status: 'pending', email: 'john.doe@example.com', mobile: '+971 50 123 4567', campus: 'Dubai Men\'s', nationality: 'UAE', document: 'Emirates ID (Front & Back)' },
+    { id: 'REQ-1003', name: 'Jane Smith', type: 'Pre-Scheduled', time: '2 hours ago', status: 'approved', email: 'jane.smith@example.com', mobile: '+971 55 987 6543', campus: 'Abu Dhabi Women\'s', nationality: 'USA', document: 'Passport' },
   ]);
 
   const [activeTab, setActiveTab] = useState('pending');
@@ -18,6 +18,7 @@ const HostPortal = () => {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [acceptModalOpen, setAcceptModalOpen] = useState(false);
   const [activeRequest, setActiveRequest] = useState(null);
+  const [viewVisitor, setViewVisitor] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   
   // Invite Flow State
@@ -147,58 +148,68 @@ const HostPortal = () => {
           ) : (
             <div className="space-y-4">
               {filteredRequests.map(req => (
-                <div key={req.id} className="flex items-center justify-between p-5 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/60 dark:border-white/10 rounded-[20px] hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg transition-all">
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-2xl flex items-center justify-center shadow-inner">
-                      <User className="w-7 h-7 text-slate-500 dark:text-slate-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-slate-800 dark:text-white">{req.name}</h4>
-                      <div className="flex gap-3 text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
-                        <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {req.time}</span>
-                        <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-hct-blue dark:text-blue-400 rounded-lg text-xs font-bold">{req.type}</span>
-                        <span className="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-bold">{req.id}</span>
+                <div key={req.id} className="group relative bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-hct-blue rounded-l-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center border border-blue-100 dark:border-slate-600 shadow-inner overflow-hidden">
+                         <span className="text-xl font-black text-hct-blue tracking-tighter">{req.name.split(' ').map(n=>n[0]).join('')}</span>
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-slate-800 dark:text-white group-hover:text-hct-blue transition-colors">{req.name}</h4>
+                        <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
+                          <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg font-bold tracking-wide text-xs">{req.id}</span>
+                          <span className="flex items-center gap-1.5 text-slate-500 font-medium px-2 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg"><Calendar className="w-4 h-4 text-slate-400" /> {req.time}</span>
+                          <span className="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 rounded-lg font-bold text-xs">{req.type}</span>
+                        </div>
                       </div>
                     </div>
+                    
+                    <div className="flex flex-wrap items-center gap-3">
+                      {activeTab === 'pending' && !req.type.includes('Sent') && (
+                        <>
+                          <button 
+                            onClick={() => setViewVisitor(req)}
+                            className="px-5 py-2.5 bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 rounded-xl font-bold flex items-center gap-2 transition-all"
+                          >
+                            <FileText className="w-5 h-5 text-slate-500" /> View
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setActiveRequest(req);
+                              setRejectionReason('');
+                              setRejectModalOpen(true);
+                            }}
+                            className="px-5 py-2.5 border border-red-200 text-red-600 bg-white hover:bg-red-50 rounded-xl font-bold flex items-center gap-2 transition-all hover:shadow-md"
+                          >
+                            <X className="w-5 h-5" /> Reject
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setActiveRequest(req);
+                              setAcceptModalOpen(true);
+                            }}
+                            className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5"
+                          >
+                            <Check className="w-5 h-5" /> Accept
+                          </button>
+                        </>
+                      )}
+                      {activeTab === 'pending' && req.type.includes('Sent') && (
+                         <span className="px-4 py-2.5 rounded-xl text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-2">
+                           <Clock className="w-4 h-4" /> Awaiting Registration
+                         </span>
+                      )}
+                      {activeTab !== 'pending' && (
+                        <span className={`px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm border flex items-center gap-2 ${
+                          activeTab === 'approved' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'
+                        }`}>
+                          {activeTab === 'approved' ? <Check className="w-4 h-4"/> : <X className="w-4 h-4"/>}
+                          {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  
-                  {activeTab === 'pending' && !req.type.includes('Sent') && (
-                    <div className="flex gap-3">
-                      <button 
-                        onClick={() => {
-                          setActiveRequest(req);
-                          setRejectionReason('');
-                          setRejectModalOpen(true);
-                        }}
-                        className="px-5 py-2.5 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-xl font-bold flex items-center gap-2 transition-all hover:shadow-md"
-                      >
-                        <X className="w-5 h-5" /> Reject
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setActiveRequest(req);
-                          setAcceptModalOpen(true);
-                        }}
-                        className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5"
-                      >
-                        <Check className="w-5 h-5" /> Accept
-                      </button>
-                    </div>
-                  )}
-                  {activeTab === 'pending' && req.type.includes('Sent') && (
-                     <span className="px-4 py-2 rounded-xl text-sm font-bold shadow-sm bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
-                       Invitation Sent (Awaiting Registration)
-                     </span>
-                  )}
-                  {activeTab !== 'pending' && (
-                    <div>
-                      <span className={`px-4 py-2 rounded-xl text-sm font-bold shadow-sm border ${
-                        activeTab === 'approved' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'
-                      }`}>
-                        {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                      </span>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -456,6 +467,102 @@ const HostPortal = () => {
                     handleAction(activeRequest?.id, 'rejected');
                     setRejectModalOpen(false);
                  }} disabled={rejectionReason.trim() === ''} className="px-6 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 shadow-md disabled:opacity-50 disabled:cursor-not-allowed">Confirm Rejection</button>
+               </div>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* View Visitor Modal */}
+      <AnimatePresence>
+        {viewVisitor && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[150] p-4">
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl p-8 max-w-lg w-full border border-slate-200 dark:border-slate-800 relative">
+               <button onClick={() => setViewVisitor(null)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-white"><X className="w-6 h-6"/></button>
+               <h3 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white flex items-center gap-3"><User className="w-6 h-6 text-hct-blue" /> Visitor Details</h3>
+               
+               <div className="space-y-4">
+                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Full Name</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Request ID</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.id}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Email</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.email || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Mobile</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.mobile || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Campus</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.campus || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Nationality</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.nationality || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Visit Type</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.type}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500 mb-1">Time</p>
+                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.time}</p>
+                      </div>
+                      <div className="col-span-2 mt-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <p className="text-sm text-slate-500 mb-2">Identity Documents</p>
+                        {viewVisitor.document ? (
+                          <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                            <FileText className="w-5 h-5 text-hct-blue" />
+                            <span className="font-bold text-slate-700 dark:text-slate-200 flex-1">{viewVisitor.document}</span>
+                            <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded">Uploaded</span>
+                          </div>
+                        ) : (
+                          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No documents uploaded</p>
+                        )}
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-sm text-slate-500 mb-1">Status</p>
+                        <span className={`px-3 py-1 rounded-lg text-xs font-bold ${viewVisitor.status === 'pending' ? 'bg-amber-100 text-amber-700' : viewVisitor.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                          {viewVisitor.status.toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                 </div>
+                 
+                 <div className="flex gap-4 pt-4">
+                   {viewVisitor.status === 'pending' && (
+                     <>
+                        <button 
+                          onClick={() => {
+                            setActiveRequest(viewVisitor);
+                            setViewVisitor(null);
+                            setRejectModalOpen(true);
+                          }}
+                          className="flex-1 py-3 border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl font-bold transition-all"
+                        >
+                          Reject
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setActiveRequest(viewVisitor);
+                            setViewVisitor(null);
+                            setAcceptModalOpen(true);
+                          }}
+                          className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/30"
+                        >
+                          Accept
+                        </button>
+                     </>
+                   )}
+                 </div>
                </div>
              </motion.div>
           </div>

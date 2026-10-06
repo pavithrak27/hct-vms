@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Camera, Car, UserCheck, Shield, Trash2, Edit2, Check, Signature, ShieldAlert, Lock, Mail, Send, RefreshCw, XCircle, Clock, ChevronLeft } from 'lucide-react';
+import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Camera, Car, UserCheck, Shield, Trash2, Edit2, Check, Signature, ShieldAlert, Lock, Mail, Send, RefreshCw, XCircle, Clock, ChevronLeft, FileText, ShieldCheck } from 'lucide-react';
 
 const initialVisitors = [
   { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Checked In', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false },
@@ -190,7 +190,7 @@ const VisitorList = () => {
   const nextStep = () => {
     if (step === 2) {
       const v = formVisitors[0];
-      if (!v.fullName || !v.mobileNumber || !v.visitorType || !hostDetails.hostName) {
+      if (!v.fullName || !v.mobileNumber || !hostDetails.hostName) {
         alert("Please fill all mandatory fields (*)");
         return;
       }
@@ -353,9 +353,9 @@ const VisitorList = () => {
                                          setShowBlockModal(true);
                                          setActiveMenuId(null); 
                                        }} 
-                                       className="w-full text-left px-4 py-3 text-xs hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold transition-colors flex items-center gap-2"
+                                       className={`w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 ${visitor.isBlocked ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'}`}
                                      >
-                                       <ShieldAlert className="w-4 h-4"/> Security Action
+                                       <ShieldAlert className="w-4 h-4"/> {visitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
                                      </button>
                                  </div>
                                )}
@@ -455,33 +455,9 @@ const VisitorList = () => {
                       <input type="email" value={formVisitors[0].email} onChange={(e) => handleVisitorChange(0, 'email', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Visitor Type *</label>
-                      <select value={formVisitors[0].visitorType} onChange={(e) => handleVisitorChange(0, 'visitorType', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
-                        <option value="">Select Type</option>
-                        <option value="Guest">Guest</option>
-                        <option value="Business Visitor">Business Visitor</option>
-                        <option value="Contractor">Contractor</option>
-                        <option value="Delivery">Delivery</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                    <div>
                       <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Nationality</label>
                       <input type="text" value={formVisitors[0].nationality} onChange={(e) => handleVisitorChange(0, 'nationality', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none" />
                     </div>
-                    <div>
-                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Company / Organization</label>
-                      <select value={formVisitors[0].company} onChange={(e) => handleVisitorChange(0, 'company', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none">
-                        <option value="">Select Company</option>
-                        {["Tech Solutions LLC", "Global Services", "Ministry of Education", "ABC Cleaning Services", "Independent Contractor"].map(c => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <h3 className="text-base font-bold border-b pb-2 pt-4">Host Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Host *</label>
                       <div className="relative">
@@ -765,9 +741,23 @@ const VisitorList = () => {
                   <span className="text-slate-500 font-medium">Date & Time</span>
                   <span className="font-medium text-slate-800 dark:text-white">{selectedVisitor.date} at {selectedVisitor.time}</span>
                 </div>
-                <div className="flex justify-between items-center pt-2">
+                <div className="flex justify-between items-center pt-2 pb-6 border-b border-slate-100 dark:border-slate-800">
                   <span className="text-slate-500 font-medium">Status</span>
                   {getStatusBadge(selectedVisitor.status)}
+                </div>
+                
+                <div className="flex gap-3 pt-2">
+                  <button onClick={() => alert('Viewing document...')} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+                    <FileText className="w-4 h-4"/> View Document
+                  </button>
+                  <button onClick={() => {
+                    setVisitorToBlock(selectedVisitor);
+                    setSecurityActionType(selectedVisitor.isBlocked ? 'temp' : 'deny');
+                    setShowBlockModal(true);
+                    setSelectedVisitor(null);
+                  }} className={`flex-1 ${selectedVisitor.isBlocked ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'} text-white py-3 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2`}>
+                    <ShieldAlert className="w-4 h-4"/> {selectedVisitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
+                  </button>
                 </div>
               </div>
             </div>

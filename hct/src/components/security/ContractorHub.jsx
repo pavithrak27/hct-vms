@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X } from 'lucide-react';
+import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X, UploadCloud, Trash2, Camera, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContractorRegistration from '../contractor/ContractorRegistration';
 import { useRole } from '../../context/RoleContext';
@@ -12,11 +12,11 @@ const contractorsList = [
 
 const mockEmployees = {
   'CON-2026-101': [
-    { id: 'EMP-001', name: 'John Smith', role: 'Technician', status: 'Approved' },
-    { id: 'EMP-002', name: 'Sarah Jane', role: 'Engineer', status: 'Pending Approval' }
+    { id: 'EMP-001', name: 'John Smith', role: 'Technician', status: 'Approved', nationality: 'USA', mobile: '+971 50 123 4567', email: 'john@techsolutions.com', document: 'Passport.pdf' },
+    { id: 'EMP-002', name: 'Sarah Jane', role: 'Engineer', status: 'Pending Approval', nationality: 'UK', mobile: '+971 55 987 6543', email: 'sarah@techsolutions.com', document: 'Emirates_ID.pdf' }
   ],
   'CON-2026-102': [
-    { id: 'EMP-003', name: 'Mike Ross', role: 'Cleaner', status: 'Approved' }
+    { id: 'EMP-003', name: 'Mike Ross', role: 'Cleaner', status: 'Approved', nationality: 'India', mobile: '+971 56 111 2222', email: 'mike@globalfm.com', document: 'Visa_Copy.pdf' }
   ]
 };
 
@@ -36,16 +36,35 @@ const ContractorHub = () => {
   const [search, setSearch] = useState('');
   const [isAddingContractor, setIsAddingContractor] = useState(false);
   const [renewModalData, setRenewModalData] = useState(null);
+  
+  const [toastMessage, setToastMessage] = useState('');
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
 
   // Add Employee Form State
   const [showAddEmployee, setShowAddEmployee] = useState(false);
-  const [newEmployee, setNewEmployee] = useState({ name: '', role: '' });
+  const [newEmployee, setNewEmployee] = useState({ name: '', nationality: '', mobile: '', role: '' });
+  const [empDocs, setEmpDocs] = useState([{ id: Date.now(), title: '', file: null, fileName: '', size: '' }]);
+  const [empPhoto, setEmpPhoto] = useState(null);
 
   // Create Pass Request State
   const [showCreatePass, setShowCreatePass] = useState(false);
+  const [passStep, setPassStep] = useState(1);
   const [selectedEmpsForPass, setSelectedEmpsForPass] = useState([]);
+  const [visitPeriod, setVisitPeriod] = useState({ campus: 'Main Campus', startDate: '', startTime: '', endDate: '', endTime: '' });
+  const [periodError, setPeriodError] = useState('');
 
-  // Send Link Modal State
+  // Renew Request State
+  const [showRenewRequest, setShowRenewRequest] = useState(false);
+  const [renewForm, setRenewForm] = useState({
+    contractStart: '', contractExpiry: '', gatePassStart: '', gatePassEnd: ''
+  });
+  const [renewDocs, setRenewDocs] = useState([{ id: Date.now(), title: '', file: null, fileName: '', size: '' }]);
+  const [hseStatus, setHseStatus] = useState('Not Started');
+  const [declaration, setDeclaration] = useState(false);
+  const [signature, setSignature] = useState('');
   const [showSendLinkModal, setShowSendLinkModal] = useState(false);
   const [sendLinkData, setSendLinkData] = useState({ 
     campus: 'Men\'s College', 
@@ -68,14 +87,51 @@ const ContractorHub = () => {
   const [employees, setEmployees] = useState(mockEmployees);
   const [passRequests, setPassRequests] = useState(mockPassRequests);
 
+  const addDocument = () => {
+    if (empDocs.length >= 4) return;
+    setEmpDocs([...empDocs, { id: Date.now() + Math.random(), title: '', file: null, fileName: '', size: '' }]);
+  };
+
+  const removeDocument = (id) => {
+    setEmpDocs(empDocs.filter(doc => doc.id !== id));
+  };
+
+  const handleDocTitleChange = (id, title) => {
+    setEmpDocs(empDocs.map(doc => doc.id === id ? { ...doc, title } : doc));
+  };
+
+  const handleDocFileUpload = (id, file) => {
+    if (file) {
+      setEmpDocs(empDocs.map(doc => doc.id === id ? {
+        ...doc, file, fileName: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB'
+      } : doc));
+    }
+  };
+
   const handleAddEmployee = (e) => {
     e.preventDefault();
-    if (!newEmployee.name || !newEmployee.role) return;
+    if (!newEmployee.name || !newEmployee.nationality || !newEmployee.mobile || !newEmployee.role) return;
     const cid = selectedContractor.id;
     const added = { id: `EMP-00${Math.floor(Math.random() * 900) + 100}`, name: newEmployee.name, role: newEmployee.role, status: 'Pending Approval' };
     setEmployees({ ...employees, [cid]: [...(employees[cid] || []), added] });
-    setNewEmployee({ name: '', role: '' });
+    setNewEmployee({ name: '', nationality: '', mobile: '', role: '' });
+    setEmpDocs([{ id: Date.now(), title: '', file: null, fileName: '', size: '' }]);
+    setEmpPhoto(null);
     setShowAddEmployee(false);
+  };
+
+  const handlePeriodNext = () => {
+    if (!visitPeriod.startTime || !visitPeriod.endTime) {
+      setPeriodError('Please fill in all time fields.');
+      return;
+    }
+    setPeriodError('');
+    setPassStep(3);
+  };
+
+  const simulateHseVideo = () => {
+    setHseStatus('In Progress');
+    setTimeout(() => setHseStatus('Completed'), 2000);
   };
 
   const handleCreatePassRequest = () => {
@@ -84,10 +140,9 @@ const ContractorHub = () => {
       return;
     }
     const cid = selectedContractor.id;
-    const newReq = { id: `PR-${Math.floor(Math.random() * 900) + 100}`, date: new Date().toISOString().split('T')[0], employees: selectedEmpsForPass.length, status: 'Pending Approval' };
+    const newReq = { id: `PR-${Math.floor(Math.random() * 900) + 100}`, date: new Date().toISOString().split('T')[0], employees: selectedEmpsForPass.length, status: 'Pending Approval', start: `${visitPeriod.startDate} ${visitPeriod.startTime}`, end: `${visitPeriod.endDate} ${visitPeriod.endTime}`, campus: visitPeriod.campus };
     setPassRequests({ ...passRequests, [cid]: [...(passRequests[cid] || []), newReq] });
-    setSelectedEmpsForPass([]);
-    setShowCreatePass(false);
+    setPassStep(5);
   };
 
   return (
@@ -148,7 +203,7 @@ const ContractorHub = () => {
                   <span className={`px-3 py-1 rounded-full text-xs font-bold ${contractor.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30' : contractor.status === 'Expired' ? 'bg-red-100 text-red-700 dark:bg-red-900/30' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30'}`}>{contractor.status}</span>
                   <div className="flex items-center gap-3">
                     {contractor.status === 'Expired' && (
-                      <button onClick={(e) => { e.stopPropagation(); setRenewModalData(contractor); }} className="flex items-center gap-1 text-sm font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
+                      <button onClick={(e) => { e.stopPropagation(); showToast('Renewal email has been sent. Please check your mail.'); }} className="flex items-center gap-1 text-sm font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
                         <RefreshCw className="w-3 h-3"/> Renew
                       </button>
                     )}
@@ -174,7 +229,7 @@ const ContractorHub = () => {
             </div>
             <div className="flex items-center gap-3">
               {selectedContractor.status === 'Expired' && (
-                <button onClick={() => setRenewModalData(selectedContractor)} className="flex items-center gap-2 px-4 py-2 bg-hct-blue hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">
+                <button onClick={() => showToast('Renewal email has been sent. Please check your mail.')} className="flex items-center gap-2 px-4 py-2 bg-hct-blue hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-sm transition-colors">
                   <RefreshCw className="w-4 h-4"/> Renew Contract
                 </button>
               )}
@@ -192,13 +247,49 @@ const ContractorHub = () => {
 
           <div className="p-8">
             {activeTab === 'overview' && (
-              <div className="max-w-2xl animate-in fade-in">
-                <h3 className="text-xl font-bold mb-4">Company Details</h3>
-                <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-y-4">
-                  <div><span className="block text-slate-500 text-sm mb-1">Company Name</span><strong className="text-slate-800 dark:text-white">{selectedContractor.name}</strong></div>
-                  <div><span className="block text-slate-500 text-sm mb-1">Contract No</span><strong className="text-slate-800 dark:text-white">{selectedContractor.contractNumber}</strong></div>
-                  <div><span className="block text-slate-500 text-sm mb-1">Expiry Date</span><strong className="text-slate-800 dark:text-white">{selectedContractor.expiry}</strong></div>
-                  <div><span className="block text-slate-500 text-sm mb-1">Status</span><strong className="text-slate-800 dark:text-white">{selectedContractor.status}</strong></div>
+              <div className="animate-in fade-in space-y-8">
+                <div>
+                  <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">Company Details</h3>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 grid grid-cols-2 md:grid-cols-4 gap-8 shadow-inner">
+                    <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Company Name</span><strong className="text-slate-800 dark:text-white text-lg">{selectedContractor.name}</strong></div>
+                    <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Contract No</span><strong className="text-slate-800 dark:text-white text-lg">{selectedContractor.contractNumber}</strong></div>
+                    <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Expiry Date</span><strong className="text-slate-800 dark:text-white text-lg">{selectedContractor.expiry}</strong></div>
+                    <div>
+                      <span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Status</span>
+                      <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm inline-block ${selectedContractor.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : selectedContractor.status === 'Expired' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
+                        {selectedContractor.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-white">Contract Documents</h3>
+                    <button onClick={() => setShowRenewRequest(true)} className="bg-hct-blue text-white px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-blue-700 transition-colors flex items-center gap-2"><RefreshCw className="w-4 h-4"/> Renew Request</button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {(selectedContractor.documents || [
+                      { id: 1, title: 'Trade License', fileName: 'trade_license_2026.pdf', size: '1.2 MB' },
+                      { id: 2, title: 'VAT Certificate', fileName: 'vat_certificate.pdf', size: '0.8 MB' },
+                      { id: 3, title: 'Commercial Register', fileName: 'commercial_register.pdf', size: '2.1 MB' },
+                      { id: 4, title: 'Company Profile', fileName: 'company_profile.pdf', size: '4.5 MB' }
+                    ]).map(doc => (
+                      <div key={doc.id} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-start gap-4 hover:shadow-lg transition-all group cursor-pointer hover:border-blue-300">
+                        <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-xl text-blue-500 group-hover:scale-110 group-hover:bg-blue-100 transition-all">
+                          <FileText className="w-8 h-8" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-slate-800 dark:text-white text-base truncate mb-1 group-hover:text-hct-blue transition-colors">{doc.title}</h4>
+                          <p className="text-xs text-slate-500 truncate mb-3">{doc.fileName}</p>
+                          <div className="flex items-center gap-4">
+                            <button className="text-sm font-bold text-hct-blue hover:text-blue-800 transition-colors">View</button>
+                            <button className="text-sm font-bold text-hct-blue hover:text-blue-800 transition-colors flex items-center gap-1"><UploadCloud className="w-4 h-4 rotate-180" /> Download</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -282,22 +373,114 @@ const ContractorHub = () => {
       <AnimatePresence>
         {showAddEmployee && (
           <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4">
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
-              <h3 className="text-xl font-bold mb-4">Add New Employee</h3>
-              <form onSubmit={handleAddEmployee}>
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1">Full Name</label>
-                    <input type="text" required value={newEmployee.name} onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})} className="w-full p-3 rounded-lg border border-slate-300 outline-none focus:border-hct-blue" placeholder="John Doe" />
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white rounded-3xl p-8 max-w-4xl w-full shadow-2xl overflow-y-auto max-h-[90vh]">
+              <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                <h3 className="text-2xl font-bold text-slate-800">Add New Employee</h3>
+                <button type="button" onClick={() => setShowAddEmployee(false)} className="p-2 bg-slate-50 text-slate-400 rounded-full hover:bg-slate-100 hover:text-slate-600 transition-colors"><X className="w-5 h-5"/></button>
+              </div>
+              <form onSubmit={(e) => {
+                 e.preventDefault();
+                 const allDocsValid = empDocs.every(d => d.title && d.fileName);
+                 if (!allDocsValid) {
+                   alert("Please provide a name and upload a file for all documents.");
+                   return;
+                 }
+                 handleAddEmployee(e);
+              }}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  {/* Left Column: Basic Info */}
+                  <div className="space-y-6">
+                    <h4 className="text-lg font-bold text-slate-700 border-b border-slate-100 pb-2">Employee Details</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="col-span-2">
+                        <label className="block text-sm font-bold text-slate-700 mb-1">Full Name *</label>
+                        <input type="text" required value={newEmployee.name} onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue focus:ring-2 focus:ring-blue-100" placeholder="John Doe" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-1">Nationality *</label>
+                        <input type="text" required value={newEmployee.nationality} onChange={(e) => setNewEmployee({...newEmployee, nationality: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue focus:ring-2 focus:ring-blue-100" placeholder="e.g. UAE" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-1">Mobile Number *</label>
+                        <input type="text" required value={newEmployee.mobile} onChange={(e) => setNewEmployee({...newEmployee, mobile: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue focus:ring-2 focus:ring-blue-100" placeholder="+971 50 123 4567" />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-sm font-bold text-slate-700 mb-1">Job Role *</label>
+                        <input type="text" required value={newEmployee.role} onChange={(e) => setNewEmployee({...newEmployee, role: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue focus:ring-2 focus:ring-blue-100" placeholder="Technician" />
+                      </div>
+                    </div>
+
+                    <h4 className="text-lg font-bold text-slate-700 border-b border-slate-100 pb-2 pt-4">Live Photograph</h4>
+                    {empPhoto ? (
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-emerald-200 text-sm mt-4">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0"/>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-slate-700 truncate">{empPhoto.fileName}</p>
+                          <p className="text-xs text-slate-500">{empPhoto.size}</p>
+                        </div>
+                        <button type="button" onClick={() => setEmpPhoto(null)} className="text-slate-400 hover:text-red-500 shrink-0"><Trash2 className="w-4 h-4"/></button>
+                      </div>
+                    ) : (
+                      <label className="bg-slate-50 p-6 rounded-2xl border border-slate-200 border-dashed text-center block cursor-pointer hover:border-hct-blue transition-colors mt-4">
+                         <Camera className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                         <span className="px-6 py-2 bg-white border border-slate-300 hover:text-hct-blue transition-colors rounded-xl text-sm font-bold shadow-sm inline-block cursor-pointer">Upload Photo</span>
+                         <input type="file" className="hidden" accept=".jpg,.jpeg,.png" onChange={(e) => {
+                           const file = e.target.files[0];
+                           if(file) {
+                             setEmpPhoto({ file, fileName: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB' });
+                           }
+                         }} />
+                      </label>
+                    )}
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1">Job Role</label>
-                    <input type="text" required value={newEmployee.role} onChange={(e) => setNewEmployee({...newEmployee, role: e.target.value})} className="w-full p-3 rounded-lg border border-slate-300 outline-none focus:border-hct-blue" placeholder="Technician" />
+                  
+                  {/* Right Column: Documents */}
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                      <h4 className="text-lg font-bold text-slate-700">Identity Documents</h4>
+                      {empDocs.length < 4 && (
+                        <button type="button" onClick={addDocument} className="text-xs font-bold text-hct-blue bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 flex items-center gap-1 transition-colors">
+                          <Plus className="w-4 h-4"/> Add Document
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {empDocs.map((doc, index) => (
+                        <div key={doc.id} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl relative group hover:border-slate-300 transition-colors">
+                          {empDocs.length > 1 && (
+                            <button type="button" onClick={() => removeDocument(doc.id)} className="absolute top-3 right-3 text-red-400 hover:text-red-600 p-1.5 bg-white rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-4 h-4"/></button>
+                          )}
+                          <div className="mb-3 pr-10">
+                            <label className="text-xs font-bold text-slate-500 mb-1 block uppercase tracking-wider">Document Name</label>
+                            <input type="text" placeholder="e.g. Passport, Emirates ID" value={doc.title} onChange={(e) => handleDocTitleChange(doc.id, e.target.value)} className="w-full p-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-hct-blue focus:ring-2 focus:ring-blue-100 bg-white font-semibold" required />
+                          </div>
+                          
+                          <label className="text-xs font-bold text-slate-500 mb-1 block uppercase tracking-wider">Upload File</label>
+                          {doc.fileName ? (
+                             <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-emerald-200 text-sm">
+                               <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0"/>
+                               <div className="flex-1 min-w-0">
+                                 <p className="font-bold text-slate-700 truncate">{doc.fileName}</p>
+                                 <p className="text-xs text-slate-500">{doc.size}</p>
+                               </div>
+                               <button type="button" onClick={() => handleDocFileUpload(doc.id, null)} className="text-slate-400 hover:text-red-500 shrink-0"><Trash2 className="w-4 h-4"/></button>
+                             </div>
+                           ) : (
+                             <label className="flex items-center justify-center gap-2 bg-white border border-slate-300 border-dashed rounded-xl p-4 cursor-pointer hover:bg-slate-50 hover:border-hct-blue transition-colors text-sm font-bold text-slate-600">
+                               <UploadCloud className="w-5 h-5 text-slate-400"/> <span>Browse File</span>
+                               <input type="file" required={!doc.fileName} className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => handleDocFileUpload(doc.id, e.target.files[0])} />
+                             </label>
+                           )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-end gap-3 border-t pt-4">
-                  <button type="button" onClick={() => setShowAddEmployee(false)} className="px-4 py-2 bg-slate-100 rounded-lg font-bold">Cancel</button>
-                  <button type="submit" className="px-4 py-2 bg-hct-blue text-white rounded-lg font-bold shadow-md">Add Employee</button>
+                
+                <div className="flex justify-end gap-3 border-t border-slate-100 pt-6">
+                  <button type="button" onClick={() => setShowAddEmployee(false)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors">Cancel</button>
+                  <button type="submit" className="px-8 py-3 bg-hct-blue hover:bg-blue-800 text-white rounded-xl font-bold shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2">Add Employee <ArrowRight className="w-4 h-4"/></button>
                 </div>
               </form>
             </motion.div>
@@ -305,33 +488,190 @@ const ContractorHub = () => {
         )}
 
         {showCreatePass && (
-          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4">
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl">
-              <h3 className="text-xl font-bold mb-4 border-b pb-2">Create Pass Request</h3>
-              <p className="text-sm text-slate-500 mb-4">Select employees to include in this pass request.</p>
-              
-              <div className="max-h-60 overflow-y-auto border border-slate-200 rounded-xl mb-6 divide-y divide-slate-100">
-                {(employees[selectedContractor?.id] || []).map(emp => (
-                  <label key={emp.id} className="flex items-center gap-3 p-3 hover:bg-slate-50 cursor-pointer">
-                    <input type="checkbox" checked={selectedEmpsForPass.includes(emp.id)} onChange={(e) => {
-                      if (e.target.checked) setSelectedEmpsForPass([...selectedEmpsForPass, emp.id]);
-                      else setSelectedEmpsForPass(selectedEmpsForPass.filter(id => id !== emp.id));
-                    }} className="w-4 h-4 text-hct-blue rounded" />
-                    <div>
-                      <p className="font-bold text-slate-800">{emp.name}</p>
-                      <p className="text-xs text-slate-500">{emp.role}</p>
-                    </div>
-                  </label>
-                ))}
-                {(employees[selectedContractor?.id] || []).length === 0 && (
-                   <p className="p-4 text-sm text-center text-slate-500">No employees available. Add employees first.</p>
-                )}
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl rounded-[24px] shadow-2xl border border-slate-200 dark:border-slate-800 p-8 w-full max-w-4xl relative max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6 border-b border-slate-200 dark:border-slate-700 pb-4">
+                <h3 className="text-2xl font-bold flex items-center gap-2 text-slate-800 dark:text-white"><FileSignature className="w-6 h-6 text-hct-blue" /> Create Pass Request</h3>
+                <button onClick={() => {setShowCreatePass(false); setPassStep(1); setSelectedEmpsForPass([]);}} className="text-slate-500 font-bold hover:text-slate-800 transition-colors">Cancel & Return</button>
               </div>
 
-              <div className="flex justify-end gap-3 border-t pt-4">
-                <button onClick={() => setShowCreatePass(false)} className="px-4 py-2 bg-slate-100 rounded-lg font-bold">Cancel</button>
-                <button onClick={handleCreatePassRequest} className="px-4 py-2 bg-hct-blue text-white rounded-lg font-bold shadow-md">Submit Request</button>
-              </div>
+              {passStep === 1 && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-end border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <div>
+                      <h4 className="font-bold text-lg text-slate-800 dark:text-white">1. Select Employees</h4>
+                      <p className="text-slate-500 text-sm mt-1">{selectedContractor?.name}</p>
+                    </div>
+                    <div className="flex gap-4">
+                      <button onClick={() => setSelectedEmpsForPass((employees[selectedContractor?.id] || []).filter(e => e.status === 'Approved').map(e => e.id))} className="text-sm font-bold text-blue-600 hover:underline">Select All</button>
+                      <button onClick={() => setSelectedEmpsForPass([])} className="text-sm font-bold text-slate-500 hover:underline">Clear All</button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(employees[selectedContractor?.id] || []).filter(e => e.status === 'Approved').map(emp => (
+                      <label key={emp.id} className={`border-2 rounded-xl p-4 cursor-pointer transition-all flex gap-4 items-center ${selectedEmpsForPass.includes(emp.id) ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'}`}>
+                        <div className={`w-6 h-6 rounded-md flex items-center justify-center border ${selectedEmpsForPass.includes(emp.id) ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'}`}>
+                          {selectedEmpsForPass.includes(emp.id) && <CheckSquare className="w-4 h-4"/>}
+                        </div>
+                        <input type="checkbox" className="hidden" checked={selectedEmpsForPass.includes(emp.id)} onChange={(e) => {
+                          if (e.target.checked) setSelectedEmpsForPass([...selectedEmpsForPass, emp.id]);
+                          else setSelectedEmpsForPass(selectedEmpsForPass.filter(id => id !== emp.id));
+                        }} />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-slate-800 dark:text-white">{emp.name}</p>
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 px-1.5 py-0.5 rounded font-bold">{emp.id}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-x-6 gap-y-1 mt-1.5">
+                            <div className="text-xs text-slate-500">
+                              <p><span className="font-bold text-slate-400">Role:</span> {emp.role}</p>
+                              <p><span className="font-bold text-slate-400">Nationality:</span> {emp.nationality}</p>
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              <p><span className="font-bold text-slate-400">Mobile:</span> {emp.mobile}</p>
+                              <p><span className="font-bold text-slate-400">Email:</span> {emp.email}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="ml-auto shrink-0 self-start">
+                          <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); alert(`Viewing document: ${emp.document || 'Document.pdf'}`); }} className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors border border-blue-100 shadow-sm">
+                            <FileText className="w-3.5 h-3.5" /> View Document
+                          </button>
+                        </div>
+                      </label>
+                    ))}
+                    {(employees[selectedContractor?.id] || []).filter(e => e.status === 'Approved').length === 0 && <p className="text-slate-500 italic col-span-full">No approved employees available.</p>}
+                  </div>
+
+                  <div className="flex justify-between items-center pt-6 border-t border-slate-200 dark:border-slate-700">
+                    <button onClick={() => {setShowCreatePass(false); setPassStep(1);}} className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Back</button>
+                    <button onClick={() => {if(selectedEmpsForPass.length > 0) setPassStep(2); else alert('Select at least one employee');}} className="px-8 py-3 bg-blue-800 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-blue-900 shadow-md">Visit Period <ArrowRight className="w-4 h-4"/></button>
+                  </div>
+                </div>
+              )}
+
+              {passStep === 2 && (
+                <div className="space-y-6">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-4">2. Requested Visit Period</h4>
+                  {periodError && <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl font-bold text-sm border border-red-200">{periodError}</div>}
+                  
+                  <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="col-span-2">
+                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">Campus *</label>
+                      <select value={visitPeriod.campus} onChange={(e) => setVisitPeriod({...visitPeriod, campus: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white">
+                        <option value="Main Campus">Main Campus</option>
+                        <option value="Men's College">Men's College</option>
+                        <option value="Women's College">Women's College</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">Start Time *</label>
+                      <input type="time" value={visitPeriod.startTime} onChange={(e) => setVisitPeriod({...visitPeriod, startTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">End Time *</label>
+                      <input type="time" value={visitPeriod.endTime} onChange={(e) => setVisitPeriod({...visitPeriod, endTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white" />
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
+                    <button onClick={() => setPassStep(1)} className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Back</button>
+                    <button onClick={handlePeriodNext} className="px-8 py-3 bg-blue-800 text-white rounded-xl font-bold hover:bg-blue-900 shadow-md">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                  </div>
+                </div>
+              )}
+
+              {passStep === 3 && (
+                <div className="space-y-6">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-4">3. HSE Training & Acknowledgment</h4>
+                  
+                  <div className="bg-slate-900 rounded-2xl h-48 mb-4 flex flex-col items-center justify-center text-white relative">
+                    {hseStatus === 'Completed' ? (
+                      <div className="text-emerald-400 flex flex-col items-center"><CheckCircle2 className="w-12 h-12 mb-2"/> <p className="font-bold">Training Completed</p></div>
+                    ) : hseStatus === 'In Progress' ? (
+                      <div className="text-blue-400 flex flex-col items-center animate-pulse"><ShieldCheck className="w-12 h-12 mb-2"/> <p className="font-bold">Playing Video...</p></div>
+                    ) : (
+                      <button onClick={simulateHseVideo} className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-full font-bold flex items-center gap-2"><ShieldCheck className="w-5 h-5"/> Watch HSE Video</button>
+                    )}
+                  </div>
+
+                  <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <h4 className="font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><CheckSquare className="w-5 h-5"/> Admin Declaration</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 italic">"I hereby confirm that I am authorized to request gate passes on behalf of the selected contractor company."</p>
+                    
+                    <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${declaration ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600'}`}>
+                      <input type="checkbox" checked={declaration} onChange={() => setDeclaration(!declaration)} className="mt-1 w-5 h-5" />
+                      <span className="font-bold text-slate-800 dark:text-white text-sm">I agree to the above declaration.</span>
+                    </label>
+                    
+                    {declaration && (
+                      <div className="mt-4">
+                        <label className="text-xs font-bold text-slate-500 uppercase">Digital Signature (Name)</label>
+                        <input type="text" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder="Type your full name" className="w-full p-3 border-b-2 border-slate-300 dark:border-slate-600 outline-none focus:border-hct-blue bg-transparent font-medium dark:text-white" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
+                    <button onClick={() => setPassStep(2)} className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Back</button>
+                    <button onClick={() => {if(hseStatus === 'Completed' && declaration && signature) setPassStep(4); else alert('Complete HSE, accept declaration and sign.');}} className="px-8 py-3 bg-blue-800 text-white rounded-xl font-bold hover:bg-blue-900 shadow-md">Review Request <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                  </div>
+                </div>
+              )}
+
+              {passStep === 4 && (
+                <div className="space-y-6">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-4">4. Review Request</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                      <h5 className="font-bold text-slate-500 uppercase tracking-wider mb-4 border-b dark:border-slate-700 pb-2">Contractor Details</h5>
+                      <div className="text-sm space-y-2">
+                        <p className="grid grid-cols-2"><span className="text-slate-500">Company</span><strong className="text-slate-800 dark:text-white">{selectedContractor?.name}</strong></p>
+                        <p className="grid grid-cols-2"><span className="text-slate-500">Contract No</span><strong className="text-slate-800 dark:text-white">{selectedContractor?.contractNumber}</strong></p>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
+                      <h5 className="font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-blue-200 dark:border-blue-800 pb-2">Visit Details</h5>
+                      <div className="text-sm space-y-2">
+                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">Campus</span><strong className="text-slate-800 dark:text-white">{visitPeriod.campus}</strong></p>
+                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">Start</span><strong className="text-slate-800 dark:text-white">{visitPeriod.startDate} {visitPeriod.startTime}</strong></p>
+                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">End</span><strong className="text-slate-800 dark:text-white">{visitPeriod.endDate} {visitPeriod.endTime}</strong></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h5 className="font-bold text-slate-500 uppercase tracking-wider mb-4 border-b dark:border-slate-700 pb-2">Selected Employees ({selectedEmpsForPass.length})</h5>
+                    <div className="max-h-40 overflow-y-auto">
+                      <table className="w-full text-sm text-left">
+                        <thead><tr className="text-slate-500 border-b dark:border-slate-700"><th>Name</th><th>ID</th></tr></thead>
+                        <tbody>
+                          {selectedEmpsForPass.map(id => {
+                            const emp = (employees[selectedContractor?.id] || []).find(e => e.id === id);
+                            return <tr key={id} className="border-b dark:border-slate-700 last:border-0"><td className="py-2 font-bold dark:text-white">{emp?.name}</td><td className="py-2 dark:text-slate-300">{id}</td></tr>;
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+                    <button onClick={() => setPassStep(3)} className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Edit</button>
+                    <button onClick={handleCreatePassRequest} className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-500/30">Submit Pass Request</button>
+                  </div>
+                </div>
+              )}
+
+              {passStep === 5 && (
+                 <div className="text-center py-12 animate-in zoom-in-95">
+                   <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-12 h-12 text-emerald-500" /></div>
+                   <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Pass Request Submitted!</h3>
+                   <p className="text-slate-500 max-w-md mx-auto mb-6">Your pass request has been successfully submitted for {selectedEmpsForPass.length} employees and is pending approval.</p>
+                   <button onClick={() => {setShowCreatePass(false); setPassStep(1); setSelectedEmpsForPass([]);}} className="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700">Close</button>
+                 </div>
+              )}
             </motion.div>
           </div>
         )}
@@ -405,54 +745,84 @@ const ContractorHub = () => {
         </div>
       )}
 
-      {/* Renew Modal */}
+      {/* Toast Notification */}
       <AnimatePresence>
-        {renewModalData && (
-          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[110] p-4">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-[24px] max-w-2xl w-full overflow-hidden shadow-2xl">
-              <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-800">Renew Contract</h2>
-                  <p className="text-sm text-slate-500 mt-1">Select the new validity dates for {renewModalData.name}.</p>
-                </div>
-                <button onClick={() => setRenewModalData(null)} className="text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full transition-colors"><X className="w-5 h-5"/></button>
-              </div>
-              <div className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Contract Start <span className="text-red-500">*</span></label>
-                    <input type="date" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue focus:border-transparent text-slate-700 font-medium" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Contract Expiry <span className="text-red-500">*</span></label>
-                    <input type="date" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue focus:border-transparent text-slate-700 font-medium" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Gate Pass Valid From <span className="text-red-500">*</span></label>
-                    <input type="date" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue focus:border-transparent text-slate-700 font-medium" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Gate Pass Valid To <span className="text-red-500">*</span></label>
-                    <input type="date" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue focus:border-transparent text-slate-700 font-medium" />
-                  </div>
-                </div>
-              </div>
-              <div className="p-6 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
-                <button onClick={() => setRenewModalData(null)} className="px-6 py-2.5 rounded-xl font-bold text-slate-600 bg-white border border-slate-300 hover:bg-slate-100 transition-colors">Cancel</button>
-                <button onClick={() => {
-                  alert('Renewal dates saved successfully!');
-                  setRenewModalData(null);
-                }} className="px-6 py-2.5 rounded-xl font-bold text-white bg-hct-blue hover:bg-blue-800 shadow-sm transition-colors flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4" /> Save Renewal
-                </button>
-              </div>
-            </motion.div>
-          </div>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed bottom-6 right-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-4 rounded-2xl shadow-2xl z-[200] flex items-center gap-3 font-bold"
+          >
+            <div className="w-8 h-8 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            {toastMessage}
+          </motion.div>
         )}
       </AnimatePresence>
+
+      {showRenewRequest && selectedContractor && (
+        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[110] p-4">
+          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-slate-900 rounded-[24px] max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
+            <button onClick={() => setShowRenewRequest(false)} className="absolute top-6 right-6 p-2 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors z-10"><X className="w-5 h-5"/></button>
+            <div className="p-8 border-b border-slate-200">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Renew Contractor Registration</h2>
+              <p className="text-slate-500 mt-1">Submit updated contract validity dates and documents.</p>
+            </div>
+            <div className="p-8 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                
+                {/* Left Column */}
+                <div className="space-y-6">
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2 border-b pb-2"><Building2 className="w-5 h-5 text-hct-blue"/> Company Details</h3>
+                  <div><label className="text-sm font-bold block mb-1">Contract Company Name *</label><input type="text" readOnly value={selectedContractor.name} className="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
+                  <div><label className="text-sm font-bold block mb-1">Contract Number *</label><input type="text" readOnly value={selectedContractor.contractNumber} className="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
+                  <div><label className="text-sm font-bold block mb-1">Job Description *</label><textarea readOnly value={selectedContractor.jobDescription || "General Maintenance and Facilities Management"} className="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none h-24" /></div>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-6">
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2 border-b pb-2"><Calendar className="w-5 h-5 text-hct-blue"/> Contract & Validity Details</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="text-sm font-bold block mb-1">Contract Start *</label><input type="date" value={renewForm.contractStart} onChange={(e) => setRenewForm({...renewForm, contractStart: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue" /></div>
+                    <div><label className="text-sm font-bold block mb-1">Contract Expiry *</label><input type="date" value={renewForm.contractExpiry} onChange={(e) => setRenewForm({...renewForm, contractExpiry: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue" /></div>
+                    <div><label className="text-sm font-bold block mb-1">Gate Pass Valid From *</label><input type="date" value={renewForm.gatePassStart} onChange={(e) => setRenewForm({...renewForm, gatePassStart: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue" /></div>
+                    <div><label className="text-sm font-bold block mb-1">Gate Pass Valid To *</label><input type="date" value={renewForm.gatePassEnd} onChange={(e) => setRenewForm({...renewForm, gatePassEnd: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue" /></div>
+                  </div>
+
+                  <div className="pt-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-sm font-bold block">Contract Documents * (PDF, JPG, PNG)</label>
+                      <button onClick={() => setRenewDocs([...renewDocs, {id: Date.now(), title: '', file: null, fileName: '', size: ''}])} className="text-xs font-bold text-hct-blue hover:underline flex items-center gap-1"><Plus className="w-3 h-3"/> Add Document</button>
+                    </div>
+                    <div className="space-y-3">
+                      {renewDocs.map((doc, idx) => (
+                        <div key={doc.id} className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                          <input type="text" placeholder="Document Name (e.g. Trade License)" value={doc.title} onChange={(e) => { const nd = [...renewDocs]; nd[idx].title = e.target.value; setRenewDocs(nd); }} className="flex-1 p-2 rounded-lg border border-slate-300 text-sm outline-none" />
+                          <label className="cursor-pointer border border-slate-300 border-dashed rounded-lg px-4 py-2 text-sm font-bold text-slate-500 hover:text-hct-blue hover:border-hct-blue transition-colors bg-white">
+                            <UploadCloud className="w-4 h-4 inline mr-2"/> {doc.fileName ? 'Change' : 'Upload'} File
+                            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => { const file = e.target.files[0]; if(file) { const nd = [...renewDocs]; nd[idx].file = file; nd[idx].fileName = file.name; nd[idx].size = (file.size/1024/1024).toFixed(2)+' MB'; setRenewDocs(nd); } }} />
+                          </label>
+                          {doc.fileName && <div className="text-xs text-emerald-600 font-bold flex items-center"><CheckCircle2 className="w-4 h-4 mr-1"/> {doc.fileName}</div>}
+                          {renewDocs.length > 1 && <button onClick={() => setRenewDocs(renewDocs.filter((_, i) => i !== idx))} className="text-slate-400 hover:text-red-500 p-1"><Trash2 className="w-4 h-4"/></button>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t border-slate-200 bg-slate-50 flex justify-end">
+              <button onClick={() => { alert('Renewal request submitted successfully!'); setShowRenewRequest(false); }} className="px-8 py-3 bg-blue-800 text-white rounded-xl font-bold shadow-md hover:bg-blue-900 transition-colors flex items-center gap-2">Submit Renew Request <ArrowRight className="w-4 h-4"/></button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
     </motion.div>
   );
 };
 
 export default ContractorHub;
+

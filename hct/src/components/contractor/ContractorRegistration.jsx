@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, FileText, Calendar, UploadCloud, File, Trash2, CheckCircle2, ArrowRight, AlertCircle, RefreshCw } from 'lucide-react';
+import { Building2, FileText, Calendar, UploadCloud, File, Trash2, CheckCircle2, ArrowRight, AlertCircle, RefreshCw, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ContractorRegistration = () => {
@@ -20,7 +20,7 @@ const ContractorRegistration = () => {
     gatePassEnd: '',
   });
 
-  const [document, setDocument] = useState(null);
+  const [documents, setDocuments] = useState([{ id: Date.now(), title: '', file: null, fileName: '', size: '' }]);
   const [errorMsg, setErrorMsg] = useState('');
   const [submittedId, setSubmittedId] = useState(null);
 
@@ -29,20 +29,31 @@ const ContractorRegistration = () => {
     setErrorMsg('');
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setDocument({
-        name: file.name,
-        size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
-        type: file.type
-      });
-      setErrorMsg('');
-    }
+  const addDocument = () => {
+    if (documents.length >= 4) return;
+    setDocuments([...documents, { id: Date.now() + Math.random(), title: '', file: null, fileName: '', size: '' }]);
   };
 
-  const removeDocument = () => {
-    setDocument(null);
+  const removeDocument = (id) => {
+    setDocuments(documents.filter(doc => doc.id !== id));
+  };
+
+  const handleDocTitleChange = (id, title) => {
+    setDocuments(documents.map(doc => doc.id === id ? { ...doc, title } : doc));
+    setErrorMsg('');
+  };
+
+  const handleDocUpload = (id, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setDocuments(documents.map(doc => doc.id === id ? {
+        ...doc,
+        file,
+        fileName: file.name,
+        size: (file.size / 1024 / 1024).toFixed(2) + ' MB'
+      } : doc));
+      setErrorMsg('');
+    }
   };
 
   const validateDates = () => {
@@ -74,9 +85,15 @@ const ContractorRegistration = () => {
         setErrorMsg("Please fill in all mandatory fields (*)");
         return;
       }
-      if (!document) {
-        setErrorMsg("Contract document is mandatory.");
+      if (documents.length === 0) {
+        setErrorMsg("Please add at least one contract document.");
         return;
+      }
+      for (const doc of documents) {
+        if (!doc.title || !doc.file) {
+          setErrorMsg("Please provide a name and upload a file for all documents.");
+          return;
+        }
       }
 
       const dateError = validateDates();
@@ -133,14 +150,6 @@ const ContractorRegistration = () => {
                   <label className="text-sm font-bold mb-1 block">Job Description *</label>
                   <input type="text" name="jobDescription" value={formData.jobDescription} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
                 </div>
-                <div>
-                  <label className="text-sm font-bold mb-1 block text-slate-500">Company Registration Number</label>
-                  <input type="text" name="regNumber" value={formData.regNumber} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
-                </div>
-                <div>
-                  <label className="text-sm font-bold mb-1 block text-slate-500">Company Address</label>
-                  <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
-                </div>
               </div>
 
               {/* Dates & Upload */}
@@ -166,52 +175,50 @@ const ContractorRegistration = () => {
                 </div>
 
                 <div className="pt-4">
-                  <label className="text-sm font-bold mb-2 block">Contract Document * (PDF, JPG, PNG)</label>
-                  {!document ? (
-                    <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 flex flex-col items-center justify-center text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors relative">
-                      <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                      <UploadCloud className="w-10 h-10 mb-2 text-slate-400" />
-                      <span className="font-bold text-sm">Click or drag document to upload</span>
-                    </div>
-                  ) : (
-                    <div className="border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <File className="w-8 h-8 text-emerald-500" />
-                        <div>
-                          <p className="font-bold text-sm text-slate-800 dark:text-emerald-100 line-clamp-1">{document.name}</p>
-                          <p className="text-xs text-slate-500">{document.size} • Uploaded successfully</p>
+                  <div className="flex justify-between items-end mb-2">
+                    <label className="text-sm font-bold block">Contract Documents * (PDF, JPG, PNG)</label>
+                    {documents.length < 4 && (
+                      <button onClick={addDocument} className="text-sm font-bold text-hct-blue hover:underline flex items-center gap-1"><Plus className="w-4 h-4" /> Add Document</button>
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    {documents.map((doc, index) => (
+                      <div key={doc.id} className="border border-slate-200 dark:border-slate-700 p-4 rounded-xl flex flex-col md:flex-row gap-4 items-start md:items-center bg-slate-50 dark:bg-slate-800/50">
+                        <div className="w-full md:w-1/3">
+                          <input type="text" placeholder="Document Name (e.g. Trade License)" value={doc.title} onChange={(e) => handleDocTitleChange(doc.id, e.target.value)} className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 outline-none focus:ring-2 focus:ring-hct-blue text-sm" />
                         </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <div className="relative cursor-pointer text-slate-500 hover:text-hct-blue p-2 rounded-lg hover:bg-white transition-colors" title="Replace">
-                          <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                          <RefreshCw className="w-4 h-4" />
+                        <div className="flex-1 w-full">
+                          {!doc.file ? (
+                            <div className="border border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-2.5 flex items-center justify-center text-slate-500 hover:bg-white dark:hover:bg-slate-700 transition-colors relative cursor-pointer bg-transparent">
+                              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => handleDocUpload(doc.id, e)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                              <UploadCloud className="w-4 h-4 mr-2 text-slate-400" />
+                              <span className="font-bold text-sm">Upload File</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-between bg-white dark:bg-slate-700 p-2.5 rounded-lg border border-slate-200 dark:border-slate-600">
+                              <div className="flex items-center gap-2 overflow-hidden">
+                                <File className="w-4 h-4 text-emerald-500 shrink-0" />
+                                <span className="font-medium text-sm text-slate-800 dark:text-slate-200 truncate">{doc.fileName}</span>
+                                <span className="text-xs text-slate-500 shrink-0">({doc.size})</span>
+                              </div>
+                              <div className="relative cursor-pointer text-slate-400 hover:text-hct-blue transition-colors shrink-0" title="Replace">
+                                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => handleDocUpload(doc.id, e)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                <RefreshCw className="w-4 h-4" />
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <button onClick={removeDocument} className="text-slate-500 hover:text-red-500 p-2 rounded-lg hover:bg-white transition-colors" title="Remove">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {documents.length > 1 && (
+                          <button onClick={() => removeDocument(doc.id)} className="text-slate-400 hover:text-red-500 transition-colors shrink-0 p-2" title="Remove Document">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Contact Info */}
-              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-slate-200 dark:border-slate-800">
-                <div className="md:col-span-3"><h3 className="text-lg font-bold border-b pb-2 text-slate-500 uppercase tracking-wider text-sm">Optional Contact Details</h3></div>
-                <div>
-                  <label className="text-sm font-bold mb-1 block text-slate-500">Contact Person</label>
-                  <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
-                </div>
-                <div>
-                  <label className="text-sm font-bold mb-1 block text-slate-500">Contact Mobile</label>
-                  <input type="tel" name="contactMobile" value={formData.contactMobile} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
-                </div>
-                <div>
-                  <label className="text-sm font-bold mb-1 block text-slate-500">Contact Email</label>
-                  <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
-                </div>
-              </div>
             </div>
             
             <div className="mt-8 flex justify-end pt-6 border-t border-slate-200 dark:border-slate-800">
@@ -232,18 +239,10 @@ const ContractorRegistration = () => {
                     <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Company Name:</span> <span className="font-bold text-base">{formData.companyName}</span></p>
                     <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Contract No:</span> <span className="font-medium">{formData.contractNumber}</span></p>
                     <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Job Description:</span> <span className="font-medium">{formData.jobDescription}</span></p>
-                    {formData.regNumber && <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Reg Number:</span> <span className="font-medium">{formData.regNumber}</span></p>}
+
                   </div>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-sm">
-                  <h4 className="font-bold text-slate-500 uppercase tracking-wider mb-4 border-b pb-2">Contact Details</h4>
-                  <div className="space-y-3">
-                    <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Contact Person:</span> <span className="font-medium">{formData.contactName || 'N/A'}</span></p>
-                    <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Mobile:</span> <span className="font-medium">{formData.contactMobile || 'N/A'}</span></p>
-                    <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Email:</span> <span className="font-medium">{formData.contactEmail || 'N/A'}</span></p>
-                  </div>
-                </div>
               </div>
 
               <div className="space-y-6">
@@ -253,8 +252,16 @@ const ContractorRegistration = () => {
                     <p className="grid grid-cols-2 gap-2"><span className="text-slate-600">Start Date:</span> <span className="font-bold text-slate-800">{formData.contractStart}</span></p>
                     <p className="grid grid-cols-2 gap-2"><span className="text-slate-600">Expiry Date:</span> <span className="font-bold text-slate-800">{formData.contractExpiry}</span></p>
                     <div className="pt-2">
-                       <span className="text-slate-600 block mb-1">Contract Document:</span>
-                       <div className="flex items-center gap-2 bg-white px-3 py-2 rounded border border-blue-200"><FileText className="w-4 h-4 text-blue-500" /> <span className="font-medium">{document.name}</span></div>
+                       <span className="text-slate-600 block mb-2">Contract Documents:</span>
+                       <div className="space-y-2">
+                         {documents.map(doc => (
+                           <div key={doc.id} className="flex items-center gap-2 bg-white px-3 py-2 rounded border border-blue-200">
+                             <FileText className="w-4 h-4 text-blue-500 shrink-0" /> 
+                             <span className="font-bold text-slate-700 text-xs">{doc.title}:</span>
+                             <span className="font-medium text-xs truncate">{doc.fileName}</span>
+                           </div>
+                         ))}
+                       </div>
                     </div>
                   </div>
                 </div>

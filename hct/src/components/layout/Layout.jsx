@@ -39,12 +39,7 @@ const Layout = () => {
     { id: 'visitor', name: 'Visitor List', href: '/visitor-list', icon: FileText },
     { id: 'host', name: 'Host Approvals', href: '/host', icon: UserCheck },
     
-    { id: 'security', name: 'Visitor Management', href: '#', icon: Users, isHeader: true },
-    { id: 'security', name: 'Gate Security', href: '/security', icon: Shield, isSubItem: true },
-    { id: 'security', name: 'Check-in / Check-out', href: '/check-in-out', icon: ScanLine, isSubItem: true },
-    { id: 'security', name: 'Active Visits', href: '/active-visits', icon: Clock, isSubItem: true },
-    { id: 'security', name: 'Visit History', href: '/visit-history', icon: History, isSubItem: true },
-    { id: 'security', name: 'Security Reviews', href: '/security-reviews', icon: FileSearch, isSubItem: true },
+    { id: 'security', name: 'Active Visits', href: '/active-visits', icon: Clock },
     
     { id: 'security', name: 'Contractor Management', href: '#', icon: Briefcase, isHeader: true },
     { id: 'security', name: 'Contractor', href: '/contractors-hub', icon: Building, isSubItem: true },

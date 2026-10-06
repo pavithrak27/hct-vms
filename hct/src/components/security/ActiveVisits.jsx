@@ -50,7 +50,7 @@ const ActiveVisits = () => {
             <tr>
               <th className="p-4 font-bold uppercase">Visitor</th>
               <th className="p-4 font-bold uppercase">Pass ID</th>
-              <th className="p-4 font-bold uppercase">Host / Company</th>
+              <th className="p-4 font-bold uppercase">Host</th>
               <th className="p-4 font-bold uppercase">Check-in Details</th>
               <th className="p-4 font-bold uppercase text-right">Actions</th>
             </tr>
@@ -149,3 +149,4 @@ const ActiveVisits = () => {
 };
 
 export default ActiveVisits;
+

@@ -355,14 +355,8 @@ const VisitorPortal = () => {
                           <option value="Other">Other supported ID</option>
                         </select>
                       </div>
-                      <div>
-                        <label className="text-sm font-bold mb-1 block">Document Number</label>
-                        <input type="text" value={visitor.docNumber} onChange={(e) => handleVisitorChange(index, 'docNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
-                      </div>
-                      <div>
-                        <label className="text-sm font-bold mb-1 block">Document Expiry Date</label>
-                        <input type="date" value={visitor.docExpiry} onChange={(e) => handleVisitorChange(index, 'docExpiry', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
-                      </div>
+                      
+                      
                     </div>
 
                     <div className="flex flex-col justify-center">

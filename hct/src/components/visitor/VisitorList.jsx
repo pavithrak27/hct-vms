@@ -506,14 +506,8 @@ const VisitorList = () => {
                                 <option value="Passport">Passport</option>
                               </select>
                             </div>
-                            <div>
-                              <label className="text-xs font-bold mb-1 block">Document Number</label>
-                              <input type="text" value={visitor.docNumber} onChange={(e) => handleVisitorChange(index, 'docNumber', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
-                            </div>
-                            <div>
-                              <label className="text-xs font-bold mb-1 block">Document Expiry Date</label>
-                              <input type="date" value={visitor.docExpiry} onChange={(e) => handleVisitorChange(index, 'docExpiry', e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none" />
-                            </div>
+                            
+                            
                           </div>
 
                           <div className="flex flex-col justify-center">
@@ -529,6 +523,8 @@ const VisitorList = () => {
                                 <span className="font-bold">Scan Document (OCR)</span>
                               </button>
                             )}
+                          </div>
+                        </div>
 
                         {/* Vehicle Information */}
                         <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
@@ -580,8 +576,6 @@ const VisitorList = () => {
                                 <button onClick={() => handleVisitorChange(index, 'photoCaptured', true)} className="bg-slate-800 dark:bg-slate-700 text-white px-6 py-2 rounded-xl font-bold shadow-sm hover:bg-slate-900 transition-colors">Start Camera</button>
                               </>
                             )}
-                          </div>
-                        </div>
                           </div>
                         </div>
                       </div>

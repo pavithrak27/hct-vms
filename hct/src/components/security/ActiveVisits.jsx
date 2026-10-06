@@ -77,9 +77,14 @@ const ActiveVisits = () => {
                   <p className="text-xs text-slate-500">{visit.gate} • {visit.checkInMethod}</p>
                 </td>
                 <td className="p-4 text-right">
-                  <button onClick={() => setForceCheckoutVisit(visit)} className="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition-colors flex items-center gap-1 ml-auto">
-                    <LogOut className="w-4 h-4"/> Force Check-out
-                  </button>
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setViewVisitor(visit)} className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors flex items-center gap-1">
+                      <FileText className="w-4 h-4"/> View
+                    </button>
+                    <button onClick={() => setForceCheckoutVisit(visit)} className="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition-colors flex items-center gap-1">
+                      <LogOut className="w-4 h-4"/> Force Check-out
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

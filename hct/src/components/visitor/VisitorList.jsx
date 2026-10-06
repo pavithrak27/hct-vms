@@ -688,7 +688,10 @@ const VisitorList = () => {
               ✕
             </button>
             <div className="p-8">
-              <h3 className="text-base font-bold text-slate-800 dark:text-white mb-6">Visitor Details</h3>
+              <div className="flex items-center gap-4 mb-6">
+                <img src={selectedVisitor.photo || `https://i.pravatar.cc/150?u=${selectedVisitor.id || 'visitor'}`} alt="Captured Photo" className="w-16 h-16 rounded-full object-cover shadow-sm border border-slate-200" />
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">Visitor Details</h3>
+              </div>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
                   <span className="text-slate-500 font-medium">Name</span>

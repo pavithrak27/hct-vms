@@ -96,50 +96,84 @@ const ActiveVisits = () => {
       <AnimatePresence>
         {viewVisitor && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl p-8 max-w-lg w-full border border-slate-200 dark:border-slate-800 relative">
-               <button onClick={() => setViewVisitor(null)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-white"><X className="w-6 h-6"/></button>
-               <h3 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white flex items-center gap-3"><User className="w-6 h-6 text-hct-blue" /> Visitor Details</h3>
+             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white dark:bg-slate-900 rounded-[24px] shadow-2xl p-6 max-w-md w-full relative">
+               <button onClick={() => setViewVisitor(null)} className="absolute top-6 right-6 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full dark:hover:text-white transition-colors"><X className="w-5 h-5"/></button>
                
-               <div className="space-y-4">
-                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
-                      <img src={viewVisitor.photo || "https://i.pravatar.cc/150"} alt="Visitor Photo" className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm" />
-                      <div>
-                        <p className="text-sm text-slate-500 mb-1">Full Name</p>
-                        <p className="text-xl font-bold text-slate-800 dark:text-white">{viewVisitor.visitorName}</p>
-                      </div>
+               <h3 className="text-xl font-bold mb-6 text-slate-800 dark:text-white flex items-center gap-2">
+                 <User className="w-5 h-5 text-hct-blue" /> Visitor Details
+               </h3>
+               
+               <div className="bg-slate-50/50 dark:bg-slate-800/30 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-4 mb-6">
+                    <img src={viewVisitor.photo || "https://i.pravatar.cc/150"} alt="Visitor Photo" className="w-14 h-14 rounded-full object-cover shadow-sm border border-slate-200" />
+                    <div>
+                      <p className="text-sm text-slate-400 mb-0.5">Full Name</p>
+                      <p className="text-lg font-bold text-slate-800 dark:text-white">{viewVisitor.visitorName}</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-slate-500 mb-1">Pass ID</p>
-                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.passId}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-500 mb-1">Company</p>
-                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.company || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-500 mb-1">Host</p>
-                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.host || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-500 mb-1">Visit Type</p>
-                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.visitorType}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-500 mb-1">Check-In Time</p>
-                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.checkInTime}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-500 mb-1">Check-In Method</p>
-                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.checkInMethod}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-500 mb-1">Gate</p>
-                        <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.gate}</p>
-                      </div>
+                  </div>
+                  
+                  <div className="border-t border-slate-200 dark:border-slate-700/50 my-6"></div>
+                  
+                  <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                    <div>
+                      <p className="text-sm text-slate-400 mb-1">Pass ID</p>
+                      <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.passId}</p>
                     </div>
-                 </div>
+                    <div>
+                      <p className="text-sm text-slate-400 mb-1">Host</p>
+                      <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.host || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400 mb-1">Company</p>
+                      <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.company || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400 mb-1">Visit Type</p>
+                      <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.visitorType}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400 mb-1">Check-In Method</p>
+                      <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.checkInMethod}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-400 mb-1">Gate</p>
+                      <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.gate}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-sm text-slate-400 mb-1">Check-In Time</p>
+                      <p className="font-bold text-slate-800 dark:text-white">{viewVisitor.checkInTime}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t border-slate-200 dark:border-slate-700/50 my-6"></div>
+                  
+                  <div className="mb-6">
+                    <p className="text-sm text-slate-400 mb-3">Identity Documents</p>
+                    <div className="flex justify-between items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-hct-blue" />
+                        <span className="font-bold text-slate-700 dark:text-slate-300 text-sm">Emirates ID (Front & Back)</span>
+                      </div>
+                      <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-md">Uploaded</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-slate-400 mb-2">Status</p>
+                    <span className="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-lg">ACTIVE</span>
+                  </div>
+               </div>
+               
+               <div className="flex gap-4 mt-6">
+                 <button onClick={() => setViewVisitor(null)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 rounded-xl transition-colors">
+                   Close
+                 </button>
+                 <button onClick={() => {
+                   setViewVisitor(null);
+                   setForceCheckoutVisit(viewVisitor);
+                 }} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-md transition-colors">
+                   Force Check-out
+                 </button>
                </div>
              </motion.div>
           </div>

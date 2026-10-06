@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Users, UserCheck, Shield, Briefcase, Activity, CheckCircle, Clock, 
@@ -77,6 +77,19 @@ export default function DashboardView() {
     { id: 'V-105', name: 'David K. Miller', company: 'Independent Consultant', host: 'Dean Office', time: '09:41 AM - 12:00 PM', status: 'Denied', gate: 'Turnstile 3', passType: 'Restricted' },
   ]);
 
+  const mockCounts = useMemo(() => {
+    let base = { expected: 24, checkedIn: 14, checkedOut: 10, overstay: 1, blocked: 1, chart: { preApproved: 18, walkins: 5, denied: 1 }, validPasses: 13 };
+    if (dateFilter === 'Last 7 Days') {
+       base = { expected: 156, checkedIn: 45, checkedOut: 110, overstay: 3, blocked: 5, chart: { preApproved: 120, walkins: 30, denied: 6 }, validPasses: 15 };
+    } else if (dateFilter === 'This Month') {
+       base = { expected: 640, checkedIn: 210, checkedOut: 400, overstay: 8, blocked: 12, chart: { preApproved: 500, walkins: 120, denied: 20 }, validPasses: 18 };
+    } else if (dateFilter === 'Custom Date' && customDate) {
+       const val = parseInt(customDate.replace(/-/g, '')) % 100 || 50;
+       base = { expected: val + 20, checkedIn: Math.floor(val/2) + 5, checkedOut: Math.floor(val/2) + 10, overstay: val % 3, blocked: val % 2, chart: { preApproved: val + 15, walkins: 4, denied: 1 }, validPasses: 10 + (val%5) };
+    }
+    return base;
+  }, [dateFilter, customDate]);
+
   const handleExport = (format) => {
     setIsExporting(true);
     setAuditLogType(format);
@@ -115,7 +128,7 @@ export default function DashboardView() {
       {/* ─────────────────────────────────────────────────────────────────── */}
       {/* Top Header & Enterprise Toolbar */}
       {/* ─────────────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 justify-end w-full">
         <div>
           
         </div>
@@ -206,7 +219,7 @@ export default function DashboardView() {
             </div>
             
             <div className="flex items-baseline gap-2.5 mt-3">
-              <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">24</span>
+              <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{mockCounts.expected}</span>
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60">
                 Scheduled
               </span>
@@ -214,9 +227,9 @@ export default function DashboardView() {
           </div>
 
           <div className="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-            <span>18 pre-approved</span>
+            <span>{mockCounts.chart.preApproved} pre-approved</span>
             <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-            <span>6 walk-ins</span>
+            <span>{mockCounts.expected - mockCounts.chart.preApproved} walk-ins</span>
           </div>
         </motion.div>
 
@@ -237,7 +250,7 @@ export default function DashboardView() {
             </div>
             
             <div className="flex items-baseline gap-2.5 mt-3">
-              <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">14</span>
+              <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">{mockCounts.checkedIn}</span>
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Active
@@ -267,7 +280,7 @@ export default function DashboardView() {
             </div>
             
             <div className="flex items-baseline gap-2.5 mt-3">
-              <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">10</span>
+              <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">{mockCounts.checkedOut}</span>
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
                 Completed
               </span>
@@ -296,7 +309,7 @@ export default function DashboardView() {
             </div>
             
             <div className="flex items-baseline gap-2.5 mt-3">
-              <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">1</span>
+              <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">{mockCounts.overstay}</span>
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60">
                 Escalated
               </span>
@@ -325,7 +338,7 @@ export default function DashboardView() {
             </div>
             
             <div className="flex items-baseline gap-2.5 mt-3">
-              <span className="text-3xl font-extrabold text-rose-600 dark:text-rose-400 tracking-tight">1</span>
+              <span className="text-3xl font-extrabold text-rose-600 dark:text-rose-400 tracking-tight">{mockCounts.blocked}</span>
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60 flex items-center gap-1">
                 Active Alert
               </span>
@@ -335,7 +348,7 @@ export default function DashboardView() {
           <div className="pt-4 mt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-medium">
             <span className="text-rose-600 dark:text-rose-400 font-semibold">Gate 3 Intercept</span>
             <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-            <span>0 Breaches</span>
+            <span>{mockCounts.blocked} Breaches</span>
           </div>
         </motion.div>
 
@@ -429,7 +442,7 @@ export default function DashboardView() {
                 {/* Donut Center Metrics */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                   <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">TOTAL</span>
-                  <span className="text-3xl font-black text-slate-900 dark:text-white leading-tight">24</span>
+                  <span className="text-3xl font-black text-slate-900 dark:text-white leading-tight">{mockCounts.expected}</span>
                   <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">95.8% Pass</span>
                 </div>
               </div>
@@ -443,7 +456,7 @@ export default function DashboardView() {
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Pre-Approved Host Passes</span>
                 </div>
                 <div className="text-xs font-bold text-slate-900 dark:text-white">
-                  18 <span className="text-slate-400 font-normal text-[11px]">(75%)</span>
+                  {mockCounts.chart.preApproved} <span className="text-slate-400 font-normal text-[11px]">({Math.round((mockCounts.chart.preApproved/mockCounts.expected)*100)}%)</span>
                 </div>
               </div>
 
@@ -453,7 +466,7 @@ export default function DashboardView() {
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Walk-ins</span>
                 </div>
                 <div className="text-xs font-bold text-slate-900 dark:text-white">
-                  5 <span className="text-slate-400 font-normal text-[11px]">(21%)</span>
+                  {mockCounts.chart.walkins} <span className="text-slate-400 font-normal text-[11px]">({Math.round((mockCounts.chart.walkins/mockCounts.expected)*100)}%)</span>
                 </div>
               </div>
 
@@ -463,7 +476,7 @@ export default function DashboardView() {
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Denied / Watchlist Blocked</span>
                 </div>
                 <div className="text-xs font-bold text-rose-600 dark:text-rose-400">
-                  1 <span className="text-rose-400/80 font-normal text-[11px]">(4%)</span>
+                  {mockCounts.chart.denied} <span className="text-rose-400/80 font-normal text-[11px]">({Math.round((mockCounts.chart.denied/mockCounts.expected)*100)}%)</span>
                 </div>
               </div>
             </div>
@@ -495,10 +508,8 @@ export default function DashboardView() {
                   Active<br />Contractors
                 </span>
                 <div className="mt-2.5">
-                  <span className="text-2xl font-black text-slate-900 dark:text-white block">13</span>
-                  <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100/60 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
-                    4 Vendors
-                  </span>
+                  <span className="text-2xl font-black text-slate-900 dark:text-white block">{mockCounts.validPasses}</span>
+                  
                 </div>
               </div>
 
@@ -509,9 +520,7 @@ export default function DashboardView() {
                 </span>
                 <div className="mt-2.5">
                   <span className="text-2xl font-black text-slate-900 dark:text-white block">0</span>
-                  <span className="inline-block mt-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                    Zero Lapses
-                  </span>
+                 
                 </div>
               </div>
 
@@ -522,9 +531,7 @@ export default function DashboardView() {
                 </span>
                 <div className="mt-2.5">
                   <span className="text-2xl font-black text-slate-900 dark:text-white block">0</span>
-                  <span className="inline-block mt-1 text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                    Cleared
-                  </span>
+                
                 </div>
               </div>
             </div>
@@ -532,22 +539,22 @@ export default function DashboardView() {
             {/* Pass Validity Roster Bar (Valid vs Expired only) */}
             <div className="bg-slate-50 dark:bg-slate-800/40 rounded-xl p-3.5 border border-slate-100 dark:border-slate-800">
               <div className="flex justify-between items-center text-xs mb-2">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Pass Validity Roster <span className="text-slate-400 font-normal">(13 Total)</span></span>
-                <span className="font-bold text-slate-900 dark:text-white text-[11px]">13 Valid / 0 Expired</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Pass Validity <span className="text-slate-400 font-normal">({mockCounts.validPasses} Total)</span></span>
+                <span className="font-bold text-slate-900 dark:text-white text-[11px]"></span>
               </div>
 
               {/* Horizontal Bar: 100% Valid */}
               <div className="h-2.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex">
-                <div style={{ width: '100%' }} className="bg-blue-600 h-full rounded-full" title="13 Valid passes"></div>
+                <div style={{ width: '100%' }} className="bg-blue-600 h-full rounded-full" title={`${mockCounts.validPasses} Valid passes`}></div>
               </div>
 
               {/* Legend under bar */}
               <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-2.5">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-600"></span> 13 Valid Badges (&gt; 7d)
+                  <span className="w-2 h-2 rounded-full bg-blue-600"></span> {mockCounts.validPasses} Valid
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-slate-400"></span> 0 Expired Badges
+                  <span className="w-2 h-2 rounded-full bg-slate-400"></span> 0 Expired
                 </span>
               </div>
             </div>
@@ -563,7 +570,7 @@ export default function DashboardView() {
               to="/contractors-hub" 
               className="text-blue-600 dark:text-blue-400 font-bold hover:underline flex items-center gap-1 group"
             >
-              <span>Contractor Roster</span>
+              <span>Contractor</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>

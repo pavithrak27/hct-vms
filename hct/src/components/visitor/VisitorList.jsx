@@ -4,10 +4,14 @@ import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Ca
 import { useRole } from '../../context/RoleContext';
 
 const initialVisitors = [
-  { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Expected', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false },
-  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Contractor', date: '2026-10-05', time: '11:15 AM', status: 'Expected', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false },
-  { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Guest', date: '2026-10-05', time: '01:00 PM', status: 'Expected', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false },
-  { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Delivery', date: '2026-10-05', time: '02:45 PM', status: 'Expected', phone: '+971 56 777 8888', docId: 'P-11223344', isBlocked: true },
+  { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Pending', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false,
+    emiratesId: { idNumber: '784-1990-1234567-1', cardNumber: '102834761', fullName: 'John Smith', dob: '1990-03-15', nationality: 'United States', gender: 'M', issueDate: '2022-01-10', expiryDate: '2027-01-09', occupation: 'Software Engineer', employer: 'Tech Solutions LLC', issuingPlace: 'Abu Dhabi', country: 'United Arab Emirates' } },
+  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Contractor', date: '2026-10-05', time: '11:15 AM', status: 'Pending', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false,
+    emiratesId: { idNumber: '784-1985-7654321-9', cardNumber: '209183746', fullName: 'Michael Chang', dob: '1985-08-22', nationality: 'China', gender: 'M', issueDate: '2021-06-15', expiryDate: '2026-06-14', occupation: 'Contractor', employer: 'Global Services', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
+  { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Guest', date: '2026-10-05', time: '01:00 PM', status: 'Pending', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false,
+    emiratesId: { idNumber: '784-1992-1112223-4', cardNumber: '317294851', fullName: 'Emma Wilson', dob: '1992-11-05', nationality: 'United Kingdom', gender: 'F', issueDate: '2023-03-20', expiryDate: '2028-03-19', occupation: 'Education Specialist', employer: 'Ministry of Education', issuingPlace: 'Sharjah', country: 'United Arab Emirates' } },
+  { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Delivery', date: '2026-10-05', time: '02:45 PM', status: 'Pending', phone: '+971 56 777 8888', docId: 'P-11223344', isBlocked: true,
+    emiratesId: { idNumber: '784-2002-4977006-4', cardNumber: '129647381', fullName: 'David Lee', dob: '2002-07-05', nationality: 'India', gender: 'M', issueDate: '2023-06-07', expiryDate: '2025-06-06', occupation: 'Building Labourer', employer: 'ABC Cleaning LLC', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
 ];
 
 const VisitorList = () => {
@@ -28,7 +32,8 @@ const VisitorList = () => {
   // --- FORM STATE ---
   const [step, setStep] = useState(2); // Starting at 2 to skip the "3 methods" step
   const [formVisitors, setFormVisitors] = useState([{
-    id: Date.now(), fullName: '', mobileNumber: '', email: '', visitorType: '', nationality: '', company: '', docType: '', docNumber: '', docExpiry: '', docScanned: false
+    id: Date.now(), fullName: '', mobileNumber: '', email: '', visitorType: '', nationality: '', company: '', docType: '', docNumber: '', docExpiry: '', docScanned: false,
+    emiratesId: null // populated after scan
   }]);
   
   const [hostDetails, setHostDetails] = useState({ hostName: '', department: '', campus: '', visitDate: '', arrivalTime: '' });
@@ -54,6 +59,9 @@ const VisitorList = () => {
   const [securityActionType, setSecurityActionType] = useState('temp'); // 'temp', 'perm'
   const [securityReleaseDate, setSecurityReleaseDate] = useState('');
 
+  // Document Viewer Modal
+  const [showDocModal, setShowDocModal] = useState(false);
+
   // --- LIST HANDLERS ---
   const getStatusBadge = (visitor) => {
     if (visitor.isBlocked) {
@@ -61,7 +69,7 @@ const VisitorList = () => {
     }
     switch(visitor.status) {
       case 'Checked In': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Checked In</span>;
-      case 'Expected': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Expected</span>;
+      case 'Pending': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Pending</span>;
       case 'Completed': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">Completed</span>;
       default: return <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Unknown</span>;
     }
@@ -70,7 +78,7 @@ const VisitorList = () => {
   const handleCheckInOut = (id) => {
     setVisitorsList(visitorsList.map(v => {
       if (v.id === id) {
-        if (v.status === 'Expected') return { ...v, status: 'Checked In' };
+        if (v.status === 'Pending') return { ...v, status: 'Checked In' };
         if (v.status === 'Checked In') return { ...v, status: 'Completed' };
       }
       return v;
@@ -135,7 +143,8 @@ const VisitorList = () => {
 
   const addVisitor = () => {
     setFormVisitors([...formVisitors, {
-      id: Date.now(), fullName: '', mobileNumber: '', email: '', visitorType: '', nationality: '', company: '', docType: '', docNumber: '', docExpiry: '', docScanned: false
+      id: Date.now(), fullName: '', mobileNumber: '', email: '', visitorType: '', nationality: '', company: '', docType: '', docNumber: '', docExpiry: '', docScanned: false,
+      emiratesId: null
     }]);
   };
 
@@ -150,9 +159,24 @@ const VisitorList = () => {
   const simulateScan = (index) => {
     const newVisitors = [...formVisitors];
     newVisitors[index].docScanned = true;
-    newVisitors[index].fullName = 'John Smith';
-    newVisitors[index].docNumber = '784-1990-1234567-1';
-    newVisitors[index].docExpiry = '2030-12-31';
+    newVisitors[index].fullName = 'Sandeep Vishwakarma';
+    newVisitors[index].docNumber = '784-2002-4977006-4';
+    newVisitors[index].docExpiry = '2025-06-06';
+    newVisitors[index].nationality = 'India';
+    newVisitors[index].emiratesId = {
+      idNumber: '784-2002-4977006-4',
+      cardNumber: '129647381',
+      fullName: 'Sandeep Vishwakarma Sheshmani Vishwakarma',
+      dob: '2002-07-05',
+      nationality: 'India',
+      gender: 'M',
+      issueDate: '2023-06-07',
+      expiryDate: '2025-06-06',
+      occupation: 'Building Labourer',
+      employer: 'Pinewood Interiors L.L.C',
+      issuingPlace: 'Dubai',
+      country: 'United Arab Emirates',
+    };
     setFormVisitors(newVisitors);
   };
 
@@ -263,22 +287,41 @@ const VisitorList = () => {
       
       {/* --- SUMMARY CARDS --- */}
       {activeTab === 'list' && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-in fade-in slide-in-from-top-4">
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total List</p>
-            <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.length}</p>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 animate-in fade-in slide-in-from-top-4">
+          {/* Total */}
+          <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-200/70 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-slate-400" />
+            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-slate-400/10 blur-xl" />
+            <p className="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total List</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-white">{filteredVisitors.length}</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 shadow-sm flex flex-col justify-center">
-            <p className="text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">Expected / Approved</p>
-            <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Expected' || v.status === 'Approved').length}</p>
+          {/* Pending */}
+          <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-amber-200/60 dark:border-amber-900/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-amber-400" />
+            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-amber-400/10 blur-xl" />
+            <p className="text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-widest mb-1">Pending</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => !v.isBlocked && v.status === 'Pending').length}</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30 shadow-sm flex flex-col justify-center">
-            <p className="text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-1">Checked In</p>
-            <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Checked In').length}</p>
+          {/* Approved */}
+          <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-emerald-200/60 dark:border-emerald-900/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-emerald-500" />
+            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-emerald-500/10 blur-xl" />
+            <p className="text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest mb-1">Approved</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => !v.isBlocked && v.status === 'Approved').length}</p>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-sm flex flex-col justify-center">
-            <p className="text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider mb-1">Blocked</p>
-            <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Blocked').length}</p>
+          {/* Checked In */}
+          <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-blue-200/60 dark:border-blue-900/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-blue-500" />
+            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-blue-500/10 blur-xl" />
+            <p className="text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-1">Checked In</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Checked In').length}</p>
+          </div>
+          {/* Blocked */}
+          <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-red-200/60 dark:border-red-900/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-red-500" />
+            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-red-500/10 blur-xl" />
+            <p className="text-red-600 dark:text-red-400 text-[10px] font-bold uppercase tracking-widest mb-1">Blocked</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.isBlocked).length}</p>
           </div>
         </div>
       )}
@@ -288,146 +331,191 @@ const VisitorList = () => {
       {activeTab === 'list' && (
         <AnimatePresence mode="wait">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="flex justify-between items-center mb-6 gap-4">
-               <div className="relative flex-1 max-w-md">
-                 <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                 <input 
-                   type="text" 
-                   placeholder="Search visitors..." 
-                   value={searchTerm}
-                   onChange={(e) => setSearchTerm(e.target.value)}
-                   className="w-full pl-9 pr-4 py-2 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-white/10 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-hct-blue shadow-sm"
-                 />
-               </div>
-               <div className="flex items-center gap-3">
-                 <div className="relative">
-                   <button 
-                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                     className={`p-2.5 backdrop-blur-md border rounded-xl transition-colors shadow-sm flex items-center gap-2 ${statusFilter !== 'All' ? 'bg-hct-blue text-white border-blue-600' : 'bg-white/60 dark:bg-slate-900/60 border-white/40 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-hct-blue'}`}
-                   >
-                      <Filter className="w-4 h-4" />
-                      {statusFilter !== 'All' && <span className="text-xs font-bold">{statusFilter}</span>}
-                   </button>
-                   {isFilterOpen && (
-                     <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
-                       {['All', 'Expected', 'Checked In', 'Completed', 'Blocked'].map(status => (
-                         <button 
-                           key={status} 
-                           onClick={() => { setStatusFilter(status); setIsFilterOpen(false); }}
-                           className={`w-full text-left px-4 py-2 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${statusFilter === status ? 'text-hct-blue bg-blue-50 dark:bg-blue-900/30' : 'text-slate-700 dark:text-slate-300'}`}
-                         >
-                           {status}
-                         </button>
-                       ))}
-                     </div>
-                   )}
-                 </div>
-                 <button className="flex items-center gap-2 px-4 py-2 bg-hct-blue text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm">
-                    <Download className="w-4 h-4" /> Export
-                 </button>
-               </div>
+
+            {/* ── Toolbar ── */}
+            <div className="flex justify-between items-center mb-4 gap-4">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search visitors..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-slate-200/80 dark:border-slate-700/60 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-hct-blue/50 shadow-sm"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                {/* Filter dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border shadow-sm transition-all ${
+                      statusFilter !== 'All'
+                        ? 'bg-hct-blue text-white border-hct-blue shadow-blue-500/20'
+                        : 'bg-white/80 dark:bg-slate-900/80 border-slate-200/80 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:border-hct-blue hover:text-hct-blue'
+                    }`}
+                  >
+                    <Filter className="w-3.5 h-3.5" />
+                    {statusFilter !== 'All' ? statusFilter : 'Filter'}
+                  </button>
+                  {isFilterOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-44 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
+                      {['All', 'Pending', 'Checked In', 'Completed', 'Blocked'].map(status => (
+                        <button
+                          key={status}
+                          onClick={() => { setStatusFilter(status); setIsFilterOpen(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors ${
+                            statusFilter === status
+                              ? 'text-hct-blue bg-blue-50 dark:bg-blue-900/30 font-bold'
+                              : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button className="flex items-center gap-2 px-4 py-2.5 bg-hct-blue hover:bg-[#001a66] text-white rounded-xl text-xs font-bold shadow-md shadow-blue-900/20 transition-all">
+                  <Download className="w-3.5 h-3.5" /> Export
+                </button>
+              </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-[20px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden relative">
-              
-              <div className="overflow-x-auto min-h-[400px]">
+            {/* ── Table Card ── */}
+            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/70 dark:border-slate-700/60 overflow-hidden">
+              <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs whitespace-nowrap">
-                  
-<thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
-  <tr>
-    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">ID</th>
-    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Visitor Name</th>
-    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Host</th>
-    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Type</th>
-    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Date & Time</th>
-    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Status</th>
-    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider text-right">Actions</th>
-  </tr>
-</thead>
 
+                  <thead>
+                    <tr className="bg-gradient-to-r from-slate-50 to-slate-100/60 dark:from-slate-800/80 dark:to-slate-800/40 border-b border-slate-200 dark:border-slate-700">
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">ID</th>
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Visitor</th>
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Host</th>
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Type</th>
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Date &amp; Time</th>
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Status</th>
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                  </thead>
 
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                  <tbody>
                     {filteredVisitors.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="px-6 py-12 text-center text-slate-500">No visitors found matching your criteria.</td>
+                        <td colSpan="7" className="px-6 py-16 text-center">
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                              <Search className="w-5 h-5 text-slate-400" />
+                            </div>
+                            <p className="text-slate-500 font-bold">No visitors found</p>
+                            <p className="text-slate-400 text-[11px]">Try adjusting your search or filter</p>
+                          </div>
+                        </td>
                       </tr>
-                    ) : filteredVisitors.map((visitor) => (
-                      <tr key={visitor.id} className="hover:bg-white/40 dark:hover:bg-white/5 transition-all duration-300 relative group cursor-pointer border-b border-slate-100/50 dark:border-white/5 last:border-0 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]">
-                        <td className="px-6 py-4 font-medium text-slate-600 dark:text-slate-400">{visitor.id}</td>
-                        <td className="px-6 py-4">
-                          <p className="font-bold text-slate-900 dark:text-white">{visitor.name}</p>
-                          <p className="text-xs text-slate-500">{visitor.company}</p>
+                    ) : filteredVisitors.map((visitor, idx) => (
+                      <tr
+                        key={visitor.id}
+                        className="group border-b border-slate-100/70 dark:border-slate-800/50 last:border-0 hover:bg-blue-50/30 dark:hover:bg-white/[0.03] transition-all duration-200"
+                      >
+                        {/* ID */}
+                        <td className="px-5 py-3.5">
+                          <span className="font-mono text-[11px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg">{visitor.id}</span>
                         </td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{visitor.host}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{visitor.type}</td>
-                        <td className="px-6 py-4">
-                          <p className="font-medium text-slate-700 dark:text-slate-300">{visitor.date}</p>
-                          <p className="text-xs text-slate-500">{visitor.time}</p>
+
+                        {/* Visitor */}
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-xs flex-shrink-0 shadow-sm">
+                              {visitor.name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-800 dark:text-white text-xs">{visitor.name}</p>
+                              <p className="text-[10px] text-slate-400 mt-0.5">{visitor.company}</p>
+                            </div>
+                          </div>
                         </td>
-                        <td className="px-6 py-4">
+
+                        {/* Host */}
+                        <td className="px-5 py-3.5">
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">{visitor.host}</span>
+                        </td>
+
+                        {/* Type */}
+                        <td className="px-5 py-3.5">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                            {visitor.type}
+                          </span>
+                        </td>
+
+                        {/* Date & Time */}
+                        <td className="px-5 py-3.5">
+                          <p className="font-semibold text-slate-700 dark:text-slate-300 text-xs">{visitor.date}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{visitor.time}</p>
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-5 py-3.5">
                           {getStatusBadge(visitor)}
                         </td>
-                        
-<td className="px-6 py-4 text-right">
-  <div className="flex justify-end items-center gap-2">
-    {((isHost || isAdmin) && visitor.status === 'Expected') && (
-      <>
-        <button onClick={() => {
-          setConfirmAction({ type: 'Approve', visitor });
-        }} className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-800">
-          <CheckCircle2 className="w-3.5 h-3.5" /> Approve
-        </button>
-        <button onClick={() => {
-          setConfirmAction({ type: 'Reject', visitor });
-        }} className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 border border-red-200 dark:border-red-800">
-          <XCircle className="w-3.5 h-3.5" /> Reject
-        </button>
-      </>
-    )}
-    <button onClick={() => setSelectedVisitor(visitor)} className="p-1.5 text-slate-400 hover:text-hct-blue bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="View Details">
-      <Eye className="w-4 h-4" />
-    </button>
-    <div className="relative">
-      <button 
-        onClick={() => setActiveMenuId(activeMenuId === visitor.id ? null : visitor.id)}
-        className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
-      >
-        <MoreVertical className="w-4 h-4" />
-      </button>
-      {activeMenuId === visitor.id && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
-            <button 
-              onClick={() => { 
-                setVisitorToBlock(visitor);
-                setSecurityActionType(visitor.isBlocked ? 'temp' : 'deny');
-                setShowBlockModal(true);
-                setActiveMenuId(null); 
-              }} 
-              className={`w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 ${visitor.isBlocked ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'}`}
-            >
-              <ShieldAlert className="w-4 h-4"/> {visitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
-            </button>
-        </div>
-      )}
-    </div>
-  </div>
-</td>
 
-
+                        {/* Actions */}
+                        <td className="px-5 py-3.5">
+                          <div className="flex justify-end items-center gap-1.5">
+                            {((isHost || isAdmin) && visitor.status === 'Pending') && (
+                              <>
+                                <button onClick={() => setConfirmAction({ type: 'Approve', visitor })} className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 border border-emerald-200 dark:border-emerald-800">
+                                  <CheckCircle2 className="w-3 h-3" /> Approve
+                                </button>
+                                <button onClick={() => setConfirmAction({ type: 'Reject', visitor })} className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-500 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 border border-red-200 dark:border-red-800">
+                                  <XCircle className="w-3 h-3" /> Reject
+                                </button>
+                              </>
+                            )}
+                            <button onClick={() => setSelectedVisitor(visitor)} className="p-1.5 text-slate-400 hover:text-hct-blue bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="View Details">
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            <div className="relative">
+                              <button
+                                onClick={() => setActiveMenuId(activeMenuId === visitor.id ? null : visitor.id)}
+                                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                              >
+                                <MoreVertical className="w-3.5 h-3.5" />
+                              </button>
+                              {activeMenuId === visitor.id && (
+                                <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                                  <button
+                                    onClick={() => { setVisitorToBlock(visitor); setSecurityActionType(visitor.isBlocked ? 'temp' : 'deny'); setShowBlockModal(true); setActiveMenuId(null); }}
+                                    className={`w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 ${
+                                      visitor.isBlocked
+                                        ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
+                                        : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'
+                                    }`}
+                                  >
+                                    <ShieldAlert className="w-4 h-4" />
+                                    {visitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="p-4 border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between text-xs text-slate-500">
-                <span>Showing {filteredVisitors.length} entries</span>
+
+              {/* Footer */}
+              <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/30">
+                <span className="text-[11px] text-slate-400 font-semibold">Showing {filteredVisitors.length} entries</span>
                 <div className="flex gap-1">
-                  <button className="px-3 py-1 rounded border border-slate-200 hover:bg-slate-50 disabled:opacity-50" disabled>Prev</button>
-                  <button className="px-3 py-1 rounded bg-hct-blue text-white font-bold">1</button>
-                  <button className="px-3 py-1 rounded border border-slate-200 hover:bg-slate-50 disabled:opacity-50" disabled>Next</button>
+                  <button className="px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors" disabled>Prev</button>
+                  <button className="px-3 py-1 rounded-lg bg-hct-blue text-white text-xs font-bold shadow-sm">1</button>
+                  <button className="px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors" disabled>Next</button>
                 </div>
               </div>
             </div>
+
           </motion.div>
         </AnimatePresence>
       )}
@@ -672,28 +760,65 @@ const VisitorList = () => {
                       <h4 className="font-bold text-slate-500 uppercase tracking-wider text-xs flex justify-between items-center">
                         Visitor Details <button onClick={() => setStep(2)} className="text-hct-blue normal-case flex items-center gap-1"><Edit2 className="w-3 h-3"/> Edit</button>
                       </h4>
-                      <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 text-xs">
+                      <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 text-xs space-y-1.5">
                         {formVisitors.map((v, i) => (
                           <div key={v.id} className={`${i > 0 ? 'mt-4 pt-4 border-t border-slate-200' : ''}`}>
-                            <p className="font-bold text-base mb-2">{v.fullName}</p>
-                            <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Type:</span> <span className="font-medium">{v.visitorType}</span></p>
+                            <p className="font-bold text-sm mb-2">{v.fullName}</p>
+                            <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Type:</span> <span className="font-medium">{v.visitorType || '-'}</span></p>
                             <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Mobile:</span> <span className="font-medium">{v.mobileNumber}</span></p>
+                            <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Email:</span> <span className="font-medium">{v.email || '-'}</span></p>
+                            <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Nationality:</span> <span className="font-medium">{v.nationality || '-'}</span></p>
                           </div>
                         ))}
                       </div>
                     </div>
-                    <div className="space-y-8">
-                      <div className="space-y-4">
-                        <h4 className="font-bold text-slate-500 uppercase tracking-wider text-xs flex justify-between items-center">
-                          Host Details <button onClick={() => setStep(2)} className="text-hct-blue normal-case flex items-center gap-1"><Edit2 className="w-3 h-3"/> Edit</button>
-                        </h4>
-                        <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 text-xs">
-                          <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Name:</span> <span className="font-bold text-base">{hostDetails.hostName || (isPreScheduled ? 'Jane Doe' : '-')}</span></p>
-                          <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Location:</span> <span className="font-medium">{hostDetails.campus || hostDetails.department || '-'}</span></p>
-                        </div>
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-slate-500 uppercase tracking-wider text-xs flex justify-between items-center">
+                        Host Details <button onClick={() => setStep(2)} className="text-hct-blue normal-case flex items-center gap-1"><Edit2 className="w-3 h-3"/> Edit</button>
+                      </h4>
+                      <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                        <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Name:</span> <span className="font-bold">{hostDetails.hostName || (isPreScheduled ? 'Jane Doe' : '-')}</span></p>
+                        <p className="grid grid-cols-2 gap-2"><span className="text-slate-500">Location:</span> <span className="font-medium">{hostDetails.campus || hostDetails.department || '-'}</span></p>
                       </div>
                     </div>
                   </div>
+
+                  {/* Emirates ID Extracted Details */}
+                  {formVisitors.some(v => v.emiratesId) && (
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-slate-500 uppercase tracking-wider text-xs flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center w-5 h-5 bg-blue-100 dark:bg-blue-900/40 rounded-full">
+                          <svg viewBox="0 0 24 24" className="w-3 h-3 text-hct-blue fill-current"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                        </span>
+                        Emirates ID — Extracted Details
+                      </h4>
+                      {formVisitors.filter(v => v.emiratesId).map((v, i) => (
+                        <div key={i} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-5">
+                          <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 text-xs">
+                            {[
+                              ['ID Number', v.emiratesId.idNumber],
+                              ['Card Number', v.emiratesId.cardNumber],
+                              ['Full Name', v.emiratesId.fullName],
+                              ['Date of Birth', v.emiratesId.dob],
+                              ['Nationality', v.emiratesId.nationality],
+                              ['Gender', v.emiratesId.gender],
+                              ['Issue Date', v.emiratesId.issueDate],
+                              ['Expiry Date', v.emiratesId.expiryDate],
+                              ['Occupation', v.emiratesId.occupation],
+                              ['Employer', v.emiratesId.employer],
+                              ['Issuing Place', v.emiratesId.issuingPlace],
+                              ['Country', v.emiratesId.country],
+                            ].map(([label, value]) => (
+                              <div key={label} className="flex flex-col">
+                                <span className="text-blue-500 dark:text-blue-400 font-semibold mb-0.5">{label}</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-100">{value || '-'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -745,86 +870,170 @@ const VisitorList = () => {
       {/* View Details Modal for List */}
       {selectedVisitor && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden relative">
-            <button 
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden relative flex flex-col max-h-[90vh]">
+            <button
               onClick={() => setSelectedVisitor(null)}
-              className="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              className="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors z-10"
             >
               ✕
             </button>
-            <div className="p-8">
+
+            {/* Scrollable body */}
+            <div className="overflow-y-auto flex-1 p-8">
               <div className="flex items-center gap-4 mb-6">
                 <img src={selectedVisitor.photo || `https://i.pravatar.cc/150?u=${selectedVisitor.id || 'visitor'}`} alt="Captured Photo" className="w-16 h-16 rounded-full object-cover shadow-sm border border-slate-200" />
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white">Visitor Details</h3>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">Visitor Details</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">ID: {selectedVisitor.id}</p>
+                </div>
               </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Name</span>
-                  <span className="font-bold text-slate-800 dark:text-white">{selectedVisitor.name}</span>
-                </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Phone</span>
-                  <span className="font-medium text-slate-800 dark:text-white">{selectedVisitor.phone}</span>
-                </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Host</span>
-                  <span className="font-medium text-slate-800 dark:text-white">{selectedVisitor.host}</span>
-                </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Company</span>
-                  <span className="font-medium text-slate-800 dark:text-white">{selectedVisitor.company}</span>
-                </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Visitor Type</span>
-                  <span className="font-medium text-slate-800 dark:text-white">{selectedVisitor.type}</span>
-                </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Document ID</span>
-                  <span className="font-medium text-slate-800 dark:text-white">{selectedVisitor.docId}</span>
-                </div>
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Date & Time</span>
-                  <span className="font-medium text-slate-800 dark:text-white">{selectedVisitor.date} at {selectedVisitor.time}</span>
-                </div>
-                <div className="flex justify-between items-center pt-2 pb-6 border-b border-slate-100 dark:border-slate-800">
-                  <span className="text-slate-500 font-medium">Status</span>
+
+              {/* Basic Info */}
+              <div className="space-y-3 mb-6">
+                {[
+                  ['Name', selectedVisitor.name],
+                  ['Phone', selectedVisitor.phone],
+                  ['Host', selectedVisitor.host],
+                  ['Company', selectedVisitor.company],
+                  ['Visitor Type', selectedVisitor.type],
+                  ['Document ID', selectedVisitor.docId],
+                  ['Date & Time', `${selectedVisitor.date} at ${selectedVisitor.time}`],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-500 font-medium text-sm">{label}</span>
+                    <span className="font-semibold text-slate-800 dark:text-white text-sm text-right max-w-[60%]">{value}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-500 font-medium text-sm">Status</span>
                   {getStatusBadge(selectedVisitor)}
                 </div>
-                
-                <div className="flex flex-col gap-3 pt-2">
-                  {((isHost || isAdmin) && selectedVisitor.status === 'Expected') && (
-                    <div className="flex gap-3 w-full">
-                      <button onClick={() => {
-                        setConfirmAction({ type: 'Approve', visitor: selectedVisitor });
-                        setSelectedVisitor(null);
-                      }} className="flex-1 px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800">
-                        <CheckCircle2 className="w-4 h-4" /> Approve
-                      </button>
-                      <button onClick={() => {
-                        setConfirmAction({ type: 'Reject', visitor: selectedVisitor });
-                        setSelectedVisitor(null);
-                      }} className="flex-1 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-red-200 dark:border-red-800">
-                        <XCircle className="w-4 h-4" /> Reject
-                      </button>
+              </div>
+
+              {/* Emirates ID Details */}
+              {selectedVisitor.emiratesId && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-white fill-current"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                     </div>
-                  )}
-                  <div className="flex gap-3 w-full">
-                  <button onClick={() => alert('Viewing document...')} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
-                    <FileText className="w-4 h-4"/> View Document
+                    <h4 className="font-bold text-slate-700 dark:text-slate-200">Emirates ID Details</h4>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800/50 rounded-2xl p-5 space-y-2.5">
+                    {[
+                      ['Id Number', selectedVisitor.emiratesId.idNumber],
+                      ['Card Number', selectedVisitor.emiratesId.cardNumber],
+                      ['Full Name', selectedVisitor.emiratesId.fullName],
+                      ['Date Of Birth', selectedVisitor.emiratesId.dob],
+                      ['Nationality', selectedVisitor.emiratesId.nationality],
+                      ['Gender', selectedVisitor.emiratesId.gender],
+                      ['Issue Date', selectedVisitor.emiratesId.issueDate],
+                      ['Expiry Date', selectedVisitor.emiratesId.expiryDate],
+                      ['Occupation', selectedVisitor.emiratesId.occupation],
+                      ['Employer', selectedVisitor.emiratesId.employer],
+                      ['Issuing Place', selectedVisitor.emiratesId.issuingPlace],
+                      ['Country', selectedVisitor.emiratesId.country],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex justify-between items-start">
+                        <span className="text-blue-500 dark:text-blue-400 font-semibold text-xs min-w-[110px]">{label}</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-100 text-xs text-right">{value || '-'}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons — pinned at bottom */}
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col gap-3">
+              {((isHost || isAdmin) && selectedVisitor.status === 'Pending') && (
+                <div className="flex gap-3 w-full">
+                  <button onClick={() => {
+                    setConfirmAction({ type: 'Approve', visitor: selectedVisitor });
+                    setSelectedVisitor(null);
+                  }} className="flex-1 px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800">
+                    <CheckCircle2 className="w-4 h-4" /> Approve
                   </button>
                   <button onClick={() => {
-                    setVisitorToBlock(selectedVisitor);
-                    setSecurityActionType(selectedVisitor.isBlocked ? 'temp' : 'deny');
-                    setShowBlockModal(true);
+                    setConfirmAction({ type: 'Reject', visitor: selectedVisitor });
                     setSelectedVisitor(null);
-                  }} className={`flex-1 ${selectedVisitor.isBlocked ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'} text-white py-3 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2`}>
-                    <ShieldAlert className="w-4 h-4"/> {selectedVisitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
+                  }} className="flex-1 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-red-200 dark:border-red-800">
+                    <XCircle className="w-4 h-4" /> Reject
                   </button>
                 </div>
+              )}
+              <div className="flex gap-3 w-full">
+                <button onClick={() => setShowDocModal(true)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+                  <FileText className="w-4 h-4"/> View Document
+                </button>
+                <button onClick={() => {
+                  setVisitorToBlock(selectedVisitor);
+                  setSecurityActionType(selectedVisitor.isBlocked ? 'temp' : 'deny');
+                  setShowBlockModal(true);
+                  setSelectedVisitor(null);
+                }} className={`flex-1 ${selectedVisitor.isBlocked ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'} text-white py-3 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2`}>
+                  <ShieldAlert className="w-4 h-4"/> {selectedVisitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
+                </button>
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Document Viewer Modal */}
+      {showDocModal && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[70] p-4"
+          onClick={() => setShowDocModal(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl bg-slate-900 rounded-3xl overflow-hidden shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm">Identity Document</p>
+                  <p className="text-slate-400 text-[11px]">Emirates ID Card • Scanned Copy</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href="/emirates_id_sample.png"
+                  download="emirates_id.png"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5" /> Download
+                </a>
+                <button
+                  onClick={() => setShowDocModal(false)}
+                  className="w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors text-lg leading-none"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Document Image */}
+            <div className="p-6 flex flex-col items-center gap-4 bg-[#111]">
+              <div className="w-full rounded-2xl overflow-hidden shadow-xl border border-white/10">
+                <img
+                  src="/emirates_id_sample.png"
+                  alt="Emirates ID Document"
+                  className="w-full object-contain"
+                />
+              </div>
+              {/* Watermark strip */}
+              <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                <ShieldAlert className="w-3 h-3" />
+                Confidential — For official use only. Do not distribute.
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

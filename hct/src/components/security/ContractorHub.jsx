@@ -344,22 +344,40 @@ const ContractorHub = () => {
                   <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500">
                       <tr>
-                        <th className="p-4 font-bold uppercase">Employee Name</th>
+                        <th className="p-4 font-bold uppercase">Employee</th>
                         <th className="p-4 font-bold uppercase">ID Number</th>
+                        <th className="p-4 font-bold uppercase">Nationality</th>
+                        <th className="p-4 font-bold uppercase">Mobile Number</th>
                         <th className="p-4 font-bold uppercase">Role</th>
+                        <th className="p-4 font-bold uppercase">Document</th>
                         <th className="p-4 font-bold uppercase">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                       {(employees[selectedContractor.id] || []).length === 0 ? (
-                        <tr><td colSpan="4" className="p-8 text-center text-slate-500">No employees found.</td></tr>
+                        <tr><td colSpan="7" className="p-8 text-center text-slate-500">No employees found.</td></tr>
                       ) : (employees[selectedContractor.id] || []).map(emp => (
                         <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                          <td className="p-4 font-bold text-slate-800 dark:text-white">{emp.name}</td>
+                          <td className="p-4 font-bold text-slate-800 dark:text-white flex items-center gap-3">
+                            <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(emp.name)}&background=random`} alt={emp.name} className="w-8 h-8 rounded-full border border-slate-200 shrink-0" />
+                            {emp.name}
+                          </td>
                           <td className="p-4 text-slate-600 dark:text-slate-400">{emp.id}</td>
+                          <td className="p-4 text-slate-600 dark:text-slate-400">{emp.nationality || '-'}</td>
+                          <td className="p-4 text-slate-600 dark:text-slate-400">{emp.mobile || '-'}</td>
                           <td className="p-4 text-slate-600 dark:text-slate-400">{emp.role}</td>
                           <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${emp.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{emp.status}</span>
+                            {emp.document ? (
+                              <button className="flex items-center gap-1.5 text-xs font-bold text-hct-blue bg-blue-50 px-2 py-1.5 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100 whitespace-nowrap">
+                                <FileText className="w-3.5 h-3.5" />
+                                {emp.document}
+                              </button>
+                            ) : (
+                              <span className="text-xs text-slate-400">-</span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${emp.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{emp.status}</span>
                           </td>
                         </tr>
                       ))}
@@ -651,11 +669,13 @@ const ContractorHub = () => {
                              <span className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full font-bold shadow-sm">{emp.id}</span>
                            </div>
                            
-                           <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                             <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 opacity-60 text-hct-blue"/> <span className="truncate">{emp.role}</span></div>
-                             <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 opacity-60 text-emerald-500"/> <span className="truncate">{emp.nationality}</span></div>
-                             <div className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 opacity-60 text-amber-500"/> <span className="truncate">{emp.mobile}</span></div>
-                             <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 opacity-60 text-purple-500"/> <span className="truncate" title={emp.email}>{emp.email}</span></div>
+                           <div className="flex flex-col gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1">
+                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                               <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 opacity-60 text-hct-blue"/> <span>{emp.role}</span></div>
+                               <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 opacity-60 text-emerald-500"/> <span>{emp.nationality}</span></div>
+                             </div>
+                             <div className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 opacity-60 text-amber-500"/> <span>{emp.mobile}</span></div>
+                             <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 opacity-60 text-purple-500"/> <span>{emp.email}</span></div>
                            </div>
                         </div>
                         

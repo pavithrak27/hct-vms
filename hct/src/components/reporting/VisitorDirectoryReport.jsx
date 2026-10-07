@@ -96,6 +96,32 @@ const VisitorDirectoryReport = () => {
     directoryData = directoryData.filter(v => new Date(v.lastVisit) <= new Date(endDate));
   }
 
+  const customFilters = (
+    <div className="flex items-center gap-2 ml-4">
+      <input 
+        type="date" 
+        value={startDate}
+        onChange={(e) => setStartDate(e.target.value)}
+        className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600"
+      />
+      <span className="text-slate-400 font-bold">-</span>
+      <input 
+        type="date" 
+        value={endDate}
+        onChange={(e) => setEndDate(e.target.value)}
+        className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600"
+      />
+      {(startDate || endDate) && (
+        <button 
+          onClick={() => { setStartDate(''); setEndDate(''); }}
+          className="text-xs font-bold text-slate-500 hover:text-slate-800 ml-2"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+
   const columns = [
     { header: 'Visitor', accessor: 'name', render: (row) => (
       <div className="flex items-center gap-3">
@@ -135,16 +161,6 @@ const VisitorDirectoryReport = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-end">
-        <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">Start Date (Last Visit)</label>
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">End Date (Last Visit)</label>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800" />
-        </div>
-      </div>
       <ReportTable 
         title="Visitor Directory Report" 
         description="Master directory of known visitor profiles, identities (masked for privacy), and aggregated visit counts."
@@ -152,6 +168,7 @@ const VisitorDirectoryReport = () => {
         data={directoryData}
         searchPlaceholder="Search by Name, Email, or Company..."
         searchableKeys={['name', 'email', 'company']}
+        customFilters={customFilters}
       />
     </div>
   );

@@ -10,7 +10,7 @@ const summaryJsx = `
             <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.length}</p>
           </div>
           <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 shadow-sm flex flex-col justify-center">
-            <p className="text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">Expected / Approved</p>
+            <p className="text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">Approved</p>
             <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Expected' || v.status === 'Approved').length}</p>
           </div>
           <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30 shadow-sm flex flex-col justify-center">

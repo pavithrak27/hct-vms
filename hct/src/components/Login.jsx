@@ -49,7 +49,7 @@ const Login = () => {
         if (roleToLog === 'superadmin') navigate('/');
         else if (roleToLog === 'campusadmin') navigate('/');
         else if (roleToLog === 'host') navigate('/');
-        else if (roleToLog === 'security') navigate('/check-in-out');
+        else if (roleToLog === 'security') navigate('/');
         else if (roleToLog === 'reception') navigate('/visitor');
         else if (roleToLog === 'contractor') navigate('/contractor');
         else navigate('/');

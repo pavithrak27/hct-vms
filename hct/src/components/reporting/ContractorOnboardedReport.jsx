@@ -70,6 +70,36 @@ const ContractorOnboardedReport = () => {
     }
   ];
 
+  const [filterStatus, setFilterStatus] = useState('');
+
+  let filteredData = onboardedData;
+  if (filterStatus) {
+    filteredData = filteredData.filter(d => d.status === filterStatus);
+  }
+
+  const customFilters = (
+    <div className="flex items-center gap-3 ml-4">
+      <select 
+        value={filterStatus}
+        onChange={(e) => setFilterStatus(e.target.value)}
+        className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600"
+      >
+        <option value="">All Statuses</option>
+        <option value="Onboarded">Onboarded</option>
+        <option value="Pending">Pending</option>
+        <option value="Expired">Expired</option>
+      </select>
+      {filterStatus && (
+        <button 
+          onClick={() => setFilterStatus('')}
+          className="text-xs font-bold text-slate-500 hover:text-slate-800"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+
   const columns = [
     { header: 'Company Name', accessor: 'name', render: (row) => (
       <div>
@@ -110,9 +140,10 @@ const ContractorOnboardedReport = () => {
       title="Contractor Onboarded Report" 
       description="Status of contractor companies, validities, and onboarded employee counts."
       columns={columns}
-      data={onboardedData}
+      data={filteredData}
       searchPlaceholder="Search by Company Name or Contract..."
       searchableKeys={['name', 'contractNum']}
+      customFilters={customFilters}
     />
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRole } from '../../context/RoleContext';
 import ReportTable from './ReportTable';
 
@@ -102,9 +102,67 @@ const ContractorVisitorReport = () => {
 
   const { currentRole, sessionUser } = useRole();
   const isContractor = currentRole?.id === 'contractor';
-  const filteredVisitorData = isContractor 
+  
+  const [selectedContractorFilter, setSelectedContractorFilter] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const uniqueContractors = [...new Set(visitorData.map(v => v.company))];
+
+  let filteredVisitorData = isContractor 
     ? visitorData.filter(v => v.company === sessionUser?.companyId || v.company === sessionUser?.name) 
     : visitorData;
+
+  // Apply new filters
+  if (selectedContractorFilter) {
+    filteredVisitorData = filteredVisitorData.filter(v => v.company === selectedContractorFilter);
+  }
+
+  if (startDate) {
+    filteredVisitorData = filteredVisitorData.filter(v => new Date(v.visitStart.split(' ')[0]) >= new Date(startDate));
+  }
+  
+  if (endDate) {
+    filteredVisitorData = filteredVisitorData.filter(v => new Date(v.visitStart.split(' ')[0]) <= new Date(endDate));
+  }
+
+  const customFilters = (
+    <div className="flex items-center gap-3 ml-4">
+      {!isContractor && (
+        <select 
+          value={selectedContractorFilter}
+          onChange={(e) => setSelectedContractorFilter(e.target.value)}
+          className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600"
+        >
+          <option value="">All Contractors</option>
+          {uniqueContractors.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      )}
+      <div className="flex items-center gap-2">
+        <input 
+          type="date" 
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600"
+        />
+        <span className="text-slate-400 font-bold">-</span>
+        <input 
+          type="date" 
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600"
+        />
+        {(startDate || endDate || selectedContractorFilter) && (
+          <button 
+            onClick={() => { setStartDate(''); setEndDate(''); setSelectedContractorFilter(''); }}
+            className="text-xs font-bold text-slate-500 hover:text-slate-800 ml-2"
+          >
+            Clear Filters
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   const columns = [
     { header: 'Pass Info', accessor: 'passId', render: (row) => (
@@ -157,6 +215,7 @@ const ContractorVisitorReport = () => {
       data={filteredVisitorData}
       searchPlaceholder="Search by Pass ID, Employee, or Company..."
       searchableKeys={['passId', 'employeeName', 'company', 'employeeId']}
+      customFilters={customFilters}
     />
   );
 };

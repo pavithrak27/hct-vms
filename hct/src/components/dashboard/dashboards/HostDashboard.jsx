@@ -4,7 +4,7 @@ import { useRole } from '../../../context/RoleContext';
 import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, Users, CheckSquare, Clock, ShieldAlert, 
-  ArrowRight, UserCheck, XCircle, FileText, UserPlus, BarChart3, List
+  ArrowRight, UserCheck, XCircle, FileText, UserPlus, BarChart3, List, AlertTriangle, TrendingUp
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -135,19 +135,15 @@ export default function HostDashboard() {
   };
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="p-6 max-w-7xl mx-auto space-y-8">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* 1. TOP HEADER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Host Dashboard</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2 font-medium text-lg">Welcome back, {sessionUser?.name}</p>
-          <p className="text-slate-500 text-sm mt-1">Manage your upcoming visitors, approval requests, and visitor activity.</p>
+          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-500 dark:from-white dark:to-slate-400 tracking-tight">Host Dashboard</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-2 font-semibold text-lg">Welcome back, {sessionUser?.name}</p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-hct-blue dark:text-blue-400">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-          <p className="text-sm text-slate-500 font-medium">Campus: HCT Campus A</p>
+          <p className="text-sm text-slate-500 font-bold tracking-wider uppercase mt-1">HCT Campus A</p>
         </div>
       </div>
 
@@ -157,48 +153,48 @@ export default function HostDashboard() {
           title="Pending Approvals" 
           value={displayPending.length} 
           subtitle="Requires your attention" 
-          icon={<CheckSquare size={24} />} 
-          color="bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400" 
+          icon={<CheckSquare size={20} />} 
+          theme="amber"
           onClick={() => navigate('/visitor-list')} 
         />
         <StatCard 
           title="Today's Visitors" 
           value={displayTodaysVisitors.length} 
           subtitle="Scheduled for today" 
-          icon={<Calendar size={24} />} 
-          color="bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" 
+          icon={<Calendar size={20} />} 
+          theme="blue"
           onClick={() => navigate('/visitor-list')} 
         />
         <StatCard 
           title="Upcoming Visitors" 
           value={displayUpcomingVisitors.length} 
           subtitle="Next 7 days" 
-          icon={<Clock size={24} />} 
-          color="bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400" 
+          icon={<Clock size={20} />} 
+          theme="indigo"
           onClick={() => navigate('/visitor-list')} 
         />
         <StatCard 
           title="Active Visits" 
           value={displayActiveNow.length} 
           subtitle="Currently on campus" 
-          icon={<Users size={24} />} 
-          color="bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400" 
+          icon={<Users size={20} />} 
+          theme="emerald"
           onClick={() => navigate('/visitor-list')} 
         />
         <StatCard 
           title="Approved Visits" 
           value={displayApprovedVisits.length} 
           subtitle="This month" 
-          icon={<UserCheck size={24} />} 
-          color="bg-teal-50 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400" 
+          icon={<UserCheck size={20} />} 
+          theme="teal"
           onClick={() => navigate('/visitor-list')} 
         />
         <StatCard 
           title="Completed Visits" 
           value={displayCompletedVisits.length} 
           subtitle="This month" 
-          icon={<CheckSquare size={24} />} 
-          color="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400" 
+          icon={<CheckSquare size={20} />} 
+          theme="slate"
           onClick={() => navigate('/reports/directory')} 
         />
       </motion.div>
@@ -207,20 +203,26 @@ export default function HostDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* LEFT COLUMN (Wider) */}
-        <div className="lg:col-span-7 space-y-8">
+        <div className="lg:col-span-8 space-y-8">
           {/* 3. PENDING APPROVALS */}
           <motion.div variants={itemVariants}>
-            <DashboardSection title="Pending Approvals" onAction={() => navigate('/visitor-list')} actionText="View All Approvals">
-              <div className="space-y-4">
+            <DashboardSection title="Pending Approvals" icon={<AlertTriangle className="w-5 h-5 text-amber-500"/>} onAction={() => navigate('/visitor-list')} actionText="View All">
+              <div className="space-y-3">
                 {displayPending.slice(0, 5).map(v => (
-                  <div key={v.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-300 transition-colors">
-                    <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white">{v.name || v.visitorName}</h4>
-                      <p className="text-xs text-slate-500 mt-1">{v.type || v.visitorType} • {v.date} • {v.time} • {v.campus || 'Campus A'}</p>
+                  <div key={v.id} className="group relative flex items-center justify-between p-4 bg-white/50 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:shadow-blue-900/5 transition-all duration-300">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-400 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900/50 dark:to-amber-800/50 flex items-center justify-center font-black text-amber-700 dark:text-amber-300 shadow-inner">
+                        {(v.name || v.visitorName || 'U').charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{v.name || v.visitorName}</h4>
+                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">{v.type || v.visitorType} • {v.date} • {v.time} • {v.campus || 'Campus A'}</p>
+                      </div>
                     </div>
                     <div className="flex gap-2">
-                      <button className="px-3 py-1.5 text-xs font-bold text-emerald-600 bg-emerald-100 rounded-lg hover:bg-emerald-200 transition-colors">Approve</button>
-                      <button className="px-3 py-1.5 text-xs font-bold text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition-colors">Reject</button>
+                      <button className="px-4 py-2 text-xs font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-500 hover:text-white rounded-xl transition-all shadow-sm">Approve</button>
+                      <button className="px-4 py-2 text-xs font-bold text-red-700 bg-red-100 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm">Reject</button>
                     </div>
                   </div>
                 ))}
@@ -230,19 +232,21 @@ export default function HostDashboard() {
 
           {/* 4. UPCOMING VISITORS */}
           <motion.div variants={itemVariants}>
-            <DashboardSection title="Upcoming Visitors" onAction={() => navigate('/visitor-list')} actionText="View All Visitors">
-              <div className="space-y-4">
+            <DashboardSection title="Upcoming Visitors" icon={<Calendar className="w-5 h-5 text-indigo-500"/>} onAction={() => navigate('/visitor-list')} actionText="View Schedule">
+              <div className="space-y-3">
                 {displayUpcomingVisitors.slice(0, 5).map(v => (
-                  <div key={v.id} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-sm bg-gradient-to-br from-green-200 to-emerald-300 text-emerald-900">
+                  <div key={v.id} className="group flex items-center gap-4 p-4 bg-white/50 dark:bg-slate-800/40 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:shadow-indigo-900/5 transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg shadow-inner bg-gradient-to-br from-indigo-100 to-blue-200 text-indigo-800">
                       {(v.name || v.visitorName || 'U').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-slate-900 dark:text-white">{v.name || v.visitorName}</h4>
-                      <p className="text-xs text-slate-500">{v.company || 'N/A'} • {v.date} • {v.time}</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Purpose: Business Meeting</p>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-indigo-600 transition-colors">{v.name || v.visitorName}</h4>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="text-[11px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">{v.company || 'N/A'}</span>
+                        <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">{v.date} • {v.time}</span>
+                      </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-lg text-xs font-bold ${v.status === 'Approved' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${v.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
                       {v.status}
                     </span>
                   </div>
@@ -250,39 +254,34 @@ export default function HostDashboard() {
               </div>
             </DashboardSection>
           </motion.div>
-
-
         </div>
 
         {/* RIGHT COLUMN (Narrower) */}
-        <div className="lg:col-span-5 space-y-8">
-
-
+        <div className="lg:col-span-4 space-y-8">
           {/* 6. VISITOR STATUS OVERVIEW */}
           <motion.div variants={itemVariants}>
-            <DashboardSection title="Visitor Status">
-              <div className="space-y-2.5">
-                <StatusRow label="Approved" count={displayStatusCounts.Approved} color="bg-teal-500" />
-                <StatusRow label="Checked In" count={displayStatusCounts.CheckedIn} color="bg-emerald-500" />
-                <StatusRow label="Checked Out" count={displayStatusCounts.CheckedOut} color="bg-slate-400" />
-                <StatusRow label="Pending" count={displayStatusCounts.Pending} color="bg-amber-500" />
-                <StatusRow label="Rejected" count={displayStatusCounts.Rejected} color="bg-red-500" />
+            <DashboardSection title="Status Overview" icon={<BarChart3 className="w-5 h-5 text-blue-500"/>}>
+              <div className="space-y-3">
+                <StatusRow label="Approved" count={displayStatusCounts.Approved} theme="emerald" />
+                <StatusRow label="Checked In" count={displayStatusCounts.CheckedIn} theme="blue" />
+                <StatusRow label="Checked Out" count={displayStatusCounts.CheckedOut} theme="slate" />
+                <StatusRow label="Pending" count={displayStatusCounts.Pending} theme="amber" />
+                <StatusRow label="Rejected" count={displayStatusCounts.Rejected} theme="red" />
               </div>
             </DashboardSection>
           </motion.div>
 
           {/* 9. UPCOMING VISIT SUMMARY */}
           <motion.div variants={itemVariants}>
-            <DashboardSection title="Upcoming Visits Summary">
-              <div className="grid grid-cols-2 gap-3">
-                <SummaryCard label="Today" value={displayTodaysVisitors.length} />
-                <SummaryCard label="Tomorrow" value={myExpectedPasses.filter(p => p.date === tomorrowStr).length > 0 ? myExpectedPasses.filter(p => p.date === tomorrowStr).length : 2} />
-                <SummaryCard label="Next 7 Days" value={displayInNext7Days} />
-                <SummaryCard label="Next 30 Days" value={displayInNext30Days} />
+            <DashboardSection title="Visit Forecast" icon={<TrendingUp className="w-5 h-5 text-teal-500"/>}>
+              <div className="grid grid-cols-2 gap-4">
+                <SummaryCard label="Today" value={displayTodaysVisitors.length} theme="blue" />
+                <SummaryCard label="Tomorrow" value={myExpectedPasses.filter(p => p.date === tomorrowStr).length > 0 ? myExpectedPasses.filter(p => p.date === tomorrowStr).length : 2} theme="indigo" />
+                <SummaryCard label="Next 7 Days" value={displayInNext7Days} theme="teal" />
+                <SummaryCard label="Next 30 Days" value={displayInNext30Days} theme="slate" />
               </div>
             </DashboardSection>
           </motion.div>
-
         </div>
       </div>
     </motion.div>
@@ -290,78 +289,106 @@ export default function HostDashboard() {
 }
 
 // Subcomponents
-const StatCard = ({ title, value, subtitle, icon, color, onClick }) => {
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+const StatCard = ({ title, value, subtitle, icon, theme, onClick }) => {
+  const themeStyles = {
+    amber: 'from-amber-400 to-orange-500 text-amber-900 shadow-orange-500/20',
+    blue: 'from-blue-400 to-indigo-500 text-blue-900 shadow-blue-500/20',
+    indigo: 'from-indigo-400 to-violet-500 text-indigo-900 shadow-indigo-500/20',
+    emerald: 'from-emerald-400 to-teal-500 text-emerald-900 shadow-emerald-500/20',
+    teal: 'from-teal-400 to-cyan-500 text-teal-900 shadow-teal-500/20',
+    slate: 'from-slate-400 to-slate-600 text-slate-900 shadow-slate-500/20',
   };
+  
+  const borderColors = {
+    amber: 'border-l-amber-500', blue: 'border-l-blue-500', indigo: 'border-l-indigo-500', emerald: 'border-l-emerald-500', teal: 'border-l-teal-500', slate: 'border-l-slate-500'
+  };
+
   return (
     <motion.div 
-      variants={itemVariants}
-      whileHover={{ y: -2 }}
+      whileHover={{ y: -4, scale: 1.01 }}
       onClick={onClick}
-      className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+      className={`relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl border border-white/20 shadow-xl shadow-slate-200/40 dark:shadow-slate-900/40 cursor-pointer group border-l-4 ${borderColors[theme]}`}
     >
-      <div className="flex items-start justify-between mb-2">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color} transition-transform group-hover:scale-110`}>
+      <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 group-hover:rotate-12">
+        {icon}
+      </div>
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${themeStyles[theme]} text-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110`}>
           {icon}
         </div>
-        <h2 className="text-3xl font-black text-slate-900 dark:text-white">{value}</h2>
+        <h2 className="text-4xl font-black text-slate-800 dark:text-white drop-shadow-sm">{value}</h2>
       </div>
-      <h3 className="font-bold text-slate-700 dark:text-slate-300 mt-4">{title}</h3>
-      <p className="text-xs text-slate-500 font-medium mt-1">{subtitle}</p>
+      <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg relative z-10">{title}</h3>
+      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1 relative z-10">{subtitle}</p>
     </motion.div>
   );
 };
 
-const DashboardSection = ({ title, children, onAction, actionText }) => (
-  <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
-    <div className="p-4 md:p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-      <h3 className="font-bold text-base md:text-lg text-slate-900 dark:text-white">{title}</h3>
+const DashboardSection = ({ title, icon, children, onAction, actionText }) => (
+  <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl rounded-[32px] border border-white/40 dark:border-slate-800/80 shadow-2xl shadow-slate-200/50 dark:shadow-slate-900/50 overflow-hidden flex flex-col relative">
+    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-200 dark:via-blue-800 to-transparent opacity-50"></div>
+    <div className="p-6 border-b border-slate-100/50 dark:border-slate-800/50 flex justify-between items-center bg-white/30 dark:bg-slate-900/30">
+      <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-3">
+        {icon}
+        {title}
+      </h3>
       {onAction && (
-        <button onClick={onAction} className="text-xs font-bold text-hct-blue hover:text-blue-700 transition-colors">
+        <button onClick={onAction} className="text-xs font-black uppercase tracking-wider text-hct-blue hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 px-3 py-1.5 rounded-lg transition-colors">
           {actionText}
         </button>
       )}
     </div>
-    <div className="p-4 md:p-5">
+    <div className="p-6 bg-slate-50/30 dark:bg-slate-900/10">
       {children}
     </div>
   </div>
 );
 
-const EmptyState = ({ message }) => (
-  <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center px-4">
-    <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
-      <CheckSquare className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+const StatusRow = ({ label, count, theme }) => {
+  const badgeColors = {
+    emerald: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
+    blue: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+    slate: 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400',
+    amber: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+    red: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+  };
+  const dotColors = {
+    emerald: 'bg-emerald-500 shadow-emerald-500/50',
+    blue: 'bg-blue-500 shadow-blue-500/50',
+    slate: 'bg-slate-500 shadow-slate-500/50',
+    amber: 'bg-amber-500 shadow-amber-500/50',
+    red: 'bg-red-500 shadow-red-500/50'
+  };
+
+  return (
+    <div className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow group">
+      <div className="flex items-center gap-3">
+        <div className={`w-3 h-3 rounded-full ${dotColors[theme]} shadow-sm group-hover:scale-125 transition-transform`}></div>
+        <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">{label}</span>
+      </div>
+      <span className={`px-3 py-1 rounded-xl font-black text-sm ${badgeColors[theme]}`}>{count}</span>
     </div>
-    <p className="text-slate-500 dark:text-slate-400 font-medium">{message}</p>
-  </div>
-);
+  );
+};
 
-const StatusRow = ({ label, count, color }) => (
-  <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/30 rounded-xl">
-    <div className="flex items-center gap-2">
-      <div className={`w-2.5 h-2.5 rounded-full ${color}`}></div>
-      <span className="font-semibold text-slate-700 dark:text-slate-300 text-xs">{label}</span>
+const SummaryCard = ({ label, value, theme }) => {
+  const themeGradients = {
+    blue: 'from-blue-50 to-indigo-50 border-blue-100 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800',
+    indigo: 'from-indigo-50 to-violet-50 border-indigo-100 dark:from-indigo-900/20 dark:to-violet-900/20 dark:border-indigo-800',
+    teal: 'from-teal-50 to-emerald-50 border-teal-100 dark:from-teal-900/20 dark:to-emerald-900/20 dark:border-teal-800',
+    slate: 'from-slate-50 to-gray-50 border-slate-200 dark:from-slate-800/50 dark:to-gray-800/50 dark:border-slate-700'
+  };
+  const textColors = {
+    blue: 'text-blue-900 dark:text-blue-100',
+    indigo: 'text-indigo-900 dark:text-indigo-100',
+    teal: 'text-teal-900 dark:text-teal-100',
+    slate: 'text-slate-900 dark:text-slate-100'
+  };
+
+  return (
+    <div className={`p-5 bg-gradient-to-br ${themeGradients[theme]} rounded-2xl text-center border shadow-sm hover:shadow-md hover:-translate-y-1 transition-all`}>
+      <p className={`text-3xl font-black ${textColors[theme]} mb-1 drop-shadow-sm`}>{value}</p>
+      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
     </div>
-    <span className="font-black text-slate-900 dark:text-white text-sm">{count}</span>
-  </div>
-);
-
-const SummaryCard = ({ label, value }) => (
-  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-center border border-slate-100 dark:border-slate-800">
-    <p className="text-xl font-black text-slate-900 dark:text-white mb-0.5">{value}</p>
-    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</p>
-  </div>
-);
-
-const ActionButton = ({ icon, label, onClick, primary }) => (
-  <button 
-    onClick={onClick}
-    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl font-bold text-xs transition-all ${primary ? 'bg-hct-blue text-white shadow-lg shadow-blue-900/20 hover:bg-blue-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
-  >
-    {icon}
-    {label}
-  </button>
-);
+  );
+};

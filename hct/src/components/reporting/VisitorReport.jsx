@@ -53,6 +53,41 @@ const VisitorReport = () => {
     reportData = reportData.filter(v => new Date(v.date) <= new Date(endDate));
   }
 
+  const customFilters = (
+    <div className="flex items-center gap-2 ml-4">
+      <select value={filterType} onChange={e => setFilterType(e.target.value)} className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600">
+        <option value="All">All Types</option>
+        <option value="Walk-In">Walk-In</option>
+        <option value="Pre-Approved">Pre-Approved</option>
+      </select>
+      <select value={filterCampus} onChange={e => setFilterCampus(e.target.value)} className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600">
+        <option value="All">All Campuses</option>
+        <option value="Main Campus">Main Campus</option>
+        <option value="North Campus">North Campus</option>
+      </select>
+      {!isHost && (
+        <select value={filterHost} onChange={e => setFilterHost(e.target.value)} className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600">
+          <option value="All">All Hosts</option>
+          <option value="Dr. Ahmed Al-Maktoum">Dr. Ahmed Al-Maktoum</option>
+          <option value="Dr. Sarah Smith">Dr. Sarah Smith</option>
+        </select>
+      )}
+      <div className="flex items-center gap-1 border-l border-slate-200 pl-2 ml-1">
+        <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600" />
+        <span className="text-slate-400 font-bold">-</span>
+        <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-hct-blue bg-white font-medium text-slate-600" />
+      </div>
+      {(filterType !== 'All' || filterCampus !== 'All' || (!isHost && filterHost !== 'All') || startDate || endDate) && (
+        <button 
+          onClick={() => { setFilterType('All'); setFilterCampus('All'); if(!isHost) setFilterHost('All'); setStartDate(''); setEndDate(''); }}
+          className="text-xs font-bold text-slate-500 hover:text-slate-800 ml-1"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+
   const columns = [
     { header: 'Pass ID', accessor: 'passId', render: (row) => <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">{row.passId}</span> },
     { header: 'Visitor Name', accessor: 'visitorName', render: (row) => <span className="font-bold text-slate-800">{row.visitorName}</span> },
@@ -72,43 +107,6 @@ const VisitorReport = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-end">
-        <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">Visitor Type</label>
-          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800">
-            <option value="All">All Types</option>
-            <option value="Walk-In">Walk-In</option>
-            <option value="Pre-Approved">Pre-Approved</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">Campus</label>
-          <select value={filterCampus} onChange={e => setFilterCampus(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800">
-            <option value="All">All Campuses</option>
-            <option value="Main Campus">Main Campus</option>
-            <option value="North Campus">North Campus</option>
-          </select>
-        </div>
-        {!isHost && (
-          <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1">Host</label>
-            <select value={filterHost} onChange={e => setFilterHost(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800">
-              <option value="All">All Hosts</option>
-              <option value="Dr. Ahmed Al-Maktoum">Dr. Ahmed Al-Maktoum</option>
-              <option value="Dr. Sarah Smith">Dr. Sarah Smith</option>
-            </select>
-          </div>
-        )}
-        <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">Start Date</label>
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800" />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-500 mb-1">End Date</label>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800" />
-        </div>
-      </div>
-
       <ReportTable 
         title="Visitor Report" 
         description="Detailed historical log of individual visit transactions, entry/exit times, and durations."
@@ -116,6 +114,7 @@ const VisitorReport = () => {
         data={reportData}
         searchPlaceholder="Search by Visitor Name or Pass ID..."
         searchableKeys={['visitorName', 'passId', 'host']}
+        customFilters={customFilters}
       />
     </div>
   );

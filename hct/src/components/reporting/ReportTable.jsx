@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Search, Download, FileSpreadsheet, FileText, ChevronLeft, ChevronRight, Filter, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Search, Download, FileSpreadsheet, FileText, ChevronLeft, ChevronRight, Filter, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-const ReportTable = ({ title, description, columns, data, searchPlaceholder = "Search...", searchableKeys = [] }) => {
+const ReportTable = ({ title, description, columns, data, searchPlaceholder = "Search...", searchableKeys = [], customFilters }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -64,6 +66,17 @@ const ReportTable = ({ title, description, columns, data, searchPlaceholder = "S
         )}
       </AnimatePresence>
 
+      {/* Back button */}
+      <div className="mb-5">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-hct-blue dark:hover:text-blue-400 hover:border-hct-blue dark:hover:border-blue-500 font-bold text-sm shadow-sm hover:shadow-md transition-all duration-200 backdrop-blur-md group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+          Back to Reports
+        </button>
+      </div>
+
       <div className="flex justify-between items-end mb-8">
         <div>
           <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">{title}</h2>
@@ -96,7 +109,7 @@ const ReportTable = ({ title, description, columns, data, searchPlaceholder = "S
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
               <input type="text" value={searchQuery} onChange={(e) => {setSearchQuery(e.target.value); setCurrentPage(1);}} placeholder={searchPlaceholder} className="pl-9 p-2 rounded-lg border border-slate-300 w-80 text-sm outline-none focus:ring-2 focus:ring-hct-blue" />
             </div>
-
+            {customFilters && <div>{customFilters}</div>}
           </div>
           <div className="text-sm font-bold text-slate-500">
             Total Records: <span className="text-slate-800">{filteredData.length}</span>

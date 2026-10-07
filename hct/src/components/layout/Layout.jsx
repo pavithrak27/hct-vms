@@ -56,7 +56,8 @@ const Layout = () => {
     ],
     contractor: [
       { id: 'dashboard', name: 'Contractor Management', href: '/', icon: LayoutDashboard },
-      { id: 'reports', name: 'My Reports', href: '/reports/contractor-visitor', icon: BarChart3 },
+      { id: 'reports-onboarded', name: 'Onboarded Report', href: '/reports/contractor-onboarded', icon: FileText },
+      { id: 'reports-visitor', name: 'Visitor Report', href: '/reports/contractor-visitor', icon: FileSpreadsheet },
     ],
     approver: [
       { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -122,17 +123,13 @@ const Layout = () => {
       {/* Sidebar */}
       <div className={`${isCollapsed ? 'w-[88px]' : 'w-[280px]'} transition-all duration-300 ease-in-out bg-gradient-to-b from-[#000a29] via-[#00144d] to-[#00249c] dark:bg-slate-950 backdrop-blur-xl border-r border-[#00249c]/30 dark:border-white/10 shrink-0 flex flex-col fixed h-full z-20 shadow-[10px_0_40px_rgba(0,20,77,0.15)] overflow-hidden`}>
         <div className={`p-6 ${isCollapsed ? 'px-4' : ''}`}>
-          <div className="bg-white/10 p-[1px] rounded-2xl shadow-lg shadow-black/20">
-            <div className={`bg-[#001a66] dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
-              <div className="w-10 h-10 bg-hct-blue rounded-xl flex items-center justify-center shrink-0 shadow-inner">
-                <HctLogo className="w-6 h-6 text-white" />
-              </div>
-            {!isCollapsed && (
-              <div>
-                <h1 className="font-black text-white leading-tight text-lg">Pro-Visit</h1>
-              </div>
-            )}
+          <div className={`flex flex-col items-center gap-3 ${isCollapsed ? 'justify-center' : 'px-2'}`}>
+            <div className="bg-white p-2 rounded-xl shadow-md w-full flex justify-center">
+              <HctLogo className={`${isCollapsed ? 'h-8' : 'h-10'} w-auto object-contain`} />
             </div>
+            {!isCollapsed && (
+              <h1 className="font-black text-white text-xl tracking-tight text-center mt-1">Pro-Visit VMS</h1>
+            )}
           </div>
         </div>
         
@@ -492,6 +489,10 @@ const Layout = () => {
 };
 
 export default Layout;
+
+
+
+
 
 
 

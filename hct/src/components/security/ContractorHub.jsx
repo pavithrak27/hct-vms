@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X, UploadCloud, Trash2, Camera, Calendar, History, Eye, Download } from 'lucide-react';
+import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X, UploadCloud, Trash2, Camera, Calendar, History, Eye, Download, MapPin, Phone, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContractorRegistration from '../contractor/ContractorRegistration';
 import { useRole } from '../../context/RoleContext';
@@ -59,6 +59,7 @@ const ContractorHub = () => {
   const [search, setSearch] = useState('');
   const [isAddingContractor, setIsAddingContractor] = useState(false);
   const [renewModalData, setRenewModalData] = useState(null);
+  const [showQR, setShowQR] = useState(null);
   
   const [toastMessage, setToastMessage] = useState('');
   const showToast = (msg) => {
@@ -270,6 +271,7 @@ const ContractorHub = () => {
              <button onClick={() => setActiveTab('overview')} className={`py-4 font-bold text-sm border-b-2 transition-colors ${activeTab === 'overview' ? 'border-hct-blue text-hct-blue' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>Overview</button>
              <button onClick={() => setActiveTab('employees')} className={`py-4 font-bold text-sm border-b-2 transition-colors ${activeTab === 'employees' ? 'border-hct-blue text-hct-blue' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>Employees ({(employees[selectedContractor.id] || []).length})</button>
              <button onClick={() => setActiveTab('passes')} className={`py-4 font-bold text-sm border-b-2 transition-colors ${activeTab === 'passes' ? 'border-hct-blue text-hct-blue' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>Pass Requests ({(passRequests[selectedContractor.id] || []).length})</button>
+             <button onClick={() => setActiveTab('renewal')} className={`py-4 font-bold text-sm border-b-2 transition-colors ${activeTab === 'renewal' ? 'border-hct-blue text-hct-blue' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>Renewal History</button>
           </div>
 
           <div className="p-8">
@@ -370,33 +372,98 @@ const ContractorHub = () => {
             {activeTab === 'passes' && (
               <div className="animate-in fade-in">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold flex items-center gap-2"><FileSignature className="w-6 h-6 text-slate-400"/> Pass Requests</h3>
-                  <button onClick={() => setShowCreatePass(true)} className="bg-hct-blue text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-sm"><Plus className="w-4 h-4"/> Create Pass Request</button>
+                  <h3 className="text-xl font-bold flex items-center gap-2"><FileSignature className="w-6 h-6 text-slate-400"/> Generated Passes: {selectedContractor.name}</h3>
+                  <div className="flex gap-2">
+                    <button onClick={() => setShowCreatePass(true)} className="bg-hct-blue text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-sm"><Plus className="w-4 h-4"/> Create Pass Request</button>
+                  </div>
                 </div>
-                
+
+                <div className="bg-white dark:bg-slate-900/80 rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                      <input type="text" placeholder="Search by Pass ID, Name, Company..." className="pl-9 p-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 w-80 text-sm outline-none focus:ring-2 focus:ring-hct-blue" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2"><Download className="w-4 h-4"/> Download PDFs</button>
+                    </div>
+                  </div>
+
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500">
+                      <tr>
+                        <th className="p-4 font-bold uppercase w-10"></th>
+                        <th className="p-4 font-bold uppercase">Pass ID & Status</th>
+                        <th className="p-4 font-bold uppercase">Employee</th>
+                        <th className="p-4 font-bold uppercase">Company</th>
+                        <th className="p-4 font-bold uppercase">Validity Period</th>
+                        <th className="p-4 font-bold uppercase text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-900">
+                      {(generatedPassesData[selectedContractor.id] || []).length === 0 ? (
+                        <tr><td colSpan="6" className="p-8 text-center text-slate-500">No generated passes found.</td></tr>
+                      ) : (generatedPassesData[selectedContractor.id] || []).map(pass => (
+                        <tr key={pass.passId} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="p-4"><input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-hct-blue focus:ring-hct-blue" /></td>
+                          <td className="p-4">
+                            <p className="font-bold text-slate-800 dark:text-white">{pass.passId}</p>
+                            <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${pass.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{pass.status}</span>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-3">
+                              <img src={pass.photo} alt={pass.empName} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+                              <div><p className="font-bold text-slate-800 dark:text-white">{pass.empName}</p><p className="text-xs text-slate-500">{pass.empId}</p></div>
+                            </div>
+                          </td>
+                          <td className="p-4 font-medium text-slate-700 dark:text-slate-300">{selectedContractor.name}</td>
+                          <td className="p-4 text-xs text-slate-600 dark:text-slate-400 leading-tight">From: {pass.validFrom}<br/>To: {pass.validTo}</td>
+                          <td className="p-4 text-right flex items-center justify-end gap-2">
+                            <button onClick={() => setShowQR(pass.passId)} className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors"><Eye className="w-5 h-5"/></button>
+                            <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors"><Download className="w-5 h-5"/></button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'renewal' && (
+              <div className="animate-in fade-in space-y-6">
+                <h3 className="text-xl font-bold flex items-center gap-2 text-slate-800 dark:text-white"><History className="w-6 h-6 text-slate-400"/> Renewal History</h3>
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500">
                       <tr>
-                        <th className="p-4 font-bold uppercase">Request ID</th>
-                        <th className="p-4 font-bold uppercase">Date Submitted</th>
-                        <th className="p-4 font-bold uppercase">No. of Employees</th>
-                        <th className="p-4 font-bold uppercase">Status</th>
+                        <th className="p-4 font-bold uppercase">Date of Renewal</th>
+                        <th className="p-4 font-bold uppercase">Previous Expiry</th>
+                        <th className="p-4 font-bold uppercase">New Expiry</th>
+                        <th className="p-4 font-bold uppercase">Renewed By</th>
+                        <th className="p-4 font-bold uppercase text-right">Documents</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                      {(passRequests[selectedContractor.id] || []).length === 0 ? (
-                        <tr><td colSpan="4" className="p-8 text-center text-slate-500">No pass requests found.</td></tr>
-                      ) : (passRequests[selectedContractor.id] || []).map(req => (
-                        <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                          <td className="p-4 font-bold text-slate-800 dark:text-white">{req.id}</td>
-                          <td className="p-4 text-slate-600 dark:text-slate-400">{req.date}</td>
-                          <td className="p-4 text-slate-600 dark:text-slate-400">{req.employees}</td>
-                          <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{req.status}</span>
-                          </td>
-                        </tr>
-                      ))}
+                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="p-4 font-bold text-slate-800 dark:text-white">2026-09-15</td>
+                        <td className="p-4 text-slate-600 dark:text-slate-400">2026-11-01</td>
+                        <td className="p-4 text-slate-600 dark:text-slate-400">2027-11-01</td>
+                        <td className="p-4 text-slate-600 dark:text-slate-400">Ahmed Hassan</td>
+                        <td className="p-4 text-right flex flex-col items-end justify-center gap-1.5">
+                          <button className="text-blue-600 hover:underline text-xs font-bold transition-colors">View Document</button>
+                          <button className="text-blue-600 hover:underline text-xs font-bold transition-colors">View Document</button>
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="p-4 font-bold text-slate-800 dark:text-white">2025-08-22</td>
+                        <td className="p-4 text-slate-600 dark:text-slate-400">2025-11-01</td>
+                        <td className="p-4 text-slate-600 dark:text-slate-400">2026-11-01</td>
+                        <td className="p-4 text-slate-600 dark:text-slate-400">Admin</td>
+                        <td className="p-4 text-right flex flex-col items-end justify-center gap-1.5">
+                          <button className="text-blue-600 hover:underline text-xs font-bold transition-colors">View Document</button>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -408,6 +475,22 @@ const ContractorHub = () => {
 
       {/* Modals */}
       <AnimatePresence>
+        {showQR && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl relative text-center">
+              <button onClick={() => setShowQR(null)} className="absolute top-4 right-4 p-2 bg-slate-50 text-slate-400 rounded-full hover:bg-slate-100 hover:text-slate-600 transition-colors"><X className="w-5 h-5"/></button>
+              <div className="mb-6 flex justify-center">
+                <div className="p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                  <QrCode className="w-40 h-40 text-slate-800" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">Gate Pass QR</h3>
+              <p className="text-slate-500 text-sm mb-6">Pass ID: {showQR}</p>
+              <button onClick={() => setShowQR(null)} className="w-full py-3 bg-hct-blue hover:bg-blue-800 text-white rounded-xl font-bold transition-all shadow-md">Close</button>
+            </motion.div>
+          </div>
+        )}
+
         {showAddEmployee && (
           <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4">
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white rounded-3xl p-8 max-w-4xl w-full shadow-2xl overflow-y-auto max-h-[90vh]">
@@ -545,36 +628,42 @@ const ContractorHub = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {(employees[selectedContractor?.id] || []).filter(e => e.status === 'Approved').map(emp => (
-                      <label key={emp.id} className={`border-2 rounded-xl p-4 cursor-pointer transition-all flex gap-4 items-center ${selectedEmpsForPass.includes(emp.id) ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'}`}>
-                        <div className={`w-6 h-6 rounded-md flex items-center justify-center border ${selectedEmpsForPass.includes(emp.id) ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'}`}>
-                          {selectedEmpsForPass.includes(emp.id) && <CheckSquare className="w-4 h-4"/>}
+                      <label key={emp.id} className={`relative rounded-2xl p-5 cursor-pointer transition-all duration-300 flex gap-4 items-center overflow-hidden border ${selectedEmpsForPass.includes(emp.id) ? 'border-hct-blue bg-blue-50/60 dark:bg-blue-900/30 shadow-lg shadow-blue-900/10 scale-[1.01]' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-300 hover:shadow-xl'}`}>
+                        {selectedEmpsForPass.includes(emp.id) && <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full -mr-16 -mt-16 transition-all" />}
+                        
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 shrink-0 transition-all z-10 ${selectedEmpsForPass.includes(emp.id) ? 'bg-hct-blue border-hct-blue text-white shadow-md' : 'border-slate-300 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 hover:border-blue-300'}`}>
+                          {selectedEmpsForPass.includes(emp.id) && <Check className="w-4 h-4"/>}
                         </div>
                         <input type="checkbox" className="hidden" checked={selectedEmpsForPass.includes(emp.id)} onChange={(e) => {
                           if (e.target.checked) setSelectedEmpsForPass([...selectedEmpsForPass, emp.id]);
                           else setSelectedEmpsForPass(selectedEmpsForPass.filter(id => id !== emp.id));
                         }} />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="font-bold text-slate-800 dark:text-white">{emp.name}</p>
-                            <span className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 px-1.5 py-0.5 rounded font-bold">{emp.id}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-x-6 gap-y-1 mt-1.5">
-                            <div className="text-xs text-slate-500">
-                              <p><span className="font-bold text-slate-400">Role:</span> {emp.role}</p>
-                              <p><span className="font-bold text-slate-400">Nationality:</span> {emp.nationality}</p>
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              <p><span className="font-bold text-slate-400">Mobile:</span> {emp.mobile}</p>
-                              <p><span className="font-bold text-slate-400">Email:</span> {emp.email}</p>
-                            </div>
-                          </div>
+                        
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center font-bold text-slate-500 dark:text-slate-400 text-lg shadow-inner z-10 shrink-0">
+                           {emp.name.split(' ').map(n=>n[0]).join('').substring(0,2)}
                         </div>
-                        <div className="ml-auto shrink-0 self-start">
-                          <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); alert(`Viewing document: ${emp.document || 'Document.pdf'}`); }} className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors border border-blue-100 shadow-sm">
-                            <FileText className="w-3.5 h-3.5" /> View Document
-                          </button>
+
+                        <div className="flex-1 z-10 min-w-0 pr-2">
+                           <div className="flex items-center gap-2 mb-1.5">
+                             <p className="font-bold text-[17px] text-slate-800 dark:text-white truncate">{emp.name}</p>
+                             <span className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full font-bold shadow-sm">{emp.id}</span>
+                           </div>
+                           
+                           <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                             <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 opacity-60 text-hct-blue"/> <span className="truncate">{emp.role}</span></div>
+                             <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 opacity-60 text-emerald-500"/> <span className="truncate">{emp.nationality}</span></div>
+                             <div className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 opacity-60 text-amber-500"/> <span className="truncate">{emp.mobile}</span></div>
+                             <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 opacity-60 text-purple-500"/> <span className="truncate" title={emp.email}>{emp.email}</span></div>
+                           </div>
+                        </div>
+                        
+                        <div className="shrink-0 self-center z-10">
+                           <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); alert(`Viewing document: ${emp.document || 'Document.pdf'}`); }} 
+                                   className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-slate-600 text-slate-400 hover:text-blue-600 flex items-center justify-center transition-all duration-300 border border-slate-200 dark:border-slate-600 hover:border-blue-200 hover:scale-110 shadow-sm" title="View Document">
+                             <FileText className="w-5 h-5" />
+                           </button>
                         </div>
                       </label>
                     ))}

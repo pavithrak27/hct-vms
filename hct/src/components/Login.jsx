@@ -62,12 +62,12 @@ const Login = () => {
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       
       {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-96 bg-hct-blue skew-y-3 transform -translate-y-24 z-0 rounded-b-[100px]"></div>
+      <div className="absolute top-0 left-0 w-full h-[480px] bg-hct-blue skew-y-3 transform -translate-y-24 z-0 rounded-b-[100px]"></div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex justify-center">
-          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-xl mb-4">
-             <ShieldCheck className="w-8 h-8 text-hct-blue" />
+          <div className="bg-white/95 backdrop-blur px-8 py-4 rounded-3xl shadow-xl flex items-center justify-center border border-white/20 mb-4">
+             <img src="/hct-logo.png" alt="HCT Logo" className="h-14 w-auto object-contain" />
           </div>
         </motion.div>
         <h2 className="mt-2 text-center text-3xl font-extrabold text-white">
@@ -126,7 +126,7 @@ const Login = () => {
                       onChange={(e) => setSelectedRole(e.target.value)}
                       className="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-hct-blue focus:border-hct-blue sm:text-sm font-medium"
                     >
-                      {roles.map(r => (
+                      {roles.filter(r => !['visitor', 'reception'].includes(r.id)).map(r => (
                         <option key={r.id} value={r.id}>{r.label}</option>
                       ))}
                     </select>
@@ -169,3 +169,6 @@ const Login = () => {
 };
 
 export default Login;
+
+
+

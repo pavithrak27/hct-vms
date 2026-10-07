@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Building2, Users, FileSignature, CheckCircle2, ArrowRight, AlertCircle, Video, FileText, CheckSquare, ShieldCheck, Check, QrCode, Printer, Download, Eye, X, RefreshCw } from 'lucide-react';
+import { Plus, Search, Building2, Users, FileSignature, CheckCircle2, ArrowRight, AlertCircle, Video, FileText, CheckSquare, ShieldCheck, Check, QrCode, Printer, Download, Eye, X, RefreshCw, MapPin, Phone, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRole } from '../../context/RoleContext';
 
@@ -547,6 +547,7 @@ const AdminPassRequests = () => {
 };
 
 export default AdminPassRequests;
+
 
 
 

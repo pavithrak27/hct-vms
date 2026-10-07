@@ -87,8 +87,8 @@ function App() {
         {/* Reports */}
         <Route path="reports/visitor" element={<ProtectedRoute><VisitorReport /></ProtectedRoute>} />
         <Route path="reports/directory" element={<ProtectedRoute><VisitorDirectoryReport /></ProtectedRoute>} />
-        <Route path="reports/contractor-onboarded" element={<ProtectedRoute portalId="security"><ContractorOnboardedReport /></ProtectedRoute>} />
-        <Route path="reports/contractor-visitor" element={<ProtectedRoute portalId="security"><ContractorVisitorReport /></ProtectedRoute>} />
+        <Route path="reports/contractor-onboarded" element={<ProtectedRoute ><ContractorOnboardedReport /></ProtectedRoute>} />
+        <Route path="reports/contractor-visitor" element={<ProtectedRoute ><ContractorVisitorReport /></ProtectedRoute>} />
         <Route path="reports/audit" element={<ProtectedRoute portalId="security"><AuditLogReport /></ProtectedRoute>} />
 
         {/* Settings */}
@@ -108,3 +108,4 @@ function App() {
 }
 
 export default App;
+

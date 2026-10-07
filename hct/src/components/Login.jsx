@@ -71,7 +71,7 @@ const Login = () => {
           </div>
         </motion.div>
         <h2 className="mt-2 text-center text-3xl font-extrabold text-white">
-          Pro-Visit VMS
+
         </h2>
         <p className="mt-2 text-center text-sm text-blue-100 font-medium">
           HCT Enterprise Visitor Management System

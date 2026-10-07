@@ -127,9 +127,7 @@ const Layout = () => {
             <div className="bg-white p-2 rounded-xl shadow-md w-full flex justify-center">
               <HctLogo className={`${isCollapsed ? 'h-8' : 'h-10'} w-auto object-contain`} />
             </div>
-            {!isCollapsed && (
-              <h1 className="font-black text-white text-xl tracking-tight text-center mt-1">Pro-Visit VMS</h1>
-            )}
+
           </div>
         </div>
         

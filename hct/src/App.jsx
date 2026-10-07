@@ -34,10 +34,11 @@ import SSOConfiguration from './components/settings/SSOConfiguration';
 import Login from './components/Login';
 import DashboardView from './components/dashboard/DashboardView';
 import { useRole } from './context/RoleContext';
+import AuthorizationService from './services/AuthorizationService';
 
 // Auto-redirect helper if user navigates to a portal they don't have access to
 const ProtectedRoute = ({ portalId, children }) => {
-  const { currentRole, isAuthenticated } = useRole();
+  const { sessionUser, isAuthenticated } = useRole();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -47,15 +48,17 @@ const ProtectedRoute = ({ portalId, children }) => {
       return;
     }
     
-    if (portalId && currentRole && !currentRole.portals.includes(portalId)) {
+    if (portalId && sessionUser && !AuthorizationService.canView(sessionUser, portalId)) {
       // Find the first available portal they do have access to
-      const firstAvailable = currentRole.portals[0] === 'dashboard' ? '/' : `/${currentRole.portals[0]}`;
+      const firstAvailable = (sessionUser.portals && sessionUser.portals[0] === 'dashboard') 
+        ? '/' 
+        : (sessionUser.portals ? `/${sessionUser.portals[0]}` : '/');
       navigate(firstAvailable, { replace: true });
     }
-  }, [currentRole, portalId, navigate, location, isAuthenticated]);
+  }, [sessionUser, portalId, navigate, location, isAuthenticated]);
 
   if (!isAuthenticated) return null;
-  if (portalId && !currentRole.portals.includes(portalId)) return null;
+  if (portalId && !AuthorizationService.canView(sessionUser, portalId)) return null;
   
   return children;
 };
@@ -82,8 +85,8 @@ function App() {
         <Route path="reporting" element={<ProtectedRoute portalId="reporting"><ReportingPortal /></ProtectedRoute>} />
         
         {/* Reports */}
-        <Route path="reports/visitor" element={<ProtectedRoute portalId="security"><VisitorReport /></ProtectedRoute>} />
-        <Route path="reports/directory" element={<ProtectedRoute portalId="security"><VisitorDirectoryReport /></ProtectedRoute>} />
+        <Route path="reports/visitor" element={<ProtectedRoute><VisitorReport /></ProtectedRoute>} />
+        <Route path="reports/directory" element={<ProtectedRoute><VisitorDirectoryReport /></ProtectedRoute>} />
         <Route path="reports/contractor-onboarded" element={<ProtectedRoute portalId="security"><ContractorOnboardedReport /></ProtectedRoute>} />
         <Route path="reports/contractor-visitor" element={<ProtectedRoute portalId="security"><ContractorVisitorReport /></ProtectedRoute>} />
         <Route path="reports/audit" element={<ProtectedRoute portalId="security"><AuditLogReport /></ProtectedRoute>} />
@@ -95,6 +98,10 @@ function App() {
         <Route path="settings/integrations" element={<ProtectedRoute portalId="security"><IntegrationsDashboard /></ProtectedRoute>} />
         <Route path="settings/users" element={<ProtectedRoute portalId="security"><UserManagement /></ProtectedRoute>} />
         <Route path="settings/sso" element={<ProtectedRoute portalId="security"><SSOConfiguration /></ProtectedRoute>} />
+
+        {/* Global/Common Views */}
+        <Route path="restricted" element={<ProtectedRoute portalId="security"><BlockedVisitors /></ProtectedRoute>} />
+        <Route path="notifications" element={<ProtectedRoute><div className="flex items-center justify-center min-h-[60vh]"><p className="text-slate-500 font-semibold">You have no new notifications.</p></div></ProtectedRoute>} />
       </Route>
     </Routes>
   );

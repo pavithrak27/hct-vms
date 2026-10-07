@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRole } from '../../context/RoleContext';
 import ReportTable from './ReportTable';
 
 const ContractorVisitorReport = () => {
@@ -58,9 +59,14 @@ const ContractorVisitorReport = () => {
       checkOutTime: '-',
       passStatus: 'Approved',
       visitStatus: 'Pending',
-      qrStatus: 'Active'
     }
   ];
+
+  const { currentRole, sessionUser } = useRole();
+  const isContractor = currentRole?.id === 'contractor';
+  const filteredVisitorData = isContractor 
+    ? visitorData.filter(v => v.company === sessionUser?.companyId || v.company === sessionUser?.name) 
+    : visitorData;
 
   const columns = [
     { header: 'Pass Info', accessor: 'passId', render: (row) => (
@@ -110,7 +116,7 @@ const ContractorVisitorReport = () => {
       title="Contractor Visitor Report" 
       description="Detailed log of gate passes and visits specifically linked to approved contractor companies."
       columns={columns}
-      data={visitorData}
+      data={filteredVisitorData}
       searchPlaceholder="Search by Pass ID, Employee, or Company..."
       searchableKeys={['passId', 'employeeName', 'company', 'employeeId']}
     />

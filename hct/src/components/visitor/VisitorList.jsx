@@ -1,16 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Camera, Car, UserCheck, Shield, Trash2, Edit2, Check, Signature, ShieldAlert, Lock, Mail, Send, RefreshCw, XCircle, Clock, ChevronLeft, FileText, ShieldCheck } from 'lucide-react';
+import { useRole } from '../../context/RoleContext';
 
 const initialVisitors = [
-  { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Checked In', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false },
-  
-  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Contractor', date: '2026-10-05', time: '11:15 AM', status: 'Completed', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false },
-  { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Facilities Dept', type: 'Guest', date: '2026-10-05', time: '01:00 PM', status: 'Checked In', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false },
+  { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Expected', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false },
+  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Contractor', date: '2026-10-05', time: '11:15 AM', status: 'Expected', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false },
+  { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Guest', date: '2026-10-05', time: '01:00 PM', status: 'Expected', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false },
   { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Delivery', date: '2026-10-05', time: '02:45 PM', status: 'Expected', phone: '+971 56 777 8888', docId: 'P-11223344', isBlocked: true },
 ];
 
 const VisitorList = () => {
+  const { sessionUser } = useRole();
+  const isHost = sessionUser?.role === 'host';
+  const isSecurity = sessionUser?.role === 'security';
+  const isAdmin = sessionUser?.role === 'superadmin' || sessionUser?.role === 'campusadmin';
   const [activeTab, setActiveTab] = useState('list'); // 'list', 'walkin', 'preapproved'
   
   // --- VISITOR LIST STATE ---
@@ -46,6 +50,7 @@ const VisitorList = () => {
   // Security Action Modal State
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [visitorToBlock, setVisitorToBlock] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null); // { type: 'Approve' | 'Reject', visitor }
   const [securityActionType, setSecurityActionType] = useState('temp'); // 'temp', 'perm'
   const [securityReleaseDate, setSecurityReleaseDate] = useState('');
 
@@ -232,16 +237,18 @@ const VisitorList = () => {
         
         <div className="flex flex-wrap gap-3">
           {activeTab === 'list' ? (
-            <button 
-              onClick={() => { 
-                setActiveTab('walkin'); 
-                setStep(2); 
-                setVisitRequestId(null);
-              }} 
-              className="px-5 py-2.5 rounded-2xl font-bold text-xs transition-all border-2 border-hct-blue bg-hct-blue text-white shadow-lg shadow-blue-900/20 flex items-center gap-2 hover:bg-[#001a66]"
-            >
-              <UserPlus className="w-4 h-4" /> Add New Visitor
-            </button>
+            (isHost || isSecurity || isAdmin) ? (
+              <button 
+                onClick={() => { 
+                  setActiveTab(isHost ? 'preapproved' : 'walkin'); 
+                  setStep(2); 
+                  setVisitRequestId(null);
+                }} 
+                className="px-5 py-2.5 rounded-2xl font-bold text-xs transition-all border-2 border-hct-blue bg-hct-blue text-white shadow-lg shadow-blue-900/20 flex items-center gap-2 hover:bg-[#001a66]"
+              >
+                <UserPlus className="w-4 h-4" /> Add New Visitor
+              </button>
+            ) : null
           ) : (
             <button 
               onClick={() => { setActiveTab('list'); }} 
@@ -252,6 +259,30 @@ const VisitorList = () => {
           )}
         </div>
       </div>
+
+      
+      {/* --- SUMMARY CARDS --- */}
+      {activeTab === 'list' && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-in fade-in slide-in-from-top-4">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-center">
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total List</p>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.length}</p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 shadow-sm flex flex-col justify-center">
+            <p className="text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">Expected / Approved</p>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Expected' || v.status === 'Approved').length}</p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30 shadow-sm flex flex-col justify-center">
+            <p className="text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-1">Checked In</p>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Checked In').length}</p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-sm flex flex-col justify-center">
+            <p className="text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider mb-1">Blocked</p>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Blocked').length}</p>
+          </div>
+        </div>
+      )}
+
 
       {/* --- VISITOR LIST VIEW --- */}
       {activeTab === 'list' && (
@@ -297,30 +328,34 @@ const VisitorList = () => {
                </div>
             </div>
 
-            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-[20px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden relative">
+              
               <div className="overflow-x-auto min-h-[400px]">
                 <table className="w-full text-left text-xs whitespace-nowrap">
-                  <thead className="bg-slate-50/50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700/50">
-                    <tr>
-                      <th className="px-6 py-4 font-bold">ID</th>
-                      <th className="px-6 py-4 font-bold">Visitor Name</th>
-                      <th className="px-6 py-4 font-bold">Host</th>
-                      <th className="px-6 py-4 font-bold">Type</th>
-                      <th className="px-6 py-4 font-bold">Date & Time</th>
-                      <th className="px-6 py-4 font-bold">Status</th>
-                      <th className="px-6 py-4 font-bold text-right">Actions</th>
-                    </tr>
-                  </thead>
+                  
+<thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
+  <tr>
+    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">ID</th>
+    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Visitor Name</th>
+    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Host</th>
+    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Type</th>
+    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Date & Time</th>
+    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">Status</th>
+    <th className="px-6 py-4 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider text-right">Actions</th>
+  </tr>
+</thead>
+
+
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                     {filteredVisitors.length === 0 ? (
                       <tr>
                         <td colSpan="7" className="px-6 py-12 text-center text-slate-500">No visitors found matching your criteria.</td>
                       </tr>
                     ) : filteredVisitors.map((visitor) => (
-                      <tr key={visitor.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors relative">
-                        <td className="px-6 py-4 font-medium text-slate-500">{visitor.id}</td>
+                      <tr key={visitor.id} className="hover:bg-white/40 dark:hover:bg-white/5 transition-all duration-300 relative group cursor-pointer border-b border-slate-100/50 dark:border-white/5 last:border-0 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                        <td className="px-6 py-4 font-medium text-slate-600 dark:text-slate-400">{visitor.id}</td>
                         <td className="px-6 py-4">
-                          <p className="font-bold text-slate-800 dark:text-white">{visitor.name}</p>
+                          <p className="font-bold text-slate-900 dark:text-white">{visitor.name}</p>
                           <p className="text-xs text-slate-500">{visitor.company}</p>
                         </td>
                         <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{visitor.host}</td>
@@ -332,36 +367,53 @@ const VisitorList = () => {
                         <td className="px-6 py-4">
                           {getStatusBadge(visitor)}
                         </td>
-                        <td className="px-6 py-4 text-right">
-                           <div className="flex justify-end items-center gap-2">
-                             <button onClick={() => setSelectedVisitor(visitor)} className="p-1.5 text-slate-400 hover:text-hct-blue bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="View Details">
-                               <Eye className="w-4 h-4" />
-                             </button>
-                             <div className="relative">
-                               <button 
-                                 onClick={() => setActiveMenuId(activeMenuId === visitor.id ? null : visitor.id)}
-                                 className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                               >
-                                 <MoreVertical className="w-4 h-4" />
-                               </button>
-                               {activeMenuId === visitor.id && (
-                                 <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-50 overflow-hidden">
-                                     <button 
-                                       onClick={() => { 
-                                         setVisitorToBlock(visitor);
-                                         setSecurityActionType(visitor.isBlocked ? 'temp' : 'deny');
-                                         setShowBlockModal(true);
-                                         setActiveMenuId(null); 
-                                       }} 
-                                       className={`w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 ${visitor.isBlocked ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'}`}
-                                     >
-                                       <ShieldAlert className="w-4 h-4"/> {visitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
-                                     </button>
-                                 </div>
-                               )}
-                             </div>
-                          </div>
-                        </td>
+                        
+<td className="px-6 py-4 text-right">
+  <div className="flex justify-end items-center gap-2">
+    {((isHost || isAdmin) && visitor.status === 'Expected') && (
+      <>
+        <button onClick={() => {
+          setConfirmAction({ type: 'Approve', visitor });
+        }} className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-800">
+          <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+        </button>
+        <button onClick={() => {
+          setConfirmAction({ type: 'Reject', visitor });
+        }} className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 border border-red-200 dark:border-red-800">
+          <XCircle className="w-3.5 h-3.5" /> Reject
+        </button>
+      </>
+    )}
+    <button onClick={() => setSelectedVisitor(visitor)} className="p-1.5 text-slate-400 hover:text-hct-blue bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="View Details">
+      <Eye className="w-4 h-4" />
+    </button>
+    <div className="relative">
+      <button 
+        onClick={() => setActiveMenuId(activeMenuId === visitor.id ? null : visitor.id)}
+        className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+      >
+        <MoreVertical className="w-4 h-4" />
+      </button>
+      {activeMenuId === visitor.id && (
+        <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
+            <button 
+              onClick={() => { 
+                setVisitorToBlock(visitor);
+                setSecurityActionType(visitor.isBlocked ? 'temp' : 'deny');
+                setShowBlockModal(true);
+                setActiveMenuId(null); 
+              }} 
+              className={`w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 ${visitor.isBlocked ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'}`}
+            >
+              <ShieldAlert className="w-4 h-4"/> {visitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
+            </button>
+        </div>
+      )}
+    </div>
+  </div>
+</td>
+
+
                       </tr>
                     ))}
                   </tbody>
@@ -401,20 +453,30 @@ const VisitorList = () => {
               {step < 4 && (
                 <div className="flex flex-col items-center mb-8 border-b border-slate-200 dark:border-slate-700 pb-6">
                   <h3 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Registration Type</h3>
-                  <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl inline-flex shadow-inner">
-                    <button 
-                      onClick={() => setActiveTab('walkin')} 
-                      className={`px-6 py-2 rounded-lg font-bold text-xs transition-colors ${activeTab === 'walkin' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                      Walk-In
-                    </button>
-                    <button 
-                      onClick={() => setActiveTab('preapproved')} 
-                      className={`px-6 py-2 rounded-lg font-bold text-xs transition-colors ${activeTab === 'preapproved' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                      Pre-Approved
-                    </button>
-                  </div>
+                  {isHost ? (
+                    <div className="bg-blue-50 text-hct-blue px-6 py-2 rounded-lg font-bold text-sm shadow-sm border border-blue-200">
+                      Pre-Approved Registration
+                    </div>
+                  ) : isSecurity ? (
+                    <div className="bg-blue-50 text-hct-blue px-6 py-2 rounded-lg font-bold text-sm shadow-sm border border-blue-200">
+                      Walk-In Registration
+                    </div>
+                  ) : (
+                    <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl inline-flex shadow-inner">
+                      <button 
+                        onClick={() => setActiveTab('walkin')} 
+                        className={`px-6 py-2 rounded-lg font-bold text-xs transition-colors ${activeTab === 'walkin' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      >
+                        Walk-In
+                      </button>
+                      <button 
+                        onClick={() => setActiveTab('preapproved')} 
+                        className={`px-6 py-2 rounded-lg font-bold text-xs transition-colors ${activeTab === 'preapproved' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      >
+                        Pre-Approved
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -465,9 +527,6 @@ const VisitorList = () => {
                   <div className="space-y-6">
                     <div className="flex justify-between items-center border-b pb-2">
                       <h3 className="text-base font-bold">Visitor Information & Identity</h3>
-                      <button onClick={addVisitor} className="flex items-center gap-2 text-xs font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
-                        <UserPlus className="w-4 h-4" /> Add Another Visitor
-                      </button>
                     </div>
 
                     {formVisitors.map((visitor, index) => (
@@ -580,6 +639,12 @@ const VisitorList = () => {
                         </div>
                       </div>
                     ))}
+                    
+                    <div className="flex justify-center pt-2">
+                      <button onClick={addVisitor} type="button" className="flex items-center gap-2 text-sm font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-6 py-3 rounded-xl hover:bg-blue-100 transition-colors border border-blue-100 dark:border-blue-800 shadow-sm">
+                        <UserPlus className="w-5 h-5" /> Add Another Visitor
+                      </button>
+                    </div>
                   </div>
 
                   {/* Declaration */}
@@ -723,10 +788,27 @@ const VisitorList = () => {
                 </div>
                 <div className="flex justify-between items-center pt-2 pb-6 border-b border-slate-100 dark:border-slate-800">
                   <span className="text-slate-500 font-medium">Status</span>
-                  {getStatusBadge(selectedVisitor.status)}
+                  {getStatusBadge(selectedVisitor)}
                 </div>
                 
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col gap-3 pt-2">
+                  {((isHost || isAdmin) && selectedVisitor.status === 'Expected') && (
+                    <div className="flex gap-3 w-full">
+                      <button onClick={() => {
+                        setConfirmAction({ type: 'Approve', visitor: selectedVisitor });
+                        setSelectedVisitor(null);
+                      }} className="flex-1 px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800">
+                        <CheckCircle2 className="w-4 h-4" /> Approve
+                      </button>
+                      <button onClick={() => {
+                        setConfirmAction({ type: 'Reject', visitor: selectedVisitor });
+                        setSelectedVisitor(null);
+                      }} className="flex-1 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-red-200 dark:border-red-800">
+                        <XCircle className="w-4 h-4" /> Reject
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex gap-3 w-full">
                   <button onClick={() => alert('Viewing document...')} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
                     <FileText className="w-4 h-4"/> View Document
                   </button>
@@ -742,6 +824,7 @@ const VisitorList = () => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       )}
 
@@ -843,6 +926,41 @@ const VisitorList = () => {
         </div>
       )}
 
+      
+      {/* Confirm Action Modal */}
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-sm shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                {confirmAction.type} Visitor
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
+                Are you sure you want to {confirmAction.type.toLowerCase()} the visit for <strong>{confirmAction.visitor.name}</strong>?
+              </p>
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setConfirmAction(null)}
+                  className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 rounded-xl font-bold text-sm transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    setVisitorsList(visitorsList.map(v => v.id === confirmAction.visitor.id ? { ...v, status: confirmAction.type === 'Approve' ? 'Checked In' : 'Blocked' } : v));
+                    setConfirmAction(null);
+                  }}
+                  className={`flex-1 px-4 py-2 text-white rounded-xl font-bold text-sm transition-colors shadow-sm ${confirmAction.type === 'Approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
+                >
+                  Yes, {confirmAction.type}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Security Action Modal */}
       {showBlockModal && visitorToBlock && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
@@ -905,6 +1023,7 @@ const VisitorList = () => {
                     onChange={(e) => setSecurityReleaseDate(e.target.value)}
                     className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-2 font-medium">This is temporarily unblocked from blocked date to selected date.</p>
                 </motion.div>
               )}
 
@@ -942,3 +1061,10 @@ const VisitorList = () => {
 };
 
 export default VisitorList;
+
+
+
+
+
+
+

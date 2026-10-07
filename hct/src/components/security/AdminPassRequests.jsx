@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { Plus, Search, Building2, Users, FileSignature, CheckCircle2, ArrowRight, AlertCircle, Video, FileText, CheckSquare, ShieldCheck, Check, QrCode, Printer, Download, Eye, X, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRole } from '../../context/RoleContext';
 
 const AdminPassRequests = () => {
+  const { sessionUser } = useRole();
+  const isSuperAdmin = sessionUser?.role === 'superadmin';
   const [activeView, setActiveView] = useState('list'); // 'list' or 'wizard'
   const [selectedRequest, setSelectedRequest] = useState(null);
   
+  const isContractor = sessionUser?.role === 'contractor';
   // Dummy data for pass requests
-  const [requests, setRequests] = useState([
+  const [allRequests, setRequests] = useState([
     {
       id: 'CPR-2026-0001',
       company: 'Tech Solutions LLC',
@@ -33,6 +37,10 @@ const AdminPassRequests = () => {
       status: 'Pending Level 1 Approval'
     }
   ]);
+
+  const requests = isContractor 
+    ? allRequests.filter(r => r.company === sessionUser.companyId)
+    : allRequests;
 
   // Wizard state
   const [wizardStep, setWizardStep] = useState(1);
@@ -122,12 +130,12 @@ const AdminPassRequests = () => {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <h2 className="text-4xl font-bold text-slate-800 dark:text-white">Admin Pass Requests</h2>
+          <h2 className="text-4xl font-bold text-slate-800 dark:text-white">Pass Requests</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage and create gate pass requests on behalf of contractors.</p>
         </div>
-        {activeView === 'list' && (
-          <button onClick={() => setActiveView('wizard')} className="bg-hct-blue text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-800 shadow-md">
-            <Plus className="w-5 h-5"/> Create Pass Request
+        {isSuperAdmin && (
+          <button onClick={() => setActiveView('wizard')} className="px-5 py-2.5 rounded-2xl font-bold text-xs transition-all border-2 border-hct-blue bg-hct-blue text-white shadow-lg shadow-blue-900/20 flex items-center gap-2 hover:bg-[#001a66]">
+            <Plus className="w-4 h-4" /> Create Pass Request
           </button>
         )}
       </div>
@@ -374,7 +382,7 @@ const AdminPassRequests = () => {
            {/* Step 5: Review */}
            {wizardStep === 5 && (
              <div className="space-y-6 max-w-4xl mx-auto">
-               <h4 className="font-bold text-xl text-center border-b pb-4 mb-6">Review Pass Request (Admin Mode)</h4>
+               <h4 className="font-bold text-xl text-center border-b pb-4 mb-6">Review Pass Request</h4>
                
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
@@ -403,7 +411,7 @@ const AdminPassRequests = () => {
                </div>
 
                <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-amber-800 text-sm font-bold flex items-center gap-2">
-                 <AlertCircle className="w-5 h-5"/> Submitted by Admin on behalf of contractor.
+                 <AlertCircle className="w-5 h-5"/> Submitted on behalf of contractor.
                </div>
 
                <div className="flex justify-end gap-4 pt-6 border-t">
@@ -539,4 +547,9 @@ const AdminPassRequests = () => {
 };
 
 export default AdminPassRequests;
+
+
+
+
+
 

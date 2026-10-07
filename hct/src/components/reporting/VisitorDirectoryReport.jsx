@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReportTable from './ReportTable';
+import { useRole } from '../../context/RoleContext';
 
 const VisitorDirectoryReport = () => {
+  const { sessionUser } = useRole();
+  const isHost = sessionUser?.role === 'host';
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   // Simulated directory data (independent of transaction history)
-  const directoryData = [
+  let directoryData = [
     {
       visitorId: 'VST-550',
       photo: 'https://i.pravatar.cc/150?img=68',
@@ -67,7 +73,7 @@ const VisitorDirectoryReport = () => {
       nationality: 'Canada',
       type: 'Pre-Scheduled',
       company: 'Freelance',
-      host: 'Ahmed Ali',
+      host: 'Dr. Ahmed Al-Maktoum',
       campus: 'Main Campus',
       idType: 'Emirates ID',
       idNumber: '784-XXXX-XXXX-9999',
@@ -77,6 +83,18 @@ const VisitorDirectoryReport = () => {
       status: 'Restricted'
     }
   ];
+
+  if (isHost) {
+    const userHostId = sessionUser.hostId || sessionUser.name;
+    directoryData = directoryData.filter(v => v.host === userHostId);
+  }
+
+  if (startDate) {
+    directoryData = directoryData.filter(v => new Date(v.lastVisit) >= new Date(startDate));
+  }
+  if (endDate) {
+    directoryData = directoryData.filter(v => new Date(v.lastVisit) <= new Date(endDate));
+  }
 
   const columns = [
     { header: 'Visitor', accessor: 'name', render: (row) => (
@@ -116,14 +134,26 @@ const VisitorDirectoryReport = () => {
   ];
 
   return (
-    <ReportTable 
-      title="Visitor Directory Report" 
-      description="Master directory of known visitor profiles, identities (masked for privacy), and aggregated visit counts."
-      columns={columns}
-      data={directoryData}
-      searchPlaceholder="Search by Name, Email, or Company..."
-      searchableKeys={['name', 'email', 'company']}
-    />
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-end">
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">Start Date (Last Visit)</label>
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">End Date (Last Visit)</label>
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800" />
+        </div>
+      </div>
+      <ReportTable 
+        title="Visitor Directory Report" 
+        description="Master directory of known visitor profiles, identities (masked for privacy), and aggregated visit counts."
+        columns={columns}
+        data={directoryData}
+        searchPlaceholder="Search by Name, Email, or Company..."
+        searchableKeys={['name', 'email', 'company']}
+      />
+    </div>
   );
 };
 

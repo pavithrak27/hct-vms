@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sliders, Save, CheckCircle2, ShieldCheck, Plus, Trash2, Briefcase, Shield, AlertTriangle, Calendar, X } from 'lucide-react';
+import { Sliders, Save, CheckCircle2, ShieldCheck, Plus, Trash2, Briefcase, Shield, AlertTriangle, Calendar, X, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useContractor } from '../../context/ContractorContext';
 import { roles } from '../../context/RoleContext';
@@ -14,8 +14,9 @@ const ApprovalConfiguration = () => {
   
   const [flows, setFlows] = useState([
     { id: 'contractor', label: 'Contractor Approval', icon: Briefcase },
-    { id: 'restriction', label: 'Restriction Flow', icon: Shield },
-    { id: 'blocked', label: 'Blocked Visitor', icon: AlertTriangle }
+    { id: 'restriction', label: 'Document Expiry', icon: Shield },
+    { id: 'blocked', label: 'Blocked Visitor', icon: AlertTriangle },
+    { id: 'visitor', label: 'Visitor Workflow', icon: Users }
   ]);
 
   useEffect(() => {

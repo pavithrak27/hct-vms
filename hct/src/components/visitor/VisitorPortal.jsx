@@ -325,9 +325,6 @@ const VisitorPortal = () => {
             <div className="space-y-8">
               <div className="flex justify-between items-center border-b pb-2">
                 <h3 className="text-xl font-bold">Identity Verification</h3>
-                <button onClick={addVisitor} className="flex items-center gap-2 text-sm font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors">
-                  <UserPlus className="w-4 h-4" /> Add Another Visitor
-                </button>
               </div>
 
               {visitors.map((visitor, index) => (
@@ -378,6 +375,12 @@ const VisitorPortal = () => {
                   </div>
                 </div>
               ))}
+              
+              <div className="flex justify-center pt-2">
+                <button onClick={addVisitor} type="button" className="flex items-center gap-2 text-sm font-bold text-hct-blue bg-blue-50 dark:bg-blue-900/30 px-6 py-3 rounded-xl hover:bg-blue-100 transition-colors border border-blue-100 dark:border-blue-800 shadow-sm">
+                  <UserPlus className="w-5 h-5" /> Add Another Visitor
+                </button>
+              </div>
             </div>
           )}
 

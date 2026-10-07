@@ -1,8 +1,12 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useMemo } from 'react';
+import { useRole } from './RoleContext';
+import AuthorizationService from '../services/AuthorizationService';
 
 const CheckInContext = createContext();
 
 export const CheckInProvider = ({ children }) => {
+  const { sessionUser } = useRole();
+
   // Simulated initial state
   const [activeVisits, setActiveVisits] = useState([
     {
@@ -13,7 +17,7 @@ export const CheckInProvider = ({ children }) => {
       visitorType: 'Contractor',
       host: 'Facility Manager',
       company: 'Global Maintenance',
-      campus: 'Main Campus',
+      campus: 'CMP-01',
       checkInTime: '2026-10-04 09:15 AM',
       checkInMethod: 'QR',
       gate: 'North Gate',
@@ -28,7 +32,7 @@ export const CheckInProvider = ({ children }) => {
       visitorType: 'Pre-Scheduled',
       host: 'IT Dept',
       company: 'TechCorp',
-      campus: 'Main Campus',
+      campus: 'CMP-02',
       checkInTime: '2026-10-04 10:30 AM',
       checkInMethod: 'Manual',
       gate: 'Main Reception',
@@ -37,7 +41,7 @@ export const CheckInProvider = ({ children }) => {
     }
   ]);
 
-  const [visitHistory, setVisitHistory] = useState([
+  const initialVisitHistory = [
     {
       id: 'VIS-0999',
       visitorId: 'VST-550',
@@ -45,20 +49,75 @@ export const CheckInProvider = ({ children }) => {
       visitorName: 'David Brown',
       visitorType: 'Contractor',
       host: 'Facility Manager',
+      campus: 'CMP-01',
       checkInTime: '2026-10-04 08:00 AM',
       checkOutTime: '2026-10-04 12:00 PM',
       checkInMethod: 'QR',
       checkOutMethod: 'QR',
       duration: '4h 0m',
-      status: 'Closed'
+      status: 'Closed',
+      gateId: 'GATE-01'
+    },
+    {
+      id: 'VIS-1000',
+      visitorId: 'VST-110',
+      passId: 'PASS-00119',
+      visitorName: 'John Smith',
+      visitorType: 'Pre-Approved',
+      host: 'Prof. Tariq',
+      campus: 'CMP-01',
+      checkInTime: '2026-10-04 09:30 AM',
+      checkOutTime: '2026-10-04 11:30 AM',
+      checkInMethod: 'QR',
+      checkOutMethod: 'QR',
+      duration: '2h 0m',
+      status: 'Closed',
+      gateId: 'GATE-01'
+    },
+    {
+      id: 'VIS-1001',
+      visitorId: 'VST-111',
+      passId: 'PASS-00122',
+      visitorName: 'Michael Chang',
+      visitorType: 'Walk-In',
+      host: 'Dr. Ahmed Al-Maktoum',
+      campus: 'CMP-02',
+      checkInTime: '2026-10-04 01:00 PM',
+      checkOutTime: '2026-10-04 03:00 PM',
+      checkInMethod: 'Manual',
+      checkOutMethod: 'Manual',
+      duration: '2h 0m',
+      status: 'Closed',
+      gateId: 'GATE-02'
     }
-  ]);
+  ];
+
+  // Generate 150 more mock visitors
+  const mockNames = ['Emily Johnson', 'Liam Williams', 'Olivia Brown', 'Noah Jones', 'Ava Garcia', 'William Miller', 'Sophia Davis', 'James Rodriguez', 'Isabella Martinez', 'Benjamin Hernandez'];
+  const generatedVisitors = Array.from({ length: 150 }).map((_, i) => ({
+      id: `VIS-${2000 + i}`,
+      visitorId: `VST-${600 + i}`,
+      passId: `PASS-${10000 + i}`,
+      visitorName: mockNames[i % mockNames.length] + ` ${i}`,
+      visitorType: i % 3 === 0 ? 'Contractor' : i % 2 === 0 ? 'Pre-Approved' : 'Walk-In',
+      host: i % 2 === 0 ? 'Prof. Tariq' : 'Dr. Ahmed Al-Maktoum',
+      campus: i % 3 === 0 ? 'CMP-02' : 'CMP-01',
+      checkInTime: `2026-10-0${(i % 5) + 1} 09:30 AM`,
+      checkOutTime: `2026-10-0${(i % 5) + 1} 11:30 AM`,
+      checkInMethod: i % 2 === 0 ? 'QR' : 'Manual',
+      checkOutMethod: i % 2 === 0 ? 'QR' : 'Manual',
+      duration: '2h 0m',
+      status: 'Closed',
+      gateId: i % 2 === 0 ? 'GATE-01' : 'GATE-02'
+  }));
+
+  const [visitHistory, setVisitHistory] = useState([...initialVisitHistory, ...generatedVisitors]);
 
   // Database of all expected passes today
   const [expectedPasses, setExpectedPasses] = useState([
-    { passId: 'PASS-00125', name: 'John Smith', type: 'Contractor', host: 'Ahmed Ali', status: 'ACTIVE', photo: 'https://i.pravatar.cc/300?img=11' },
-    { passId: 'PASS-00126', name: 'Mike Ross', type: 'Pre-Scheduled', host: 'HR Dept', status: 'ACTIVE', photo: 'https://i.pravatar.cc/300?img=12' },
-    { passId: 'PASS-00120', name: 'Ahmed Khan', type: 'Contractor', host: 'Facility Manager', status: 'CHECKED_IN', photo: 'https://i.pravatar.cc/300?img=33' }
+    { passId: 'PASS-00125', name: 'John Smith', type: 'Contractor', host: 'Ahmed Ali', campus: 'CMP-01', status: 'ACTIVE', photo: 'https://i.pravatar.cc/300?img=11' },
+    { passId: 'PASS-00126', name: 'Mike Ross', type: 'Pre-Scheduled', host: 'Dr. Ahmed Al-Maktoum', campus: 'CMP-01', status: 'ACTIVE', photo: 'https://i.pravatar.cc/300?img=12' },
+    { passId: 'PASS-00120', name: 'Ahmed Khan', type: 'Contractor', host: 'Facility Manager', campus: 'CMP-01', status: 'CHECKED_IN', photo: 'https://i.pravatar.cc/300?img=33' }
   ]);
 
   const [stats, setStats] = useState({
@@ -95,25 +154,85 @@ export const CheckInProvider = ({ children }) => {
       restrictionId: 'BR-2026-00110',
       reason: 'Security Concern',
       host: 'Facility Manager',
-      campus: 'Main Campus',
+      campus: 'CMP-01',
       matchTime: '2026-10-04 08:30 AM',
       status: 'Pending Security Review',
       photo: 'https://i.pravatar.cc/300?img=68'
     }
   ]);
 
+  // RBAC Filters
+  const scopedActiveVisits = useMemo(() => {
+    return activeVisits.filter(v => {
+      if (sessionUser?.role === 'host') {
+        return AuthorizationService.canAccessHostData(sessionUser, v.host) && v.visitorType !== 'Walk-in';
+      }
+      if (sessionUser?.role === 'visitor') {
+        return AuthorizationService.canAccessVisitorData(sessionUser, v.visitorId);
+      }
+      if (sessionUser?.role === 'security') {
+        const hasCampus = AuthorizationService.canAccessCampus(sessionUser, v.campus);
+        const hasGate = sessionUser.gateId ? sessionUser.gateId === v.gateId : true; // Fallback if gateId isn't on visitor object
+        return hasCampus && hasGate;
+      }
+      return AuthorizationService.canAccessCampus(sessionUser, v.campus);
+    });
+  }, [activeVisits, sessionUser]);
+
+  const scopedVisitHistory = useMemo(() => {
+    return visitHistory.filter(v => {
+      if (sessionUser?.role === 'host') {
+        return AuthorizationService.canAccessHostData(sessionUser, v.host) && v.visitorType !== 'Walk-in';
+      }
+      if (sessionUser?.role === 'visitor') {
+        return AuthorizationService.canAccessVisitorData(sessionUser, v.visitorId);
+      }
+      if (sessionUser?.role === 'security') {
+        const hasCampus = AuthorizationService.canAccessCampus(sessionUser, v.campus);
+        const hasGate = sessionUser.gateId ? sessionUser.gateId === v.gateId : true;
+        return hasCampus && hasGate;
+      }
+      return AuthorizationService.canAccessCampus(sessionUser, v.campus);
+    });
+  }, [visitHistory, sessionUser]);
+
+  const scopedExpectedPasses = useMemo(() => {
+    return expectedPasses.filter(p => {
+      if (sessionUser?.role === 'host') {
+        return AuthorizationService.canAccessHostData(sessionUser, p.host) && p.type !== 'Walk-in';
+      }
+      if (sessionUser?.role === 'visitor') {
+        // Here we simulate filtering by visitor name/id
+        // In real API, expectedPasses would have visitorId
+        return p.name === sessionUser.name; 
+      }
+      if (sessionUser?.role === 'security') {
+        return AuthorizationService.canAccessCampus(sessionUser, p.campus);
+      }
+      return AuthorizationService.canAccessCampus(sessionUser, p.campus);
+    });
+  }, [expectedPasses, sessionUser]);
+
+  const scopedSecurityReviews = useMemo(() => {
+    return securityReviews.filter(r => AuthorizationService.canAccessCampus(sessionUser, r.campus));
+  }, [securityReviews, sessionUser]);
+
   const addRestrictedVisitor = (visitor) => {
     setRestrictedVisitors([visitor, ...restrictedVisitors]);
   };
 
   const checkIn = (passId, method = 'QR') => {
+    // Only Security/Reception/Admins should check in
+    if (sessionUser?.role === 'host' || sessionUser?.role === 'contractor') {
+      return { success: false, message: 'Access Denied: You do not have permission to perform check-ins.' };
+    }
+
     const pass = expectedPasses.find(p => p.passId === passId);
     if (!pass) return { success: false, message: 'Invalid Pass ID. Pass not found.' };
     if (pass.status === 'CHECKED_IN') return { success: false, message: 'Visitor is already checked in.' };
     if (pass.status === 'INVALIDATED') return { success: false, message: 'This visitor pass has already been used and is no longer valid.' };
 
     // --- NEW LOGIC: Check Restricted List ---
-    // In a real system, we would match by Emirates ID. Here we simulate a match based on the name.
     const isRestricted = restrictedVisitors.find(r => r.name.toLowerCase() === pass.name.toLowerCase() && r.status === 'Restricted');
     
     if (isRestricted) {
@@ -125,7 +244,7 @@ export const CheckInProvider = ({ children }) => {
         restrictionId: isRestricted.id,
         reason: isRestricted.reason,
         host: pass.host,
-        campus: 'Main Campus',
+        campus: pass.campus,
         matchTime: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
         status: 'Pending Security Review',
         photo: pass.photo,
@@ -144,7 +263,7 @@ export const CheckInProvider = ({ children }) => {
       visitorType: pass.type,
       host: pass.host,
       company: 'Simulated Corp',
-      campus: 'Main Campus',
+      campus: pass.campus,
       checkInTime: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
       checkInMethod: method,
       gate: 'Main Gate',
@@ -162,6 +281,10 @@ export const CheckInProvider = ({ children }) => {
   };
 
   const checkOut = (passId, method = 'QR', reason = null) => {
+    if (sessionUser?.role === 'host' || sessionUser?.role === 'contractor') {
+      return { success: false, message: 'Access Denied: You do not have permission to perform check-outs.' };
+    }
+
     const activeVisit = activeVisits.find(v => v.passId === passId);
     if (!activeVisit) return { success: false, message: 'No active check-in found for this pass.' };
 
@@ -185,6 +308,10 @@ export const CheckInProvider = ({ children }) => {
   };
 
   const actionSecurityReview = (reviewId, action, details) => {
+    if (sessionUser?.role !== 'security' && sessionUser?.role !== 'superadmin' && sessionUser?.role !== 'campusadmin') {
+      return; // Unauthorized
+    }
+
     const review = securityReviews.find(r => r.id === reviewId);
     if (!review) return;
 
@@ -207,8 +334,14 @@ export const CheckInProvider = ({ children }) => {
 
   return (
     <CheckInContext.Provider value={{ 
-      activeVisits, visitHistory, expectedPasses, stats, checkIn, checkOut,
-      restrictedVisitors, securityReviews, addRestrictedVisitor, actionSecurityReview
+      activeVisits: scopedActiveVisits, 
+      visitHistory: scopedVisitHistory, 
+      expectedPasses: scopedExpectedPasses, 
+      stats, 
+      checkIn, checkOut,
+      restrictedVisitors, 
+      securityReviews: scopedSecurityReviews, 
+      addRestrictedVisitor, actionSecurityReview
     }}>
       {children}
     </CheckInContext.Provider>
@@ -216,3 +349,7 @@ export const CheckInProvider = ({ children }) => {
 };
 
 export const useCheckIn = () => useContext(CheckInContext);
+
+
+
+

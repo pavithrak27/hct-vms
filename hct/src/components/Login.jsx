@@ -37,7 +37,7 @@ const Login = () => {
       
       setTimeout(() => {
         // Simulate an authorization error randomly (10% chance) for realism if not superadmin
-        if (Math.random() < 0.1 && roleToLog !== 'superadmin') {
+        if (Math.random() < 0.1 && roleToLog !== 'superadmin' && roleToLog !== 'campusadmin') {
           setAuthState('error');
           setErrorMsg('Unauthorized Role. Your Active Directory group is not mapped to a Pro-Visit role. Please contact IT.');
           return;
@@ -48,7 +48,7 @@ const Login = () => {
         // Redirect based on Role mapping
         if (roleToLog === 'superadmin') navigate('/');
         else if (roleToLog === 'campusadmin') navigate('/');
-        else if (roleToLog === 'host') navigate('/host');
+        else if (roleToLog === 'host') navigate('/');
         else if (roleToLog === 'security') navigate('/check-in-out');
         else if (roleToLog === 'reception') navigate('/visitor');
         else if (roleToLog === 'contractor') navigate('/contractor');

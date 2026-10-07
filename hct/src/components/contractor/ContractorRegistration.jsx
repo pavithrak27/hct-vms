@@ -16,8 +16,6 @@ const ContractorRegistration = () => {
     remarks: '',
     contractStart: '',
     contractExpiry: '',
-    gatePassStart: '',
-    gatePassEnd: '',
   });
 
   const [documents, setDocuments] = useState([{ id: Date.now(), title: '', file: null, fileName: '', size: '' }]);
@@ -59,20 +57,9 @@ const ContractorRegistration = () => {
   const validateDates = () => {
     const start = new Date(formData.contractStart);
     const end = new Date(formData.contractExpiry);
-    const passStart = new Date(formData.gatePassStart);
-    const passEnd = new Date(formData.gatePassEnd);
 
     if (start >= end) {
       return "Contract Expiry Date must be later than Contract Start Date.";
-    }
-    if (passStart < start) {
-      return "Gate Pass Validity From cannot be before the contract start date.";
-    }
-    if (passEnd > end) {
-      return "Gate Pass validity cannot exceed the contract expiry date.";
-    }
-    if (passStart > passEnd) {
-      return "Gate Pass Validity From cannot be after Gate Pass Validity To.";
     }
     return null;
   };
@@ -81,7 +68,7 @@ const ContractorRegistration = () => {
     if (step === 1) {
       // Basic validation
       if (!formData.companyName || !formData.contractNumber || !formData.jobDescription || 
-          !formData.contractStart || !formData.contractExpiry || !formData.gatePassStart || !formData.gatePassEnd) {
+          !formData.contractStart || !formData.contractExpiry) {
         setErrorMsg("Please fill in all mandatory fields (*)");
         return;
       }
@@ -163,14 +150,6 @@ const ContractorRegistration = () => {
                   <div>
                     <label className="text-sm font-bold mb-1 block">Contract Expiry *</label>
                     <input type="date" name="contractExpiry" value={formData.contractExpiry} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-bold mb-1 block">Gate Pass Valid From *</label>
-                    <input type="date" name="gatePassStart" value={formData.gatePassStart} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-bold mb-1 block">Gate Pass Valid To *</label>
-                    <input type="date" name="gatePassEnd" value={formData.gatePassEnd} onChange={handleChange} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-hct-blue" />
                   </div>
                 </div>
 
@@ -266,13 +245,7 @@ const ContractorRegistration = () => {
                   </div>
                 </div>
 
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 text-sm">
-                  <h4 className="font-bold text-emerald-600 uppercase tracking-wider mb-4 border-b border-emerald-200 pb-2">Gate Pass Validity</h4>
-                  <div className="space-y-3">
-                    <p className="grid grid-cols-2 gap-2"><span className="text-emerald-700">Valid From:</span> <span className="font-bold text-emerald-900 dark:text-emerald-300">{formData.gatePassStart}</span></p>
-                    <p className="grid grid-cols-2 gap-2"><span className="text-emerald-700">Valid To:</span> <span className="font-bold text-emerald-900 dark:text-emerald-300">{formData.gatePassEnd}</span></p>
-                  </div>
-                </div>
+
               </div>
             </div>
 

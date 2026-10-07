@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReportTable from './ReportTable';
 import { useCheckIn } from '../../context/CheckInContext';
+import { useRole } from '../../context/RoleContext';
 
 const VisitorReport = () => {
   const { visitHistory } = useCheckIn();
+  const { sessionUser } = useRole();
+  const isHost = sessionUser?.role === 'host';
+
+  const [filterType, setFilterType] = useState('All');
+  const [filterCampus, setFilterCampus] = useState('All');
+  const [filterHost, setFilterHost] = useState(isHost ? sessionUser.hostId || sessionUser.name : 'All');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // Map the visitHistory data to a flat structure suitable for the table and CSV export
-  const reportData = visitHistory.map(v => ({
+  let reportData = visitHistory.map(v => ({
     visitorId: v.visitorId,
     visitorName: v.visitorName,
     visitorType: v.visitorType,
@@ -22,11 +31,34 @@ const VisitorReport = () => {
     checkOutMethod: v.checkOutMethod
   }));
 
+  // Apply Role-Based Access Control
+  if (isHost) {
+    reportData = reportData.filter(v => v.host === (sessionUser.hostId || sessionUser.name));
+  }
+
+  // Apply Filters
+  if (filterType !== 'All') {
+    reportData = reportData.filter(v => v.visitorType === filterType);
+  }
+  if (filterCampus !== 'All') {
+    reportData = reportData.filter(v => v.campus === filterCampus);
+  }
+  if (!isHost && filterHost !== 'All') {
+    reportData = reportData.filter(v => v.host === filterHost);
+  }
+  if (startDate) {
+    reportData = reportData.filter(v => new Date(v.date) >= new Date(startDate));
+  }
+  if (endDate) {
+    reportData = reportData.filter(v => new Date(v.date) <= new Date(endDate));
+  }
+
   const columns = [
     { header: 'Pass ID', accessor: 'passId', render: (row) => <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">{row.passId}</span> },
     { header: 'Visitor Name', accessor: 'visitorName', render: (row) => <span className="font-bold text-slate-800">{row.visitorName}</span> },
     { header: 'Type', accessor: 'visitorType', render: (row) => <span className="text-slate-500 text-xs font-bold">{row.visitorType}</span> },
     { header: 'Host', accessor: 'host' },
+    { header: 'Campus', accessor: 'campus' },
     { header: 'Visit Date', accessor: 'date' },
     { header: 'Check In', accessor: 'checkInTime', render: (row) => <span className="text-emerald-600 font-bold">{row.checkInTime}</span> },
     { header: 'Check Out', accessor: 'checkOutTime', render: (row) => <span className="text-slate-600 font-bold">{row.checkOutTime}</span> },
@@ -39,14 +71,53 @@ const VisitorReport = () => {
   ];
 
   return (
-    <ReportTable 
-      title="Visitor Report" 
-      description="Detailed historical log of individual visit transactions, entry/exit times, and durations."
-      columns={columns}
-      data={reportData}
-      searchPlaceholder="Search by Visitor Name or Pass ID..."
-      searchableKeys={['visitorName', 'passId', 'host']}
-    />
+    <div className="space-y-6">
+      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-end">
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">Visitor Type</label>
+          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800">
+            <option value="All">All Types</option>
+            <option value="Walk-In">Walk-In</option>
+            <option value="Pre-Approved">Pre-Approved</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">Campus</label>
+          <select value={filterCampus} onChange={e => setFilterCampus(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800">
+            <option value="All">All Campuses</option>
+            <option value="Main Campus">Main Campus</option>
+            <option value="North Campus">North Campus</option>
+          </select>
+        </div>
+        {!isHost && (
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1">Host</label>
+            <select value={filterHost} onChange={e => setFilterHost(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800">
+              <option value="All">All Hosts</option>
+              <option value="Dr. Ahmed Al-Maktoum">Dr. Ahmed Al-Maktoum</option>
+              <option value="Dr. Sarah Smith">Dr. Sarah Smith</option>
+            </select>
+          </div>
+        )}
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">Start Date</label>
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">End Date</label>
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="p-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm outline-none bg-white dark:bg-slate-800" />
+        </div>
+      </div>
+
+      <ReportTable 
+        title="Visitor Report" 
+        description="Detailed historical log of individual visit transactions, entry/exit times, and durations."
+        columns={columns}
+        data={reportData}
+        searchPlaceholder="Search by Visitor Name or Pass ID..."
+        searchableKeys={['visitorName', 'passId', 'host']}
+      />
+    </div>
   );
 };
 

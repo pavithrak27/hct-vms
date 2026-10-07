@@ -50,9 +50,6 @@ const BlockedVisitors = () => {
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage the centralized blocklist. Automatic interception active.</p>
         </div>
-        <button onClick={() => setShowAddModal(true)} className="bg-red-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-red-700 shadow-md">
-          <Plus className="w-5 h-5"/> Add Restricted Visitor
-        </button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

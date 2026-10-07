@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, LayoutDashboard, Users, UserCheck, Briefcase, BarChart3, ChevronDown, ChevronRight, Settings, Bell, Mail, MessageSquare, Smartphone, Sun, Moon, MapPin, LogOut, Plus, Building, Trash2, Menu, FileSignature, QrCode, CheckSquare, ScanLine, Clock, History, ShieldAlert, FileSearch, FileText, BookOpen, HardHat, FileSpreadsheet, Database, Building2, Sliders, ShieldCheck, Cpu, KeyRound, UserCog, UserPlus } from 'lucide-react';
+import { Shield, LayoutDashboard, Users, UserCheck, Briefcase, BarChart3, ChevronDown, ChevronRight, Settings, Bell, Mail, MessageSquare, Smartphone, Sun, Moon, MapPin, LogOut, Plus, Building, Trash2, Menu, FileSignature, QrCode, CheckSquare, ScanLine, Clock, History, ShieldAlert, FileSearch, FileText, BookOpen, HardHat, FileSpreadsheet, Database, Building2, Sliders, ShieldCheck, Cpu, KeyRound, UserCog, UserPlus, Calendar } from 'lucide-react';
 import { useRole, CAMPUSES } from '../../context/RoleContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useCampus } from '../../context/CampusContext';
 
 const HctLogo = ({ className }) => (
-  <svg viewBox="0 0 100 100" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M 10,95 L 10,45 A 40,40 0 0,1 78,17 L 64,31 A 20,20 0 0,0 30,45 L 30,75 L 65,75 L 65,95 Z" />
-    <path d="M 83,22 A 40,40 0 0,1 90,45 L 90,95 L 70,95 L 70,45 A 20,20 0 0,0 69,36 Z" />
-  </svg>
+  <img src="/hct-logo.png" alt="HCT Logo" className={className} style={{ width: "auto", height: "auto" }} />
 );
 
 const Layout = () => {
@@ -34,37 +31,81 @@ const Layout = () => {
     setNewCampusName('');
   };
 
-  const allNavigation = [
-    { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { id: 'visitor', name: 'Visitor List', href: '/visitor-list', icon: FileText },
-    { id: 'host', name: 'Host Approvals', href: '/host', icon: UserCheck },
-    
-    { id: 'security', name: 'Active Visits', href: '/active-visits', icon: Clock },
-    
-    { id: 'security', name: 'Contractor Management', href: '#', icon: Briefcase, isHeader: true },
-    { id: 'security', name: 'Contractor', href: '/contractors-hub', icon: Building, isSubItem: true },
-    { id: 'security', name: 'Pass Requests', href: '/admin/pass-requests', icon: Plus, isSubItem: true },
-    { id: 'security', name: 'Approvals', href: '/pass-approvals', icon: CheckSquare, isSubItem: true },
+  
+  const ROLE_NAVIGATION = {
+    host: [
+      { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { id: 'visitor-list', name: 'Visitor List', href: '/visitor-list', icon: FileText },
+      { id: 'reports', name: 'Visitor Reports', href: '/reports/visitor', icon: BarChart3 },
+      { id: 'visitor-directory', name: 'Visitor Directory', href: '/reports/directory', icon: Users },
+    ],
+    visitor: [
+      { id: 'registration', name: 'Registration', href: '/visitor-list', icon: FileText },
+      { id: 'my-visit', name: 'My Visit', href: '/', icon: Calendar },
+      { id: 'my-pass', name: 'My Pass', href: '/visitor-list?pass=true', icon: QrCode },
+      { id: 'profile', name: 'Profile', href: '/settings/users', icon: Settings },
+    ],
+    security: [
+      { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { id: 'check-in-out', name: 'Check-in / Check-out', href: '/check-in-out', icon: CheckSquare },
+      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
+      { id: 'visitor-list', name: 'Security Visitor List', href: '/visitor-list', icon: FileText },
+      { id: 'contractor-passes', name: 'Contractor Passes', href: '/admin/pass-requests', icon: Briefcase },
+      { id: 'reports-visitor', name: 'Visitors Report', href: '/reports/visitor', icon: FileText },
+      { id: 'reports-contractor', name: 'Contractor Pass Report', href: '/reports/contractor-visitor', icon: FileSpreadsheet },
+    ],
+    contractor: [
+      { id: 'dashboard', name: 'Contractor Management', href: '/', icon: LayoutDashboard },
+      { id: 'reports', name: 'My Reports', href: '/reports/contractor-visitor', icon: BarChart3 },
+    ],
+    approver: [
+      { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { id: 'pass-approvals', name: 'Pass Request Approvals', href: '/pass-approvals', icon: CheckSquare },
+    ],
+    reception: [
+      { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { id: 'walk-in', name: 'Walk-in Registration', href: '/visitor-list?new=true', icon: Plus },
+      { id: 'visitor-list', name: 'Visitor List', href: '/visitor-list', icon: FileText },
+      { id: 'qr-scanner', name: 'QR Scanner', href: '/qr-scanner', icon: ScanLine },
+      { id: 'check-in-out', name: 'Check-in / Check-out', href: '/check-in-out', icon: CheckSquare },
+      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
+      { id: 'active-visits', name: 'Active Visits', href: '/active-visits', icon: Clock },
+      { id: 'history', name: 'Visitor History', href: '/visit-history', icon: History },
+      { id: 'profile', name: 'Profile', href: '/settings/users', icon: Settings },
+    ],
+    campusadmin: [
+      { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { id: 'visitor', name: 'Visitor Management', href: '/visitor-list', icon: FileText },
+      { id: 'contractor', name: 'Contractor Management', href: '/contractors-hub', icon: Building },
+      { id: 'pass-requests', name: 'Pass Requests', href: '/admin/pass-requests', icon: FileSignature },
+      { id: 'approvals', name: 'Approvals', href: '/pass-approvals', icon: CheckSquare },
+      { id: 'security', name: 'Active Visits', href: '/active-visits', icon: ShieldCheck },
+      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
+      { id: 'restricted', name: 'Restricted Visitors', href: '/restricted', icon: ShieldAlert },
+      { id: 'reports', name: 'Reports', href: '/reporting', icon: BarChart3 },
+      { id: 'users', name: 'Users', href: '/settings/users', icon: UserCog },
+      { id: 'audit', name: 'Audit Logs', href: '/reports/audit', icon: Database },
+    ],
+    superadmin: [
+      { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { id: 'visitor', name: 'Visitor Management', href: '/visitor-list', icon: FileText },
+      { id: 'contractor', name: 'Contractor Management', href: '/contractors-hub', icon: Building },
+      { id: 'pass-requests', name: 'Pass Requests', href: '/admin/pass-requests', icon: FileSignature },
+      { id: 'approvals', name: 'Approvals', href: '/pass-approvals', icon: CheckSquare },
+      { id: 'security', name: 'Active Visits', href: '/active-visits', icon: ShieldCheck },
+      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
+      { id: 'restricted', name: 'Restricted Visitors', href: '/restricted', icon: ShieldAlert },
+      { id: 'reports', name: 'Reports', href: '/reporting', icon: BarChart3 },
+      { id: 'settings', name: 'System Settings', href: '/settings/system', icon: Settings },
+      { id: 'campus-settings', name: 'Campus Settings', href: '/settings/campus', icon: Building2 },
+      { id: 'users', name: 'Users', href: '/settings/users', icon: UserCog },
+      { id: 'audit', name: 'Audit Logs', href: '/reports/audit', icon: Database },
+    ]
+  };
 
-    { id: 'security', name: 'Reports', href: '#', icon: BarChart3, isHeader: true },
-    { id: 'security', name: 'Reports Overview', href: '/reporting', icon: LayoutDashboard, isSubItem: true },
-    { id: 'security', name: 'Visitor Report', href: '/reports/visitor', icon: FileText, isSubItem: true },
-    { id: 'security', name: 'Visitor Directory', href: '/reports/directory', icon: BookOpen, isSubItem: true },
-    { id: 'security', name: 'Contractor Onboarded', href: '/reports/contractor-onboarded', icon: HardHat, isSubItem: true },
-    { id: 'security', name: 'Contractor Visits', href: '/reports/contractor-visitor', icon: FileSpreadsheet, isSubItem: true },
-    { id: 'security', name: 'Audit Log', href: '/reports/audit', icon: Database, isSubItem: true },
+  if (!currentRole) return null;
+  const navigation = ROLE_NAVIGATION[currentRole.id] || [];
 
-    { id: 'security', name: 'Settings', href: '#', icon: Settings, isHeader: true },
-    { id: 'security', name: 'Approval Configuration', href: '/settings/system', icon: ShieldCheck, isSubItem: true },
-    { id: 'security', name: 'Campus Configuration', href: '/settings/campus', icon: Building2, isSubItem: true },
-    { id: 'security', name: 'User Management', href: '/settings/users', icon: UserCog, isSubItem: true },
-    { id: 'security', name: 'Roles & Permissions', href: '/settings/roles', icon: ShieldCheck, isSubItem: true },
-
-
-
-  ];
-
-  const navigation = allNavigation.filter(nav => currentRole.portals.includes(nav.id));
 
   return (
     <div 
@@ -451,4 +492,14 @@ const Layout = () => {
 };
 
 export default Layout;
+
+
+
+
+
+
+
+
+
+
 

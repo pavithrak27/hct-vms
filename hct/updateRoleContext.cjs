@@ -1,26 +1,9 @@
-import React, { createContext, useState, useContext } from 'react';
-import AuthorizationService from '../services/AuthorizationService';
+const fs = require('fs');
+const path = 'c:\\Users\\iproa_jfqyrsl\\Downloads\\web-projects\\hct\\src\\context\\RoleContext.jsx';
+let content = fs.readFileSync(path, 'utf8');
 
-const RoleContext = createContext();
-
-export const CAMPUSES = [
-  { id: 'CMP-01', name: 'Abu Dhabi Men\'s Campus' },
-  { id: 'CMP-02', name: 'Abu Dhabi Women\'s Campus' },
-  { id: 'CMP-05', name: 'Dubai Men\'s Campus' },
-  { id: 'CMP-06', name: 'Dubai Women\'s Campus' },
-];
-
-export const ALL_PERMISSIONS = [
-  'view_visitors', 'create_visitor', 'edit_visitor', 'delete_visitor', 'approve_visitor', 'reject_visitor',
-  'qr_checkin', 'manual_checkin', 'qr_checkout', 'force_checkout', 'view_active_visits', 'view_visit_history',
-  'view_contractors', 'create_contractor', 'approve_contractor', 'view_employees', 'approve_employees',
-  'create_pass_request', 'approve_pass_request',
-  'view_restricted_list', 'add_restricted_visitor', 'security_review', 'temporary_release', 'permanent_release',
-  'view_reports', 'export_reports',
-  'manage_campuses', 'manage_smtp', 'manage_sms', 'manage_ad', 'manage_roles', 'manage_integrations'
-];
-
-export const roles = [
+const rolesOld = /export const roles = \[\s*\{[\s\S]*?\}\s*\];/;
+const rolesNew = `export const roles = [
   { 
     id: 'superadmin', label: 'Superadmin', portals: ['dashboard', 'visitor', 'host', 'security', 'contractor', 'reporting', 'settings'],
     defaultPermissions: ALL_PERMISSIONS, defaultCampuses: ['ALL']
@@ -53,27 +36,11 @@ export const roles = [
     id: 'visitor', label: 'Visitor', portals: ['registration', 'my-visit', 'my-pass'],
     defaultPermissions: [], defaultCampuses: ['ALL']
   }
-];
+];`;
+content = content.replace(rolesOld, rolesNew);
 
-export const RoleProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentRole, setCurrentRole] = useState(null);
-  
-  // New granular RBAC States
-  const [sessionUser, setSessionUser] = useState(null);
-  const [userPermissions, setUserPermissions] = useState([]);
-  const [userCampuses, setUserCampuses] = useState([]);
-  const [activeCampus, setActiveCampus] = useState('ALL'); // For the top-nav selector
-
-  const login = (roleId, customUser = null) => {
-    const role = roles.find(r => r.id === roleId);
-    if (role) {
-      setCurrentRole(role);
-      
-      let mappedUser = customUser;
-      if (!mappedUser) {
-        // Pre-defined mock profiles for robust RBAC testing
-        switch (roleId) {
+const switchOld = /switch \(roleId\) \{[\s\S]*?default:/;
+const switchNew = `switch (roleId) {
           case 'superadmin':
             mappedUser = { id: 'USR-ADMIN', name: 'Global Admin', email: 'admin@hct.ac.ae', role: 'superadmin', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
             break;
@@ -98,55 +65,8 @@ export const RoleProvider = ({ children }) => {
           case 'visitor':
             mappedUser = { id: 'USR-VIS-01', name: 'John Smith', email: 'john@example.com', role: 'visitor', visitorId: 'V-101', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
             break;
-          default:
-            mappedUser = { id: `USR-${Math.floor(Math.random()*9000)+1000}`, name: `Mock ${role.label}`, email: `user@hct.ac.ae`, role: roleId, portals: role.portals, campuses: role.defaultCampuses, permissions: role.defaultPermissions };
-        }
-      }
-      
-      setSessionUser(mappedUser);
-      setUserPermissions(mappedUser.permissions || []);
-      setUserCampuses(mappedUser.campuses || []);
-      
-      // Auto-set the active campus
-      if (mappedUser.campuses && mappedUser.campuses.includes('ALL')) {
-        setActiveCampus('ALL');
-      } else if (mappedUser.campuses && mappedUser.campuses.length > 0) {
-        setActiveCampus(mappedUser.campuses[0]);
-      } else {
-        setActiveCampus('ALL');
-      }
+          default:`;
 
-      setIsAuthenticated(true);
-    }
-  };
-
-  const logout = () => {
-    setCurrentRole(null);
-    setSessionUser(null);
-    setUserPermissions([]);
-    setUserCampuses([]);
-    setActiveCampus('ALL');
-    setIsAuthenticated(false);
-  };
-
-  const hasPermission = (perm) => {
-    return AuthorizationService.hasPermission(sessionUser, perm);
-  };
-
-  const hasCampusAccess = (campusId) => {
-    return AuthorizationService.canAccessCampus(sessionUser, campusId);
-  };
-
-  return (
-    <RoleContext.Provider value={{ 
-      isAuthenticated, currentRole, login, logout, roles,
-      sessionUser, userPermissions, userCampuses, activeCampus, setActiveCampus,
-      hasPermission, hasCampusAccess,
-      authService: AuthorizationService
-    }}>
-      {children}
-    </RoleContext.Provider>
-  );
-};
-
-export const useRole = () => useContext(RoleContext);
+content = content.replace(switchOld, switchNew);
+fs.writeFileSync(path, content, 'utf8');
+console.log('RoleContext updated successfully');

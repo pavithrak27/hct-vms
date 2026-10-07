@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X, UploadCloud, Trash2, Camera, Calendar } from 'lucide-react';
+import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X, UploadCloud, Trash2, Camera, Calendar, History, Eye, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContractorRegistration from '../contractor/ContractorRegistration';
 import { useRole } from '../../context/RoleContext';
 
 const contractorsList = [
-  { id: 'CON-2026-101', name: 'Tech Solutions LLC', contractNumber: 'CT-2025-9981', status: 'Approved', expiry: '2027-11-01' },
-  { id: 'CON-2026-102', name: 'Global Facilities Mgt', contractNumber: 'FM-2026-1122', status: 'Pending', expiry: '2028-10-14' },
-  { id: 'CON-2026-103', name: 'Al Jaber Construction', contractNumber: 'AJC-2022-005', status: 'Expired', expiry: '2023-12-01' }
+  { id: 'CON-2026-101', name: 'Tech Solutions LLC', contractNumber: 'CT-2025-9981', status: 'Approved', expiry: '2027-11-01', contractStart: '2025-11-01', jobDescription: 'IT Infrastructure & Maintenance', contactName: 'Ahmed Hassan', contactEmail: 'ahmed@techsolutions.com', contactMobile: '+971 50 111 2222', address: 'Dubai Silicon Oasis, Dubai' },
+  { id: 'CON-2026-102', name: 'Global Facilities Mgt', contractNumber: 'FM-2026-1122', status: 'Pending', expiry: '2028-10-14', contractStart: '2026-10-15', jobDescription: 'General Cleaning & FM Services', contactName: 'Sarah Jenkins', contactEmail: 'sarah.j@globalfm.com', contactMobile: '+971 55 333 4444', address: 'Al Quoz Industrial Area, Dubai' },
+  { id: 'CON-2026-103', name: 'Al Jaber Construction', contractNumber: 'AJC-2022-005', status: 'Expired', expiry: '2023-12-01', contractStart: '2022-12-01', jobDescription: 'Campus Expansion Project', contactName: 'Mohammed Al Jaber', contactEmail: 'maljaber@aljaber.com', contactMobile: '+971 56 555 6666', address: 'Abu Dhabi Industrial City' }
 ];
 
 const mockEmployees = {
@@ -26,18 +26,35 @@ const mockPassRequests = {
   ],
   'CON-2026-102': []
 };
+const generatedPassesData = {
+  'CON-2026-101': [
+    { passId: 'PASS-00125', empName: 'John Smith', empId: 'EMP-CT-001', status: 'Active', validFrom: '10-Oct-2026 08:00 AM', validTo: '13-Oct-2026 06:00 PM', photo: 'https://i.pravatar.cc/150?u=a042581f4e29026024d' },
+    { passId: 'PASS-00126', empName: 'Ravi Kumar', empId: 'EMP-CT-002', status: 'Expired', validFrom: '01-Jan-2023 08:00 AM', validTo: '31-Dec-2023 06:00 PM', photo: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }
+  ],
+  'CON-2026-102': [
+    { passId: 'PASS-00127', empName: 'Mike Ross', empId: 'EMP-CT-003', status: 'Active', validFrom: '01-Sep-2026 07:00 AM', validTo: '30-Nov-2026 05:00 PM', photo: 'https://i.pravatar.cc/150?u=a048581f4e29026701d' }
+  ]
+};
 
 const ContractorHub = () => {
-  const { currentRole } = useRole();
+  const { currentRole, sessionUser } = useRole();
   const isAdmin = currentRole?.id === 'security' || currentRole?.id === 'superadmin' || currentRole?.portals?.includes('dashboard');
+
+  const isContractor = sessionUser?.role === 'contractor';
+  const availableContractors = isContractor 
+    ? contractorsList.filter(c => c.name === sessionUser.companyId) 
+    : contractorsList;
 
   const [selectedContractor, setSelectedContractor] = useState(null);
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (isContractor) {
+      const myCompany = availableContractors[0] || contractorsList[0];
+      setSelectedContractor(myCompany);
+    } else if (!isAdmin) {
       setSelectedContractor(contractorsList[0]);
     }
-  }, [isAdmin]);
+  }, [isAdmin, isContractor]);
   const [activeTab, setActiveTab] = useState('overview'); // overview, employees, passes
   const [search, setSearch] = useState('');
   const [isAddingContractor, setIsAddingContractor] = useState(false);
@@ -194,7 +211,7 @@ const ContractorHub = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {contractorsList.filter(c => c.name.toLowerCase().includes(search.toLowerCase())).map(contractor => (
+            {availableContractors.filter(c => c.name.toLowerCase().includes(search.toLowerCase())).map(contractor => (
               <div 
                 key={contractor.id} 
                 onClick={() => { setSelectedContractor(contractor); setActiveTab('overview'); }}
@@ -216,6 +233,8 @@ const ContractorHub = () => {
                     <span className="flex items-center gap-1 text-sm font-bold text-hct-blue group-hover:underline">Manage <ArrowRight className="w-4 h-4"/></span>
                   </div>
                 </div>
+
+
               </div>
             ))}
           </div>
@@ -261,7 +280,17 @@ const ContractorHub = () => {
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 grid grid-cols-2 md:grid-cols-4 gap-8 shadow-inner">
                     <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Company Name</span><strong className="text-slate-800 dark:text-white text-lg">{selectedContractor.name}</strong></div>
                     <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Contract No</span><strong className="text-slate-800 dark:text-white text-lg">{selectedContractor.contractNumber}</strong></div>
+                    <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Contract Start</span><strong className="text-slate-800 dark:text-white text-lg">{selectedContractor.contractStart}</strong></div>
                     <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Expiry Date</span><strong className="text-slate-800 dark:text-white text-lg">{selectedContractor.expiry}</strong></div>
+                    
+                    <div className="col-span-2 md:col-span-4 border-t border-slate-200 dark:border-slate-700 pt-6 mt-2 grid grid-cols-2 md:grid-cols-4 gap-8">
+                      <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Job Description</span><strong className="text-slate-800 dark:text-white text-base">{selectedContractor.jobDescription}</strong></div>
+                      <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Primary Contact</span><strong className="text-slate-800 dark:text-white text-base">{selectedContractor.contactName}</strong></div>
+                      <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Contact Email</span><strong className="text-slate-800 dark:text-white text-base">{selectedContractor.contactEmail}</strong></div>
+                      <div><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Contact Mobile</span><strong className="text-slate-800 dark:text-white text-base">{selectedContractor.contactMobile}</strong></div>
+                    </div>
+
+                    <div className="col-span-2 md:col-span-3"><span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Address</span><strong className="text-slate-800 dark:text-white text-base">{selectedContractor.address}</strong></div>
                     <div>
                       <span className="block text-slate-500 text-xs font-bold mb-2 uppercase tracking-wider">Status</span>
                       <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm inline-block ${selectedContractor.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : selectedContractor.status === 'Expired' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
@@ -297,6 +326,8 @@ const ContractorHub = () => {
                     ))}
                   </div>
                 </div>
+
+
               </div>
             )}
 
@@ -776,31 +807,35 @@ const ContractorHub = () => {
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Renew Contractor Registration</h2>
               <p className="text-slate-500 mt-1">Submit updated contract validity dates and documents.</p>
             </div>
-            <div className="p-8 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
                 {/* Left Column */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2 border-b pb-2"><Building2 className="w-5 h-5 text-hct-blue"/> Company Details</h3>
-                  <div><label className="text-sm font-bold block mb-1">Contract Company Name *</label><input type="text" readOnly value={selectedContractor.name} className="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
-                  <div><label className="text-sm font-bold block mb-1">Contract Number *</label><input type="text" readOnly value={selectedContractor.contractNumber} className="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
-                  <div><label className="text-sm font-bold block mb-1">Job Description *</label><textarea readOnly value={selectedContractor.jobDescription || "General Maintenance and Facilities Management"} className="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none h-24" /></div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Contract Company Name *</label><input type="text" readOnly value={selectedContractor.name} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
+                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Contract Number *</label><input type="text" defaultValue={selectedContractor.contractNumber} onChange={(e) => setRenewForm({...renewForm, contractNumber: e.target.value})} className="w-full p-2 text-sm rounded-lg border border-slate-300 outline-none focus:border-hct-blue" /></div>
+                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Job Description *</label><textarea readOnly value={selectedContractor.jobDescription || "General Maintenance and Facilities Management"} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none h-16" /></div>
+                    <div><label className="text-xs font-bold block mb-1">Primary Contact</label><input type="text" readOnly value={selectedContractor.contactName || '-'} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
+                    <div><label className="text-xs font-bold block mb-1">Contact Mobile</label><input type="text" readOnly value={selectedContractor.contactMobile || '-'} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
+                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Contact Email</label><input type="text" readOnly value={selectedContractor.contactEmail || '-'} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
+                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Address</label><input type="text" readOnly value={selectedContractor.address || '-'} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
+                  </div>
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2 border-b pb-2"><Calendar className="w-5 h-5 text-hct-blue"/> Contract & Validity Details</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className="text-sm font-bold block mb-1">Contract Start *</label><input type="date" value={renewForm.contractStart} onChange={(e) => setRenewForm({...renewForm, contractStart: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue" /></div>
-                    <div><label className="text-sm font-bold block mb-1">Contract Expiry *</label><input type="date" value={renewForm.contractExpiry} onChange={(e) => setRenewForm({...renewForm, contractExpiry: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue" /></div>
-                    <div><label className="text-sm font-bold block mb-1">Gate Pass Valid From *</label><input type="date" value={renewForm.gatePassStart} onChange={(e) => setRenewForm({...renewForm, gatePassStart: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue" /></div>
-                    <div><label className="text-sm font-bold block mb-1">Gate Pass Valid To *</label><input type="date" value={renewForm.gatePassEnd} onChange={(e) => setRenewForm({...renewForm, gatePassEnd: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue" /></div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div><label className="text-xs font-bold block mb-1">Contract Start *</label><input type="date" value={renewForm.contractStart} onChange={(e) => setRenewForm({...renewForm, contractStart: e.target.value})} className="w-full p-2 text-sm rounded-lg border border-slate-300 outline-none focus:border-hct-blue" /></div>
+                    <div><label className="text-xs font-bold block mb-1">Contract Expiry *</label><input type="date" value={renewForm.contractExpiry} onChange={(e) => setRenewForm({...renewForm, contractExpiry: e.target.value})} className="w-full p-2 text-sm rounded-lg border border-slate-300 outline-none focus:border-hct-blue" /></div>
                   </div>
 
-                  <div className="pt-4">
+                  <div className="pt-2">
                     <div className="flex justify-between items-center mb-2">
-                      <label className="text-sm font-bold block">Contract Documents * (PDF, JPG, PNG)</label>
-                      <button onClick={() => setRenewDocs([...renewDocs, {id: Date.now(), title: '', file: null, fileName: '', size: ''}])} className="text-xs font-bold text-hct-blue hover:underline flex items-center gap-1"><Plus className="w-3 h-3"/> Add Document</button>
+                      <label className="text-xs font-bold block">Contract Documents * (PDF, JPG, PNG)</label>
+                      <button onClick={() => setRenewDocs([...renewDocs, {id: Date.now(), title: '', file: null, fileName: '', size: ''}])} className="text-[10px] font-bold text-hct-blue hover:underline flex items-center gap-1"><Plus className="w-3 h-3"/> Add Document</button>
                     </div>
                     <div className="space-y-3">
                       {renewDocs.map((doc, idx) => (
@@ -817,6 +852,8 @@ const ContractorHub = () => {
                     </div>
                   </div>
                 </div>
+
+
               </div>
             </div>
             <div className="p-6 border-t border-slate-200 bg-slate-50 flex justify-end">
@@ -831,4 +868,12 @@ const ContractorHub = () => {
 };
 
 export default ContractorHub;
+
+
+
+
+
+
+
+
 

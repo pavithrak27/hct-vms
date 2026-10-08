@@ -75,7 +75,7 @@ export const RoleProvider = ({ children }) => {
         // Pre-defined mock profiles for robust RBAC testing
         switch (roleId) {
           case 'superadmin':
-            mappedUser = { id: 'USR-ADMIN', name: 'Global Admin', email: 'admin@hct.ac.ae', role: 'superadmin', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
+            mappedUser = { id: 'USR-ADMIN', name: 'Super Admin', email: 'admin@hct.ac.ae', role: 'superadmin', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
             break;
           case 'campusadmin':
             mappedUser = { id: 'USR-CAMPUS-01', name: 'Campus Admin ADMC', email: 'cadmin@hct.ac.ae', role: 'campusadmin', portals: role.portals, campuses: ['CMP-01'], permissions: role.defaultPermissions };

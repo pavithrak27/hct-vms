@@ -20,19 +20,7 @@ const Layout = () => {
   const [newCampusName, setNewCampusName] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({ current: '', new: '', confirm: '' });
 
-  const handlePasswordChange = (e) => {
-    e.preventDefault();
-    if (passwordForm.new !== passwordForm.confirm) {
-      alert("New passwords do not match!");
-      return;
-    }
-    alert("Password updated successfully!");
-    setShowProfileModal(false);
-    setPasswordForm({ current: '', new: '', confirm: '' });
-  };
 
   const toggleMenu = (menuName) => {
     setExpandedMenus(prev => ({ ...prev, [menuName]: prev[menuName] === undefined ? false : !prev[menuName] }));
@@ -56,7 +44,7 @@ const Layout = () => {
       { id: 'registration', name: 'Registration', href: '/visitor-list', icon: FileText },
       { id: 'my-visit', name: 'My Visit', href: '/', icon: Calendar },
       { id: 'my-pass', name: 'My Pass', href: '/visitor-list?pass=true', icon: QrCode },
-      { id: 'profile', name: 'Profile', icon: UserCog },
+      { id: 'profile', name: 'Profile', href: '/profile', icon: UserCog },
     ],
     security: [
       { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -122,7 +110,7 @@ const Layout = () => {
 
   Object.keys(ROLE_NAVIGATION).forEach(role => {
     if (!ROLE_NAVIGATION[role].find(item => item.id === 'profile')) {
-      ROLE_NAVIGATION[role].push({ id: 'profile', name: 'Profile', icon: UserCog });
+      ROLE_NAVIGATION[role].push({ id: 'profile', name: 'Profile', href: '/profile', icon: UserCog });
     }
   });
 
@@ -193,18 +181,7 @@ const Layout = () => {
                   return null;
                 }
 
-                if (item.id === 'profile') {
-                  return (
-                    <button
-                      key={item.name}
-                      onClick={() => setShowProfileModal(true)}
-                      className={`w-full text-left flex items-center gap-3 py-2.5 transition-all group relative overflow-hidden ${isCollapsed ? 'justify-center px-4 mx-2 rounded-xl' : 'px-6'} ${item.isSubItem && !isCollapsed ? 'pl-10 text-sm' : ''} text-blue-100/60 hover:text-white hover:bg-white/5`}
-                    >
-                      <Icon className={`${item.isSubItem ? 'w-[18px] h-[18px]' : 'w-5 h-5'} shrink-0 text-blue-200/40 group-hover:text-blue-200/80 transition-colors`} />
-                      {!isCollapsed && <span className="font-medium tracking-wide">{item.name}</span>}
-                    </button>
-                  );
-                }
+
 
                 return (
                   <Link
@@ -239,7 +216,7 @@ const Layout = () => {
         {/* User Profile / Logout */}
         <div className={`mt-auto p-6 ${isCollapsed ? 'px-3' : ''}`}>
           <div className={`flex items-center p-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-sm group ${isCollapsed ? 'justify-center flex-col gap-4' : 'justify-between'}`}>
-             <button onClick={() => setShowProfileModal(true)} className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity">
+             <Link to="/profile" className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity">
                <div className="w-10 h-10 bg-hct-blue rounded-xl flex items-center justify-center shrink-0 font-bold text-white text-xs tracking-wider shadow-[0_0_15px_rgba(0,36,156,0.8)]">
                  {currentRole.label.substring(0,2).toUpperCase()}
                </div>
@@ -252,7 +229,7 @@ const Layout = () => {
                    </div>
                  </div>
                )}
-             </button>
+             </Link>
              <button 
                onClick={logout}
                className="p-2 bg-white/5 hover:bg-hct-blue text-blue-200/50 hover:text-white rounded-xl transition-all border border-white/10 hover:border-transparent shadow-lg"
@@ -329,87 +306,6 @@ const Layout = () => {
           <Outlet />
         </main>
       </div>
-
-      {/* Profile Modal */}
-      {showProfileModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <UserCog className="w-6 h-6 text-hct-blue" />
-                My Profile
-              </h3>
-              <button onClick={() => setShowProfileModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-                <span className="font-bold text-sm">Close</span>
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-6">
-              {/* Profile Data */}
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700">
-                <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">Account Details</h4>
-                <div className="flex items-center gap-6">
-                  {/* Profile Picture Avatar */}
-                  <div className="relative group shrink-0">
-                    <div className="w-[72px] h-[72px] bg-gradient-to-br from-blue-500 to-hct-blue rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center text-white text-2xl font-black overflow-hidden border-[3px] border-white dark:border-slate-800">
-                      {sessionUser?.name?.substring(0, 2).toUpperCase() || currentRole.label.substring(0, 2).toUpperCase()}
-                    </div>
-                    <label className="absolute inset-0 bg-slate-900/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer backdrop-blur-[1px]">
-                      <Camera className="w-5 h-5 text-white mb-0.5" />
-                      <span className="text-[8px] font-bold text-white uppercase tracking-wider">Change</span>
-                      <input type="file" accept="image/*" className="hidden" />
-                    </label>
-                  </div>
-                  
-                  {/* Grid Data */}
-                  <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm flex-1">
-                    <div>
-                      <p className="text-slate-400 text-[11px] uppercase tracking-wider font-bold mb-0.5">Full Name</p>
-                      <p className="font-semibold text-slate-800 dark:text-slate-200">{sessionUser?.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-400 text-[11px] uppercase tracking-wider font-bold mb-0.5">Email Address</p>
-                      <p className="font-semibold text-slate-800 dark:text-slate-200 truncate pr-2" title={sessionUser?.email}>{sessionUser?.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-400 text-[11px] uppercase tracking-wider font-bold mb-0.5">Role</p>
-                      <p className="font-semibold text-slate-800 dark:text-slate-200 capitalize">{sessionUser?.role}</p>
-                    </div>
-                    <div>
-                      <p className="text-slate-400 text-[11px] uppercase tracking-wider font-bold mb-0.5">Primary Campus</p>
-                      <p className="font-semibold text-slate-800 dark:text-slate-200 truncate">{sessionUser?.campuses?.includes('ALL') ? 'All Campuses' : (CAMPUSES.find(c => c.id === sessionUser?.campuses?.[0])?.name || sessionUser?.campuses?.[0] || 'N/A')}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Change Password */}
-              <form onSubmit={handlePasswordChange} className="space-y-4">
-                <h4 className="text-sm font-bold text-slate-800 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2">Change Password</h4>
-                <div>
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1">Current Password *</label>
-                  <input required type="password" value={passwordForm.current} onChange={e => setPasswordForm({...passwordForm, current: e.target.value})} className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:border-hct-blue" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1">New Password *</label>
-                    <input required type="password" value={passwordForm.new} onChange={e => setPasswordForm({...passwordForm, new: e.target.value})} className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:border-hct-blue" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-slate-600 dark:text-slate-400 block mb-1">Confirm Password *</label>
-                    <input required type="password" value={passwordForm.confirm} onChange={e => setPasswordForm({...passwordForm, confirm: e.target.value})} className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:border-hct-blue" />
-                  </div>
-                </div>
-                <div className="pt-2">
-                  <button type="submit" className="w-full py-3 bg-hct-blue hover:bg-[#001a66] text-white rounded-xl font-bold transition-colors shadow-md shadow-blue-900/20">
-                    Update Password
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Global Configuration & Integration Modal (FR-CFG) */}
       {showConfigModal && (

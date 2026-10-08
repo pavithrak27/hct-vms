@@ -31,6 +31,7 @@ import RolesPermissions from './components/settings/RolesPermissions';
 import IntegrationsDashboard from './components/settings/IntegrationsDashboard';
 import UserManagement from './components/settings/UserManagement';
 import SSOConfiguration from './components/settings/SSOConfiguration';
+import UserProfilePage from './components/profile/UserProfilePage';
 import Login from './components/Login';
 import DashboardView from './components/dashboard/DashboardView';
 import { useRole } from './context/RoleContext';
@@ -100,6 +101,7 @@ function App() {
         <Route path="settings/sso" element={<ProtectedRoute portalId="security"><SSOConfiguration /></ProtectedRoute>} />
 
         {/* Global/Common Views */}
+        <Route path="profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
         <Route path="restricted" element={<ProtectedRoute portalId="security"><BlockedVisitors /></ProtectedRoute>} />
         <Route path="notifications" element={<ProtectedRoute><div className="flex items-center justify-center min-h-[60vh]"><p className="text-slate-500 font-semibold">You have no new notifications.</p></div></ProtectedRoute>} />
       </Route>

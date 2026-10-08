@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserCog, Search, Plus, Save, Edit, MapPin, ShieldCheck, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { UserCog, Search, Plus, Save, Edit, MapPin, ShieldCheck, Mail, AlertTriangle, CheckCircle2, Camera, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const USERS = [
@@ -24,6 +24,7 @@ const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [isAddingUser, setIsAddingUser] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const filteredUsers = USERS.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.email.toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -115,13 +116,45 @@ const UserManagement = () => {
                 
                 {isAddingUser && (
                   <>
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
-                      <input type="text" placeholder="e.g. John Doe" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
+                    <div className="flex gap-6">
+                      <div className="flex-1 space-y-6">
+                        <div>
+                          <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
+                          <input type="text" placeholder="e.g. John Doe" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-slate-700 mb-2">Email Address (AD Mapped)</label>
+                          <input type="email" placeholder="e.g. jdoe@hct.ac.ae" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
+                        </div>
+                      </div>
+                      <div className="w-32 shrink-0">
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Profile Photo</label>
+                        <div className="w-full h-[108px] border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-slate-50 hover:bg-slate-100 cursor-pointer overflow-hidden relative group transition-colors">
+                          <Camera className="w-6 h-6 mb-1 group-hover:scale-110 transition-transform" />
+                          <span className="text-[10px] font-bold text-center px-2">Upload Photo</span>
+                          <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" />
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2">Email Address (AD Mapped)</label>
-                      <input type="email" placeholder="e.g. jdoe@hct.ac.ae" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><Lock className="w-4 h-4 text-hct-blue" /> Password</label>
+                        <div className="relative">
+                          <input type={showPassword ? "text" : "password"} placeholder="Create a strong password" className="w-full p-3 pr-10 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
+                          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><Lock className="w-4 h-4 text-hct-blue" /> Confirm Password</label>
+                        <div className="relative">
+                          <input type={showPassword ? "text" : "password"} placeholder="Confirm your password" className="w-full p-3 pr-10 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
+                          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </>
                 )}

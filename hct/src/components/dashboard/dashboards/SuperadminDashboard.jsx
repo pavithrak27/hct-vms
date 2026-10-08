@@ -70,11 +70,11 @@ export default function SuperadminDashboard() {
 
   // Sample Expected Visitors data
   const [visitorsList, setVisitorsList] = useState([
-    { id: 'V-101', name: 'Michael Chang', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', time: '09:00 AM - 11:00 AM', status: 'Arrived', gate: 'Gate 2 Main Entrance', passType: 'Pre-Approved' },
-    { id: 'V-102', name: 'Sarah Parker', company: 'Ministry of Education', host: 'Jane Doe', time: '01:00 PM - 03:00 PM', status: 'Expected', gate: 'Gate 1 North Wing', passType: 'VIP Guest' },
-    { id: 'V-103', name: 'Ali Hassan', company: 'Global Services Group', host: 'Facilities Dept', time: '02:30 PM - 05:00 PM', status: 'Expected', gate: 'Gate 4 Service Bay', passType: 'Contractor Pass' },
-    { id: 'V-104', name: 'Elena Rostova', company: 'CyberTech Emirates', host: 'Eng. Khalid Mansoor', time: '11:15 AM - 01:45 PM', status: 'Checked In', gate: 'Gate 2 Main Entrance', passType: 'Pre-Approved' },
-    { id: 'V-105', name: 'David K. Miller', company: 'Independent Consultant', host: 'Dean Office', time: '09:41 AM - 12:00 PM', status: 'Denied', gate: 'Turnstile 3', passType: 'Restricted' },
+    { id: 'V-101', name: 'Michael Chang', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', date: '2026-10-05', time: '09:00 AM - 11:00 AM', status: 'Arrived', gate: 'Gate 2 Main Entrance', passType: 'Pre-Approved' },
+    { id: 'V-102', name: 'Sarah Parker', company: 'Ministry of Education', host: 'Jane Doe', date: '2026-10-05', time: '01:00 PM - 03:00 PM', status: 'Expected', gate: 'Gate 1 North Wing', passType: 'VIP Guest' },
+    { id: 'V-103', name: 'Ali Hassan', company: 'Global Services Group', host: 'Facilities Dept', date: '2026-10-05', time: '02:30 PM - 05:00 PM', status: 'Expected', gate: 'Gate 4 Service Bay', passType: 'Contractor Pass' },
+    { id: 'V-104', name: 'Elena Rostova', company: 'CyberTech Emirates', host: 'Eng. Khalid Mansoor', date: '2026-10-05', time: '11:15 AM - 01:45 PM', status: 'Checked In', gate: 'Gate 2 Main Entrance', passType: 'Pre-Approved' },
+    { id: 'V-105', name: 'David K. Miller', company: 'Independent Consultant', host: 'Dean Office', date: '2026-10-05', time: '09:41 AM - 12:00 PM', status: 'Denied', gate: 'Turnstile 3', passType: 'Restricted' },
   ]);
 
   const mockCounts = useMemo(() => {
@@ -753,7 +753,7 @@ export default function SuperadminDashboard() {
                   <th className="py-3 px-4">Visitor Name</th>
                   <th className="py-3 px-4">Company / Org</th>
                   <th className="py-3 px-4">Host / Department</th>
-                  <th className="py-3 px-4">Time Window</th>
+                  <th className="py-3 px-4">Date</th>
                   <th className="py-3 px-4">Gate &amp; Archetype</th>
                   <th className="py-3 px-4 text-right">Status</th>
                 </tr>
@@ -771,7 +771,7 @@ export default function SuperadminDashboard() {
                     </td>
                     <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">{row.company}</td>
                     <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">{row.host}</td>
-                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">{row.time}</td>
+                    <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">{row.date}</td>
                     <td className="py-3.5 px-4">
                       <span className="text-slate-700 dark:text-slate-300 font-semibold">{row.gate}</span>
                       <span className="block text-[11px] text-slate-400">{row.passType}</span>

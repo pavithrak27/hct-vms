@@ -4,13 +4,13 @@ import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Ca
 import { useRole } from '../../context/RoleContext';
 
 const initialVisitors = [
-  { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Pending', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false,
+  { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Pending', phone: '+971 50 123 4567', email: 'john.smith@techsolutions.com', vehicleNumber: 'DXB A 48291', docId: '784-1990-1234567-1', docType: 'Emirates ID', isBlocked: false,
     emiratesId: { idNumber: '784-1990-1234567-1', cardNumber: '102834761', fullName: 'John Smith', dob: '1990-03-15', nationality: 'United States', gender: 'M', issueDate: '2022-01-10', expiryDate: '2027-01-09', occupation: 'Software Engineer', employer: 'Tech Solutions LLC', issuingPlace: 'Abu Dhabi', country: 'United Arab Emirates' } },
-  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Pre-approved', date: '2026-10-05', time: '11:15 AM', status: 'Pending', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false,
+  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Pre-approved', date: '2026-10-05', time: '11:15 AM', status: 'Pending', phone: '+971 52 555 1234', email: 'm.chang@globalservices.com', vehicleNumber: 'AUH B 12093', docId: '784-1985-7654321-9', docType: 'Emirates ID', isBlocked: false,
     emiratesId: { idNumber: '784-1985-7654321-9', cardNumber: '209183746', fullName: 'Michael Chang', dob: '1985-08-22', nationality: 'China', gender: 'M', issueDate: '2021-06-15', expiryDate: '2026-06-14', occupation: 'Contractor', employer: 'Global Services', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
-  { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Walk-In', date: '2026-10-05', time: '01:00 PM', status: 'Pending', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false,
+  { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Walk-In', date: '2026-10-05', time: '01:00 PM', status: 'Pending', phone: '+971 54 333 9999', email: 'e.wilson@moe.gov.ae', vehicleNumber: 'SHJ C 77123', docId: '784-1992-1112223-4', docType: 'Emirates ID', isBlocked: false,
     emiratesId: { idNumber: '784-1992-1112223-4', cardNumber: '317294851', fullName: 'Emma Wilson', dob: '1992-11-05', nationality: 'United Kingdom', gender: 'F', issueDate: '2023-03-20', expiryDate: '2028-03-19', occupation: 'Education Specialist', employer: 'Ministry of Education', issuingPlace: 'Sharjah', country: 'United Arab Emirates' } },
-  { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Walk-In', date: '2026-10-05', time: '02:45 PM', status: 'Pending', phone: '+971 56 777 8888', docId: 'P-11223344', isBlocked: true,
+  { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Walk-In', date: '2026-10-05', time: '02:45 PM', status: 'Pending', phone: '+971 56 777 8888', email: 'david.l@abccleaning.com', vehicleNumber: 'DXB M 90812', docId: 'P-11223344', docType: 'Passport', isBlocked: true,
     emiratesId: { idNumber: '784-2002-4977006-4', cardNumber: '129647381', fullName: 'David Lee', dob: '2002-07-05', nationality: 'India', gender: 'M', issueDate: '2023-06-07', expiryDate: '2025-06-06', occupation: 'Building Labourer', employer: 'ABC Cleaning LLC', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
 ];
 
@@ -934,11 +934,14 @@ const VisitorList = () => {
                 {[
                   ['Name', selectedVisitor.name],
                   ['Phone', selectedVisitor.phone],
+                  ['Email', selectedVisitor.email || '-'],
                   ['Host', selectedVisitor.host],
-                  ['Company', selectedVisitor.company],
+                  ['Campus', selectedVisitor.company],
                   ['Visitor Type', selectedVisitor.type],
-                  ['Document ID', selectedVisitor.docId],
-                  ['Date & Time', `${selectedVisitor.date} at ${selectedVisitor.time}`],
+                  ['Document Type', selectedVisitor.docType || '-'],
+                  ['Nationality', selectedVisitor.emiratesId?.nationality || '-'],
+                  ['Vehicle Number', selectedVisitor.vehicleNumber || '-'],
+                  ['Date', selectedVisitor.date],
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
                     <span className="text-slate-500 font-medium text-sm">{label}</span>

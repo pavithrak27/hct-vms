@@ -97,9 +97,10 @@ const Layout = () => {
       { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
       { id: 'restricted', name: 'Restricted Visitors', href: '/restricted', icon: ShieldAlert },
       { id: 'reports', name: 'Reports', href: '/reporting', icon: BarChart3 },
-      { id: 'settings', name: 'System Settings', href: '/settings/system', icon: Settings },
-      { id: 'campus-settings', name: 'Campus Settings', href: '/settings/campus', icon: Building2 },
       { id: 'users', name: 'Users', href: '/settings/users', icon: UserCog },
+      { id: 'roles', name: 'Roles & Permissions', href: '/settings/roles', icon: ShieldCheck },
+      { id: 'campus-settings', name: 'Campus Settings', href: '/settings/campus', icon: Building2 },
+      { id: 'settings', name: 'System Settings', href: '/settings/system', icon: Settings },
       { id: 'audit', name: 'Audit Logs', href: '/reports/audit', icon: Database },
     ]
   };

@@ -46,6 +46,20 @@ const RolesPermissions = () => {
     setActivePerms(prev => ({...prev, [perm]: !prev[perm]}));
   };
 
+  const allWebSelected = WEB_MODULES.every(mod => mod.perms.every(p => activePerms[p]));
+  const toggleAllWeb = () => {
+    const newState = !allWebSelected;
+    setActivePerms(prev => {
+      const next = { ...prev };
+      WEB_MODULES.forEach(mod => {
+        mod.perms.forEach(p => {
+          next[p] = newState;
+        });
+      });
+      return next;
+    });
+  };
+
   const handleAddRole = () => {
     if (newRoleName.trim() && !roles.includes(newRoleName.trim())) {
       const updatedRoles = [...roles, newRoleName.trim()];
@@ -133,6 +147,19 @@ const RolesPermissions = () => {
                <button onClick={() => setPlatformTab('web')} className={`pb-3 text-sm font-bold transition-colors border-b-2 ${platformTab === 'web' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>Web Application</button>
                <button onClick={() => setPlatformTab('mobile')} className={`pb-3 text-sm font-bold transition-colors border-b-2 ${platformTab === 'mobile' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>Mobile Application</button>
             </div>
+
+            {platformTab === 'web' && (
+              <div className="mb-8 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-emerald-800">Select All Web Permissions</h4>
+                  <p className="text-sm text-emerald-600">Quickly enable or disable all web application permissions for this role.</p>
+                </div>
+                <label className={`flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer border ${(selectedRole === 'Superadmin' || allWebSelected) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 bg-white'}`}>
+                  {(selectedRole === 'Superadmin' || allWebSelected) && <Check className="w-5 h-5"/>}
+                  <input type="checkbox" className="hidden" checked={selectedRole === 'Superadmin' || allWebSelected} onChange={() => selectedRole !== 'Superadmin' && toggleAllWeb()} disabled={selectedRole === 'Superadmin'} />
+                </label>
+              </div>
+            )}
 
             {platformTab === 'mobile' && (
               <div className="mb-8 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">

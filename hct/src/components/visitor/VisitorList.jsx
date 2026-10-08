@@ -521,7 +521,7 @@ const VisitorList = () => {
                                       className="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 text-hct-blue hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 border-b border-slate-100 dark:border-slate-700"
                                     >
                                       <RefreshCw className="w-4 h-4" />
-                                      Transfer Campus
+                                      Transfer Visit
                                     </button>
                                   )}
                                   <button
@@ -1038,7 +1038,7 @@ const VisitorList = () => {
             
             <form onSubmit={handleTransferSubmit} className="p-6 space-y-5">
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                Transfer approved visitor <span className="font-bold text-slate-900 dark:text-white">{visitorToTransfer.name}</span> to another campus.
+                Transfer visitor <span className="font-bold text-slate-900 dark:text-white">{visitorToTransfer.name}</span> to another campus.
               </p>
               
               <div>

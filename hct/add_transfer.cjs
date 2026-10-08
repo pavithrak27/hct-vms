@@ -71,7 +71,7 @@ const modalReplacement = `      {/* Transfer Modal */}
             
             <form onSubmit={handleTransferSubmit} className="p-6 space-y-5">
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                Transfer approved visitor <span className="font-bold text-slate-900 dark:text-white">{visitorToTransfer.name}</span> to another campus.
+                Transfer visitor <span className="font-bold text-slate-900 dark:text-white">{visitorToTransfer.name}</span> to another campus.
               </p>
               
               <div>

@@ -6,11 +6,11 @@ import { useRole } from '../../context/RoleContext';
 const initialVisitors = [
   { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Pending', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false,
     emiratesId: { idNumber: '784-1990-1234567-1', cardNumber: '102834761', fullName: 'John Smith', dob: '1990-03-15', nationality: 'United States', gender: 'M', issueDate: '2022-01-10', expiryDate: '2027-01-09', occupation: 'Software Engineer', employer: 'Tech Solutions LLC', issuingPlace: 'Abu Dhabi', country: 'United Arab Emirates' } },
-  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Contractor', date: '2026-10-05', time: '11:15 AM', status: 'Pending', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false,
+  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Pre-approved', date: '2026-10-05', time: '11:15 AM', status: 'Pending', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false,
     emiratesId: { idNumber: '784-1985-7654321-9', cardNumber: '209183746', fullName: 'Michael Chang', dob: '1985-08-22', nationality: 'China', gender: 'M', issueDate: '2021-06-15', expiryDate: '2026-06-14', occupation: 'Contractor', employer: 'Global Services', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
-  { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Guest', date: '2026-10-05', time: '01:00 PM', status: 'Pending', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false,
+  { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Walk-In', date: '2026-10-05', time: '01:00 PM', status: 'Pending', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false,
     emiratesId: { idNumber: '784-1992-1112223-4', cardNumber: '317294851', fullName: 'Emma Wilson', dob: '1992-11-05', nationality: 'United Kingdom', gender: 'F', issueDate: '2023-03-20', expiryDate: '2028-03-19', occupation: 'Education Specialist', employer: 'Ministry of Education', issuingPlace: 'Sharjah', country: 'United Arab Emirates' } },
-  { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Delivery', date: '2026-10-05', time: '02:45 PM', status: 'Pending', phone: '+971 56 777 8888', docId: 'P-11223344', isBlocked: true,
+  { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Walk-In', date: '2026-10-05', time: '02:45 PM', status: 'Pending', phone: '+971 56 777 8888', docId: 'P-11223344', isBlocked: true,
     emiratesId: { idNumber: '784-2002-4977006-4', cardNumber: '129647381', fullName: 'David Lee', dob: '2002-07-05', nationality: 'India', gender: 'M', issueDate: '2023-06-07', expiryDate: '2025-06-06', occupation: 'Building Labourer', employer: 'ABC Cleaning LLC', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
 ];
 
@@ -62,6 +62,36 @@ const VisitorList = () => {
   // Document Viewer Modal
   const [showDocModal, setShowDocModal] = useState(false);
 
+  // Transfer Modal State
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [visitorToTransfer, setVisitorToTransfer] = useState(null);
+  const [transferCampus, setTransferCampus] = useState('');
+  const [transferDate, setTransferDate] = useState('');
+  const [transferNotes, setTransferNotes] = useState('');
+  const [showTransferSuccess, setShowTransferSuccess] = useState(false);
+
+  const handleTransferSubmit = (e) => {
+    e.preventDefault();
+    if(!transferCampus || !transferDate) {
+      alert("Please select campus and future date.");
+      return;
+    }
+    // Update the visitor's date (and theoretically campus, though not displayed directly in list)
+    setVisitorsList(visitorsList.map(v => 
+      v.id === visitorToTransfer.id ? { ...v, date: transferDate } : v
+    ));
+    setShowTransferModal(false);
+    setShowTransferSuccess(true);
+  };
+
+  const closeTransferSuccess = () => {
+    setShowTransferSuccess(false);
+    setVisitorToTransfer(null);
+    setTransferCampus('');
+    setTransferDate('');
+    setTransferNotes('');
+  };
+
   // --- LIST HANDLERS ---
   const getStatusBadge = (visitor) => {
     if (visitor.isBlocked) {
@@ -69,6 +99,8 @@ const VisitorList = () => {
     }
     switch(visitor.status) {
       case 'Checked In': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Checked In</span>;
+      case 'Approved': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Approved</span>;
+      case 'Rejected': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Rejected</span>;
       case 'Pending': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Pending</span>;
       case 'Completed': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">Completed</span>;
       default: return <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Unknown</span>;
@@ -483,6 +515,15 @@ const VisitorList = () => {
                               </button>
                               {activeMenuId === visitor.id && (
                                 <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                                  {isHost && (visitor.status === 'Approved' || visitor.status === 'Pending') && (
+                                    <button
+                                      onClick={() => { setVisitorToTransfer(visitor); setShowTransferModal(true); setActiveMenuId(null); }}
+                                      className="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 text-hct-blue hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 border-b border-slate-100 dark:border-slate-700"
+                                    >
+                                      <RefreshCw className="w-4 h-4" />
+                                      Transfer Campus
+                                    </button>
+                                  )}
                                   <button
                                     onClick={() => { setVisitorToBlock(visitor); setSecurityActionType(visitor.isBlocked ? 'temp' : 'deny'); setShowBlockModal(true); setActiveMenuId(null); }}
                                     className={`w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 ${
@@ -980,6 +1021,75 @@ const VisitorList = () => {
         </div>
       )}
 
+      {/* Transfer Modal */}
+      {showTransferModal && visitorToTransfer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowTransferModal(false)} />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <RefreshCw className="w-5 h-5 text-hct-blue dark:text-blue-400" />
+                Transfer Visitor
+              </h3>
+              <button onClick={() => setShowTransferModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleTransferSubmit} className="p-6 space-y-5">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Transfer approved visitor <span className="font-bold text-slate-900 dark:text-white">{visitorToTransfer.name}</span> to another campus.
+              </p>
+              
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Campus *</label>
+                <select required value={transferCampus} onChange={(e) => setTransferCampus(e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm">
+                  <option value="">Select Campus</option>
+                  <option value="Abu Dhabi Men's Campus">Abu Dhabi Men's Campus</option>
+                  <option value="Dubai Men's Campus">Dubai Men's Campus</option>
+                  <option value="Dubai Women's Campus">Dubai Women's Campus</option>
+                  <option value="Sharjah Men's Campus">Sharjah Men's Campus</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Date *</label>
+                <input required type="date" min={new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]} value={transferDate} onChange={(e) => setTransferDate(e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm" />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Notes</label>
+                <textarea rows="3" value={transferNotes} onChange={(e) => setTransferNotes(e.target.value)} placeholder="Add any specific instructions or reasons for transfer..." className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm resize-none"></textarea>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button type="button" onClick={() => setShowTransferModal(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-hct-blue hover:bg-[#001a66] text-white font-bold transition-colors shadow-md shadow-blue-900/20">Transfer</button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Transfer Success Modal */}
+      {showTransferSuccess && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={closeTransferSuccess} />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-sm p-8 text-center overflow-hidden">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-emerald-50 dark:border-emerald-900/10">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+            </div>
+            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Transfer Successful!</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Visitor <span className="font-bold text-slate-700 dark:text-slate-300">{visitorToTransfer?.name}</span> has been transferred to <span className="font-bold text-slate-700 dark:text-slate-300">{transferCampus}</span> on <span className="font-bold text-slate-700 dark:text-slate-300">{transferDate}</span>.
+            </p>
+            <button onClick={closeTransferSuccess} className="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold transition-colors">
+              Done
+            </button>
+          </motion.div>
+        </div>
+      )}
+
       {/* Document Viewer Modal */}
       {showDocModal && (
         <div
@@ -1157,7 +1267,7 @@ const VisitorList = () => {
                 </button>
                 <button 
                   onClick={() => {
-                    setVisitorsList(visitorsList.map(v => v.id === confirmAction.visitor.id ? { ...v, status: confirmAction.type === 'Approve' ? 'Checked In' : 'Blocked' } : v));
+                    setVisitorsList(visitorsList.map(v => v.id === confirmAction.visitor.id ? { ...v, status: confirmAction.type === 'Approve' ? 'Approved' : 'Rejected' } : v));
                     setConfirmAction(null);
                   }}
                   className={`flex-1 px-4 py-2 text-white rounded-xl font-bold text-sm transition-colors shadow-sm ${confirmAction.type === 'Approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}

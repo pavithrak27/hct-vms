@@ -6,7 +6,7 @@ content = content.replace(
   /const initialVisitors = \[[\s\S]*?\];/,
   `const initialVisitors = [
   { id: 'V-1021', name: 'John Smith', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '09:00 AM', status: 'Expected', phone: '+971 50 123 4567', docId: '784-1990-1234567-1', isBlocked: false },
-  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Contractor', date: '2026-10-05', time: '11:15 AM', status: 'Expected', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false },
+  { id: 'V-1023', name: 'Michael Chang', company: 'Global Services', host: 'Prof. Tariq', type: 'Walk in', date: '2026-10-05', time: '11:15 AM', status: 'Expected', phone: '+971 52 555 1234', docId: '784-1985-7654321-9', isBlocked: false },
   { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Guest', date: '2026-10-05', time: '01:00 PM', status: 'Expected', phone: '+971 54 333 9999', docId: '784-1992-1112223-4', isBlocked: false },
   { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Delivery', date: '2026-10-05', time: '02:45 PM', status: 'Expected', phone: '+971 56 777 8888', docId: 'P-11223344', isBlocked: true },
 ];`

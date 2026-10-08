@@ -515,7 +515,7 @@ const VisitorList = () => {
                               </button>
                               {activeMenuId === visitor.id && (
                                 <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
-                                  {isHost && (visitor.status === 'Approved' || visitor.status === 'Pending') && (
+                                  {(isHost || isAdmin) && (visitor.status === 'Approved' || visitor.status === 'Pending') && (
                                     <button
                                       onClick={() => { setVisitorToTransfer(visitor); setShowTransferModal(true); setActiveMenuId(null); }}
                                       className="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 text-hct-blue hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 border-b border-slate-100 dark:border-slate-700"

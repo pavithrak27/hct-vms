@@ -12,6 +12,8 @@ const initialVisitors = [
     emiratesId: { idNumber: '784-1992-1112223-4', cardNumber: '317294851', fullName: 'Emma Wilson', dob: '1992-11-05', nationality: 'United Kingdom', gender: 'F', issueDate: '2023-03-20', expiryDate: '2028-03-19', occupation: 'Education Specialist', employer: 'Ministry of Education', issuingPlace: 'Sharjah', country: 'United Arab Emirates' } },
   { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Walk-In', date: '2026-10-05', time: '02:45 PM', status: 'Pending', phone: '+971 56 777 8888', email: 'david.l@abccleaning.com', vehicleNumber: 'DXB M 90812', docId: 'P-11223344', docType: 'Passport', isBlocked: true,
     emiratesId: { idNumber: '784-2002-4977006-4', cardNumber: '129647381', fullName: 'David Lee', dob: '2002-07-05', nationality: 'India', gender: 'M', issueDate: '2023-06-07', expiryDate: '2025-06-06', occupation: 'Building Labourer', employer: 'ABC Cleaning LLC', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
+  { id: 'V-1026', name: 'Robert Taylor', company: 'Apex Logistics', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '03:15 PM', status: 'Rejected', rejectionReason: 'Security clearances not met / expired document', phone: '+971 50 888 1234', email: 'r.taylor@apexlogistics.com', vehicleNumber: 'DXB K 55432', docId: '784-1988-9988776-5', docType: 'Emirates ID', isBlocked: false,
+    emiratesId: { idNumber: '784-1988-9988776-5', cardNumber: '456789123', fullName: 'Robert Taylor', dob: '1988-04-12', nationality: 'Canada', gender: 'M', issueDate: '2020-05-10', expiryDate: '2025-05-09', occupation: 'Logistics Manager', employer: 'Apex Logistics', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
 ];
 
 const VisitorList = () => {
@@ -56,6 +58,7 @@ const VisitorList = () => {
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [visitorToBlock, setVisitorToBlock] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null); // { type: 'Approve' | 'Reject', visitor }
+  const [rejectionRemarks, setRejectionRemarks] = useState('');
   const [securityActionType, setSecurityActionType] = useState('temp'); // 'temp', 'perm'
   const [securityReleaseDate, setSecurityReleaseDate] = useState('');
 
@@ -319,7 +322,7 @@ const VisitorList = () => {
       
       {/* --- SUMMARY CARDS --- */}
       {activeTab === 'list' && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 animate-in fade-in slide-in-from-top-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 animate-in fade-in slide-in-from-top-4">
           {/* Total */}
           <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-200/70 dark:border-slate-700/60 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-slate-400" />
@@ -347,6 +350,13 @@ const VisitorList = () => {
             <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-blue-500/10 blur-xl" />
             <p className="text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-1">Checked In</p>
             <p className="text-3xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => v.status === 'Checked In').length}</p>
+          </div>
+          {/* Rejected */}
+          <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-rose-200/60 dark:border-rose-900/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-rose-500" />
+            <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-rose-500/10 blur-xl" />
+            <p className="text-rose-600 dark:text-rose-400 text-[10px] font-bold uppercase tracking-widest mb-1">Rejected</p>
+            <p className="text-3xl font-black text-slate-900 dark:text-white">{filteredVisitors.filter(v => !v.isBlocked && v.status === 'Rejected').length}</p>
           </div>
           {/* Blocked */}
           <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-red-200/60 dark:border-red-900/30 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 overflow-hidden">
@@ -392,7 +402,7 @@ const VisitorList = () => {
                   </button>
                   {isFilterOpen && (
                     <div className="absolute top-full right-0 mt-2 w-44 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
-                      {['All', 'Pending', 'Checked In', 'Completed', 'Blocked'].map(status => (
+                      {['All', 'Pending', 'Approved', 'Checked In', 'Rejected', 'Completed', 'Blocked'].map(status => (
                         <button
                           key={status}
                           onClick={() => { setStatusFilter(status); setIsFilterOpen(false); }}
@@ -425,7 +435,7 @@ const VisitorList = () => {
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Visitor</th>
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Host</th>
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Type</th>
-                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Date &amp; Time</th>
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Date</th>
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Status</th>
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest text-right">Actions</th>
                     </tr>
@@ -479,10 +489,9 @@ const VisitorList = () => {
                           </span>
                         </td>
 
-                        {/* Date & Time */}
+                        {/* Date */}
                         <td className="px-5 py-3.5">
                           <p className="font-semibold text-slate-700 dark:text-slate-300 text-xs">{visitor.date}</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">{visitor.time}</p>
                         </td>
 
                         {/* Status */}
@@ -942,6 +951,7 @@ const VisitorList = () => {
                   ['Nationality', selectedVisitor.emiratesId?.nationality || '-'],
                   ['Vehicle Number', selectedVisitor.vehicleNumber || '-'],
                   ['Date', selectedVisitor.date],
+                  ...(selectedVisitor.rejectionReason ? [['Rejection Remarks', selectedVisitor.rejectionReason]] : []),
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
                     <span className="text-slate-500 font-medium text-sm">{label}</span>
@@ -1257,21 +1267,49 @@ const VisitorList = () => {
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
                 {confirmAction.type} Visitor
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
+              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
                 Are you sure you want to {confirmAction.type.toLowerCase()} the visit for <strong>{confirmAction.visitor.name}</strong>?
               </p>
               
+              {confirmAction.type === 'Reject' && (
+                <div className="mb-5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Rejection Remarks *
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={rejectionRemarks}
+                    onChange={(e) => setRejectionRemarks(e.target.value)}
+                    placeholder="Enter reason for rejecting this visitor..."
+                    className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs focus:ring-2 focus:ring-red-500 outline-none"
+                    autoFocus
+                  />
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <button 
-                  onClick={() => setConfirmAction(null)}
+                  onClick={() => {
+                    setConfirmAction(null);
+                    setRejectionRemarks('');
+                  }}
                   className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 rounded-xl font-bold text-sm transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={() => {
-                    setVisitorsList(visitorsList.map(v => v.id === confirmAction.visitor.id ? { ...v, status: confirmAction.type === 'Approve' ? 'Approved' : 'Rejected' } : v));
+                    if (confirmAction.type === 'Reject' && !rejectionRemarks.trim()) {
+                      alert("Please provide rejection remarks before rejecting.");
+                      return;
+                    }
+                    setVisitorsList(visitorsList.map(v => v.id === confirmAction.visitor.id ? { 
+                      ...v, 
+                      status: confirmAction.type === 'Approve' ? 'Approved' : 'Rejected',
+                      rejectionReason: confirmAction.type === 'Reject' ? rejectionRemarks.trim() : v.rejectionReason 
+                    } : v));
                     setConfirmAction(null);
+                    setRejectionRemarks('');
                   }}
                   className={`flex-1 px-4 py-2 text-white rounded-xl font-bold text-sm transition-colors shadow-sm ${confirmAction.type === 'Approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
                 >

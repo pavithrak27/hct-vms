@@ -77,7 +77,7 @@ const ContractorHub = () => {
   const [showCreatePass, setShowCreatePass] = useState(false);
   const [passStep, setPassStep] = useState(1);
   const [selectedEmpsForPass, setSelectedEmpsForPass] = useState([]);
-  const [visitPeriod, setVisitPeriod] = useState({ campus: 'Main Campus', startDate: '', startTime: '', endDate: '', endTime: '' });
+  const [visitPeriod, setVisitPeriod] = useState({ startDate: '', endDate: '' });
   const [periodError, setPeriodError] = useState('');
 
   // Renew Request State
@@ -145,8 +145,8 @@ const ContractorHub = () => {
   };
 
   const handlePeriodNext = () => {
-    if (!visitPeriod.startTime || !visitPeriod.endTime) {
-      setPeriodError('Please fill in all time fields.');
+    if (!visitPeriod.startDate || !visitPeriod.endDate) {
+      setPeriodError('Please fill in all date fields.');
       return;
     }
     setPeriodError('');
@@ -164,7 +164,7 @@ const ContractorHub = () => {
       return;
     }
     const cid = selectedContractor.id;
-    const newReq = { id: `PR-${Math.floor(Math.random() * 900) + 100}`, date: new Date().toISOString().split('T')[0], employees: selectedEmpsForPass.length, status: 'Pending Approval', start: `${visitPeriod.startDate} ${visitPeriod.startTime}`, end: `${visitPeriod.endDate} ${visitPeriod.endTime}`, campus: visitPeriod.campus };
+    const newReq = { id: `PR-${Math.floor(Math.random() * 900) + 100}`, date: new Date().toISOString().split('T')[0], employees: selectedEmpsForPass.length, status: 'Pending Approval', start: visitPeriod.startDate, end: visitPeriod.endDate };
     setPassRequests({ ...passRequests, [cid]: [...(passRequests[cid] || []), newReq] });
     setPassStep(5);
   };
@@ -703,21 +703,13 @@ const ContractorHub = () => {
                   {periodError && <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl font-bold text-sm border border-red-200">{periodError}</div>}
                   
                   <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <div className="col-span-2">
-                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">Campus *</label>
-                      <select value={visitPeriod.campus} onChange={(e) => setVisitPeriod({...visitPeriod, campus: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white">
-                        <option value="Main Campus">Main Campus</option>
-                        <option value="Men's College">Men's College</option>
-                        <option value="Women's College">Women's College</option>
-                      </select>
+                    <div>
+                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">Start Date *</label>
+                      <input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white" />
                     </div>
                     <div>
-                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">Start Time *</label>
-                      <input type="time" value={visitPeriod.startTime} onChange={(e) => setVisitPeriod({...visitPeriod, startTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">End Time *</label>
-                      <input type="time" value={visitPeriod.endTime} onChange={(e) => setVisitPeriod({...visitPeriod, endTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white" />
+                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">End Date *</label>
+                      <input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white" />
                     </div>
                   </div>
                   
@@ -781,9 +773,8 @@ const ContractorHub = () => {
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
                       <h5 className="font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-blue-200 dark:border-blue-800 pb-2">Visit Details</h5>
                       <div className="text-sm space-y-2">
-                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">Campus</span><strong className="text-slate-800 dark:text-white">{visitPeriod.campus}</strong></p>
-                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">Start</span><strong className="text-slate-800 dark:text-white">{visitPeriod.startDate} {visitPeriod.startTime}</strong></p>
-                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">End</span><strong className="text-slate-800 dark:text-white">{visitPeriod.endDate} {visitPeriod.endTime}</strong></p>
+                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">Start Date</span><strong className="text-slate-800 dark:text-white">{visitPeriod.startDate}</strong></p>
+                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">End Date</span><strong className="text-slate-800 dark:text-white">{visitPeriod.endDate}</strong></p>
                       </div>
                     </div>
                   </div>

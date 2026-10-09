@@ -32,7 +32,7 @@ const ContractorPortal = () => {
   // Create Pass Request State
   const [passStep, setPassStep] = useState(0); // 0=list, 1=select emp, 2=period, 3=hse, 4=review
   const [selectedEmps, setSelectedEmps] = useState([]);
-  const [visitPeriod, setVisitPeriod] = useState({ campus: 'Main Campus', startDate: '', startTime: '', endDate: '', endTime: '' });
+  const [visitPeriod, setVisitPeriod] = useState({ startDate: '', endDate: '' });
   const [periodError, setPeriodError] = useState('');
   const [hseStatus, setHseStatus] = useState('Not Started'); // Not Started, In Progress, Completed
   const [declaration, setDeclaration] = useState(false);
@@ -89,7 +89,7 @@ const ContractorPortal = () => {
   };
 
   const handlePeriodNext = () => {
-    if (!visitPeriod.startTime || !visitPeriod.endTime) { setPeriodError('Please fill in all time fields.'); return; }
+    if (!visitPeriod.startDate || !visitPeriod.endDate) { setPeriodError('Please fill in all date fields.'); return; }
     setPeriodError('');
     setPassStep(3);
   };
@@ -105,10 +105,9 @@ const ContractorPortal = () => {
       company: companyInfo.name,
       contractId: companyInfo.id,
       contractNumber: companyInfo.contractNumber,
-      campus: visitPeriod.campus,
       employees: selectedEmps, // array of IDs
-      start: visitPeriod.startTime,
-      end: visitPeriod.endTime,
+      start: visitPeriod.startDate,
+      end: visitPeriod.endDate,
       status: 'Pending Level 1 Approval',
       approvalLevel: 1,
       submissionDate: new Date().toISOString().split('T')[0]
@@ -486,28 +485,19 @@ const ContractorPortal = () => {
                        {periodError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3"><AlertCircle className="w-5 h-5 shrink-0" /><p className="font-bold text-sm">{periodError}</p></div>}
                        
                        <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-200">
-                         <div className="col-span-2">
-                           <label className="text-sm font-bold block mb-1">Campus *</label>
-                           <select value={visitPeriod.campus} onChange={(e) => setVisitPeriod({...visitPeriod, campus: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue bg-white">
-                             <option value="Main Campus">Main Campus</option>
-                             <option value="Men's College">Men's College</option>
-                             <option value="Women's College">Women's College</option>
-                             <option value="Innovation Hub">Innovation Hub</option>
-                           </select>
+                         <div>
+                           <label className="text-sm font-bold block mb-1">Start Date *</label>
+                           <input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
                          </div>
                          <div>
-                           <label className="text-sm font-bold block mb-1">Start Time *</label>
-                           <input type="time" value={visitPeriod.startTime} onChange={(e) => setVisitPeriod({...visitPeriod, startTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
-                         </div>
-                         <div>
-                           <label className="text-sm font-bold block mb-1">End Time *</label>
-                           <input type="time" value={visitPeriod.endTime} onChange={(e) => setVisitPeriod({...visitPeriod, endTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
+                           <label className="text-sm font-bold block mb-1">End Date *</label>
+                           <input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
                          </div>
                        </div>
                        
                        <div className="flex justify-between pt-6 border-t">
                          <button onClick={() => setPassStep(1)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
-                         <button onClick={handlePeriodNext} disabled={!visitPeriod.startTime || !visitPeriod.endTime} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold disabled:opacity-50">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                         <button onClick={handlePeriodNext} disabled={!visitPeriod.startDate || !visitPeriod.endDate} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold disabled:opacity-50">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
                        </div>
                      </div>
                    )}

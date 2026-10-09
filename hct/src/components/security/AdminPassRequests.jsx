@@ -46,7 +46,7 @@ const AdminPassRequests = () => {
   const [wizardStep, setWizardStep] = useState(1);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedEmps, setSelectedEmps] = useState([]);
-  const [visitPeriod, setVisitPeriod] = useState({ startDate: '', startTime: '', endDate: '', endTime: '' });
+  const [visitPeriod, setVisitPeriod] = useState({ startDate: '', endDate: '' });
   const [periodError, setPeriodError] = useState('');
   const [hseStatus, setHseStatus] = useState('Not Started');
   const [declaration, setDeclaration] = useState(false);
@@ -97,6 +97,7 @@ const AdminPassRequests = () => {
   };
 
   const handlePeriodNext = () => {
+    if (!visitPeriod.startDate || !visitPeriod.endDate) { setPeriodError('Please fill in all date fields.'); return; }
     setPeriodError('');
     setWizardStep(4);
   };
@@ -106,8 +107,8 @@ const AdminPassRequests = () => {
       id: `CPR-2026-${Math.floor(Math.random()*900)+100}`,
       company: selectedCompany.name,
       employees: selectedEmps.length,
-      requestedStart: visitPeriod.startTime,
-      requestedEnd: visitPeriod.endTime,
+      requestedStart: visitPeriod.startDate,
+      requestedEnd: visitPeriod.endDate,
       approvedStart: '-',
       approvedEnd: '-',
       submissionDate: new Date().toISOString().split('T')[0],
@@ -121,7 +122,7 @@ const AdminPassRequests = () => {
     setWizardStep(1);
     setSelectedCompany(null);
     setSelectedEmps([]);
-    setVisitPeriod({ startDate: '', startTime: '', endDate: '', endTime: '' });
+    setVisitPeriod({ startDate: '', endDate: '' });
     setHseStatus('Not Started');
     setDeclaration(false);
   };
@@ -337,13 +338,13 @@ const AdminPassRequests = () => {
                {periodError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3"><AlertCircle className="w-5 h-5 shrink-0" /><p className="font-bold text-sm">{periodError}</p></div>}
                
                <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-200">
-                 <div><label className="text-sm font-bold block mb-1">Start Time *</label><input type="time" value={visitPeriod.startTime} onChange={(e) => setVisitPeriod({...visitPeriod, startTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
-                 <div><label className="text-sm font-bold block mb-1">End Time *</label><input type="time" value={visitPeriod.endTime} onChange={(e) => setVisitPeriod({...visitPeriod, endTime: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
+                 <div><label className="text-sm font-bold block mb-1">Start Date *</label><input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
+                 <div><label className="text-sm font-bold block mb-1">End Date *</label><input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
                </div>
                
                <div className="flex justify-between pt-6 border-t">
                  <button onClick={() => setWizardStep(2)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
-                 <button onClick={handlePeriodNext} disabled={!visitPeriod.startTime || !visitPeriod.endTime} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                 <button onClick={handlePeriodNext} disabled={!visitPeriod.startDate || !visitPeriod.endDate} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
                </div>
              </div>
            )}

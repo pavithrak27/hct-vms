@@ -24,6 +24,7 @@ import VisitorReport from './components/reporting/VisitorReport';
 import VisitorDirectoryReport from './components/reporting/VisitorDirectoryReport';
 import ContractorOnboardedReport from './components/reporting/ContractorOnboardedReport';
 import ContractorVisitorReport from './components/reporting/ContractorVisitorReport';
+import TransferVisitReport from './components/reporting/TransferVisitReport';
 import AuditLogReport from './components/reporting/AuditLogReport';
 import CampusConfiguration from './components/settings/CampusConfiguration';
 import SystemConfiguration from './components/settings/SystemConfiguration';
@@ -88,6 +89,7 @@ function App() {
         {/* Reports */}
         <Route path="reports/visitor" element={<ProtectedRoute><VisitorReport /></ProtectedRoute>} />
         <Route path="reports/directory" element={<ProtectedRoute><VisitorDirectoryReport /></ProtectedRoute>} />
+        <Route path="reports/transfer-visit" element={<ProtectedRoute><TransferVisitReport /></ProtectedRoute>} />
         <Route path="reports/contractor-onboarded" element={<ProtectedRoute ><ContractorOnboardedReport /></ProtectedRoute>} />
         <Route path="reports/contractor-visitor" element={<ProtectedRoute ><ContractorVisitorReport /></ProtectedRoute>} />
         <Route path="reports/audit" element={<ProtectedRoute portalId="security"><AuditLogReport /></ProtectedRoute>} />

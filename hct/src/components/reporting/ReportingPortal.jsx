@@ -2,7 +2,7 @@ import React from 'react';
 import {
   BarChart3, Users, Briefcase, ShieldAlert, Database,
   ArrowRight, FileText, BookOpen, HardHat, FileSpreadsheet,
-  Download, Clock, TrendingUp, TrendingDown
+  Download, Clock, TrendingUp, TrendingDown, RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -169,8 +169,9 @@ const ReportingPortal = () => (
         {[
           { to: '/reports/visitor',              icon: Users,          title: 'Visitor Report',       description: 'Detailed list of visit transactions, check-ins, and durations across all campuses.',   badge: 'Visitors',    count: '1,250', accent: 'blue',    delay: 0.10 },
           { to: '/reports/directory',            icon: BookOpen,       title: 'Visitor Directory',    description: 'Master list of visitor profiles, contact information, and identity documents.',          badge: 'Directory',   count: '890',   accent: 'indigo',  delay: 0.15 },
+          { to: '/reports/transfer-visit',       icon: RefreshCw,      title: 'Transfer Visit Report',description: 'Comprehensive log of all transferred visitors, campus reassignments, dates, and remarks.',badge: 'Transfers',  count: '48',    accent: 'emerald', delay: 0.18 },
           { to: '/reports/contractor-onboarded', icon: HardHat,        title: 'Contractor Onboarded', description: 'Status of contractor companies, validity periods, and employee counts.',                badge: 'Contractors', count: '15',    accent: 'amber',   delay: 0.20 },
-          { to: '/reports/contractor-visitor',   icon: FileSpreadsheet,title: 'Contractor Visits',    description: 'Detailed log of gate passes and visits generated for contractors on-site.',             badge: 'Contractors', count: '340',   accent: 'emerald', delay: 0.25 },
+          { to: '/reports/contractor-visitor',   icon: FileSpreadsheet,title: 'Contractor Visits',    description: 'Detailed log of gate passes and visits generated for contractors on-site.',             badge: 'Contractors', count: '340',   accent: 'indigo',  delay: 0.25 },
           { to: '/reports/audit',                icon: Database,       title: 'Audit Log Report',     description: 'Comprehensive immutable log of all system actions, decisions, and security events.',    badge: 'Audit',       count: '84K',   accent: 'slate',   delay: 0.30 },
           { to: '/reports/visitor',              icon: FileText,       title: 'Custom Report',        description: 'Build and export a fully customised report with your own date ranges and field filters.', badge: 'Flexible',    count: null,    accent: 'rose',    delay: 0.35 },
         ].map((r, i) => <ReportCard key={i} {...r} />)}

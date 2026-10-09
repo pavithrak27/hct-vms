@@ -9,6 +9,7 @@ import { useRole, CAMPUSES } from '../../context/RoleContext';
 
 const UserProfilePage = () => {
   const { sessionUser, currentRole, userPermissions, userCampuses } = useRole();
+  const isContractor = currentRole?.id === 'contractor' || sessionUser?.role === 'contractor';
   const [activeTab, setActiveTab] = useState('account');
 
   // Form states
@@ -89,7 +90,9 @@ const UserProfilePage = () => {
             My Profile
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium text-sm">
-            Manage your personal profile details, account settings, and password security.
+            {isContractor 
+              ? 'Manage your personal profile details, account settings, and password security.'
+              : 'Manage your personal profile details and account settings.'}
           </p>
         </div>
       </div>
@@ -135,10 +138,6 @@ const UserProfilePage = () => {
                 <MapPin className="w-3.5 h-3.5 text-hct-blue" />
                 {userCampuses.includes('ALL') ? 'All Campuses (Global)' : (CAMPUSES.find(c => c.id === userCampuses[0])?.name || 'Primary Campus')}
               </span>
-              {/* <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Active Session
-              </span> */}
             </div>
           </div>
         </div>
@@ -156,16 +155,18 @@ const UserProfilePage = () => {
         >
           <User className="w-4 h-4" /> Account Details
         </button>
-        <button
-          onClick={() => setActiveTab('security')}
-          className={`px-5 py-3 rounded-t-2xl font-bold text-sm transition-all flex items-center gap-2 ${
-            activeTab === 'security'
-              ? 'bg-white dark:bg-slate-900 text-hct-blue border-t-2 border-hct-blue shadow-sm'
-              : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-          }`}
-        >
-          <KeyRound className="w-4 h-4" /> Security & Password
-        </button>
+        {isContractor && (
+          <button
+            onClick={() => setActiveTab('security')}
+            className={`px-5 py-3 rounded-t-2xl font-bold text-sm transition-all flex items-center gap-2 ${
+              activeTab === 'security'
+                ? 'bg-white dark:bg-slate-900 text-hct-blue border-t-2 border-hct-blue shadow-sm'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <KeyRound className="w-4 h-4" /> Security & Password
+          </button>
+        )}
       </div>
 
       {/* Tab Contents */}
@@ -261,7 +262,7 @@ const UserProfilePage = () => {
         </motion.div>
       )}
 
-      {activeTab === 'security' && (
+      {isContractor && activeTab === 'security' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 max-w-2xl mx-auto">
           {passwordMessage && (
             <div className={`p-4 rounded-2xl border font-bold text-sm flex items-center gap-3 ${

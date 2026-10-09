@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, CheckCircle2, XCircle, FileText, Search, ShieldAlert, Calendar, ArrowRight } from 'lucide-react';
+import { Building2, CheckCircle2, XCircle, FileText, Search, ShieldAlert, Calendar, ArrowRight, ArrowRightLeft, Ban, Lock, Unlock, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../../context/RoleContext';
@@ -44,8 +44,19 @@ const ContractorApprovals = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [showEmailSim, setShowEmailSim] = useState(false);
 
+  // Transfer & Block State
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferCampus, setTransferCampus] = useState("Abu Dhabi Men's Campus");
+  const [transferDate, setTransferDate] = useState(new Date(Date.now() + 86400000).toISOString().split('T')[0]);
+  const [transferNotes, setTransferNotes] = useState('');
+
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  const [securityActionType, setSecurityActionType] = useState('block'); // 'block', 'temp', 'perm'
+  const [securityReleaseDate, setSecurityReleaseDate] = useState(new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
+  const [blockNotes, setBlockNotes] = useState('');
+
   const filteredRequests = requests.filter(r => 
-    activeTab === 'pending' ? r.status.includes('Pending') : r.status === 'Approved' || r.status === 'Rejected'
+    activeTab === 'pending' ? r.status.includes('Pending') : r.status === 'Approved' || r.status === 'Rejected' || r.status === 'Blocked' || r.status === 'Transferred'
   );
 
   const handleApprove = (req) => {
@@ -83,6 +94,31 @@ const ContractorApprovals = () => {
     setRejectionReason('');
   };
 
+  const handleTransferConfirm = (e) => {
+    e.preventDefault();
+    if (!selectedReq) return;
+    setRequests(requests.map(r => r.id === selectedReq.id ? { ...r, status: `Transferred to ${transferCampus}`, campus: transferCampus, transferNotes } : r));
+    setShowTransferModal(false);
+    setSelectedReq(null);
+    alert(`Contractor request transferred to ${transferCampus} successfully!`);
+  };
+
+  const handleBlockConfirm = () => {
+    if (!blockNotes.trim()) {
+      alert("Mandatory reason / note required for security action.");
+      return;
+    }
+    if (!selectedReq) return;
+    let newStatus = 'Blocked';
+    if (securityActionType === 'temp') newStatus = 'Temporarily Released';
+    if (securityActionType === 'perm') newStatus = 'Pending Level 1 Approval';
+
+    setRequests(requests.map(r => r.id === selectedReq.id ? { ...r, status: newStatus, isBlocked: securityActionType === 'block', blockReason: blockNotes } : r));
+    setShowBlockModal(false);
+    setSelectedReq(null);
+    alert(`Security action updated: ${newStatus}`);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -93,7 +129,7 @@ const ContractorApprovals = () => {
       <div className="flex justify-between items-end mb-8">
         <div>
           <h2 className="text-4xl font-bold text-slate-800 dark:text-white">Contractor Approvals</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Review and process contractor company registrations.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Review, approve, transfer, or block contractor company registrations.</p>
         </div>
       </div>
 
@@ -118,7 +154,7 @@ const ContractorApprovals = () => {
         <div className="p-6">
           <div className="grid grid-cols-1 gap-4">
             {filteredRequests.length === 0 ? (
-               <div className="text-center py-12 text-slate-500">No requests found.</div>
+               <div className="text-center py-12 text-slate-500 font-bold">No requests found.</div>
             ) : filteredRequests.map(req => (
               <div key={req.id} className="border border-slate-200 rounded-xl p-5 hover:shadow-md transition-shadow cursor-pointer flex justify-between items-center" onClick={() => setSelectedReq(req)}>
                 <div className="flex items-center gap-4">
@@ -131,6 +167,7 @@ const ContractorApprovals = () => {
                 <div className="flex items-center gap-4">
                   <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${
                     req.status.includes('Pending') ? 'bg-amber-100 text-amber-700' :
+                    req.status.includes('Transferred') ? 'bg-blue-100 text-blue-700' :
                     req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                   }`}>
                     {req.status}
@@ -145,7 +182,7 @@ const ContractorApprovals = () => {
 
       {/* Detail Modal */}
       <AnimatePresence>
-        {selectedReq && !showRejectModal && (
+        {selectedReq && !showRejectModal && !showTransferModal && !showBlockModal && (
           <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4">
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-white rounded-[24px] p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                <div className="flex justify-between items-start mb-6 border-b pb-4">
@@ -171,14 +208,23 @@ const ContractorApprovals = () => {
                  </div>
                </div>
 
-               {selectedReq.status.includes('Pending') && (
-                 <div className="flex justify-end gap-4 border-t pt-6">
-                   <button onClick={() => setShowRejectModal(true)} className="px-6 py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100">Reject</button>
-                   <button onClick={() => handleApprove(selectedReq)} className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600">
-                     {selectedReq.approvalLevel === 3 ? 'Final Approve' : 'Approve & Forward'}
-                   </button>
-                 </div>
-               )}
+               <div className="flex flex-wrap justify-end gap-3 border-t pt-6">
+                 <button onClick={() => setShowTransferModal(true)} className="px-5 py-3 bg-blue-50 text-hct-blue rounded-xl font-bold hover:bg-blue-100 transition-colors flex items-center gap-1.5">
+                   <ArrowRightLeft className="w-4 h-4"/> Transfer Campus
+                 </button>
+                 <button onClick={() => setShowBlockModal(true)} className="px-5 py-3 bg-red-100 text-red-700 rounded-xl font-bold hover:bg-red-200 transition-colors flex items-center gap-1.5">
+                   <Ban className="w-4 h-4"/> Block Contractor
+                 </button>
+
+                 {selectedReq.status.includes('Pending') && (
+                   <>
+                     <button onClick={() => setShowRejectModal(true)} className="px-6 py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100">Reject</button>
+                     <button onClick={() => handleApprove(selectedReq)} className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600">
+                       {selectedReq.approvalLevel === 3 ? 'Final Approve' : 'Approve & Forward'}
+                     </button>
+                   </>
+                 )}
+               </div>
             </motion.div>
           </div>
         )}
@@ -196,6 +242,86 @@ const ContractorApprovals = () => {
                  <button onClick={() => setShowRejectModal(false)} className="px-4 py-2 bg-slate-100 rounded-lg font-bold">Cancel</button>
                  <button onClick={handleReject} disabled={!rejectionReason.trim()} className="px-6 py-2 bg-red-500 text-white rounded-lg font-bold disabled:opacity-50">Confirm Reject</button>
                </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Transfer Modal */}
+      <AnimatePresence>
+        {showTransferModal && selectedReq && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[60] p-4">
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-white rounded-2xl p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2 text-hct-blue"><ArrowRightLeft className="w-6 h-6" /> Transfer Contractor Application</h3>
+              <p className="text-sm text-slate-500 mb-4">Transfer <strong className="text-slate-800">{selectedReq.companyName}</strong> application to another campus branch.</p>
+
+              <form onSubmit={handleTransferConfirm} className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 mb-1 block">Target Campus *</label>
+                  <select
+                    required
+                    value={transferCampus}
+                    onChange={(e) => setTransferCampus(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-300 text-sm font-semibold outline-none focus:ring-2 focus:ring-hct-blue"
+                  >
+                    <option value="Abu Dhabi Men's Campus">Abu Dhabi Men's Campus</option>
+                    <option value="Dubai Men's Campus">Dubai Men's Campus</option>
+                    <option value="Dubai Women's Campus">Dubai Women's Campus</option>
+                    <option value="Sharjah Men's Campus">Sharjah Men's Campus</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 mb-1 block">Notes / Reason for Transfer</label>
+                  <textarea
+                    rows="3"
+                    value={transferNotes}
+                    onChange={(e) => setTransferNotes(e.target.value)}
+                    placeholder="Add transfer context or instructions..."
+                    className="w-full p-3 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-hct-blue resize-none"
+                  ></textarea>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button type="button" onClick={() => setShowTransferModal(false)} className="px-4 py-2 bg-slate-100 rounded-lg font-bold">Cancel</button>
+                  <button type="submit" className="px-6 py-2 bg-hct-blue text-white rounded-lg font-bold shadow-md">Confirm Transfer</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Block Modal */}
+      <AnimatePresence>
+        {showBlockModal && selectedReq && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[60] p-4">
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="bg-white rounded-2xl p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2 text-red-600"><Ban className="w-6 h-6" /> Block Contractor Registration</h3>
+              <p className="text-sm text-slate-500 mb-4">Flag and block <strong className="text-slate-800">{selectedReq.companyName}</strong> from entering campus facilities.</p>
+
+              <div className="space-y-4">
+                <div className="bg-red-50 p-4 rounded-xl border border-red-200">
+                  <span className="font-bold text-red-700 text-sm block">Block Access</span>
+                  <p className="text-xs text-red-600 mt-1">This company will be restricted across all gate checkpoints.</p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 mb-1 block">Reason / Notes *</label>
+                  <textarea
+                    rows="3"
+                    value={blockNotes}
+                    onChange={(e) => setBlockNotes(e.target.value)}
+                    placeholder="Provide a mandatory security reason..."
+                    className="w-full p-3 border border-slate-300 rounded-xl text-xs outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                  ></textarea>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button type="button" onClick={() => setShowBlockModal(false)} className="px-4 py-2 bg-slate-100 rounded-lg font-bold">Cancel</button>
+                  <button type="button" onClick={handleBlockConfirm} className="px-6 py-2 bg-red-600 text-white rounded-lg font-bold shadow-md">Confirm Block</button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
@@ -234,4 +360,3 @@ const ContractorApprovals = () => {
 };
 
 export default ContractorApprovals;
-

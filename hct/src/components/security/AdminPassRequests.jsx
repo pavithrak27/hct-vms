@@ -80,6 +80,14 @@ const AdminPassRequests = () => {
   const [renewModalData, setRenewModalData] = useState(null); // holds pass to renew
   const [viewEmployee, setViewEmployee] = useState(null);
   
+  // Transfer Visitor modal state
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferPassData, setTransferPassData] = useState(null);
+  const [transferCampus, setTransferCampus] = useState('');
+  const [transferDate, setTransferDate] = useState('');
+  const [transferNotes, setTransferNotes] = useState('');
+  const [showTransferSuccess, setShowTransferSuccess] = useState(false);
+  
   const contractors = [
     { id: 'CON-2026-101', name: 'Tech Solutions LLC', contractNumber: 'CT-2025-9981', expiry: '2027-11-01', valid: true },
     { id: 'CON-2026-102', name: 'Global Facilities Mgt', contractNumber: 'FM-2026-1122', expiry: '2028-10-14', valid: true }
@@ -97,7 +105,7 @@ const AdminPassRequests = () => {
   };
 
   const handlePeriodNext = () => {
-    if (!visitPeriod.startDate || !visitPeriod.endDate) { setPeriodError('Please fill in all date fields.'); return; }
+    if (!visitPeriod.startDate || !visitPeriod.endDate || !visitPeriod.campus) { setPeriodError('Please fill in all date fields.'); return; }
     setPeriodError('');
     setWizardStep(4);
   };
@@ -125,6 +133,16 @@ const AdminPassRequests = () => {
     setVisitPeriod({ startDate: '', endDate: '' });
     setHseStatus('Not Started');
     setDeclaration(false);
+  };
+
+  const handleTransferSubmit = (e) => {
+    e.preventDefault();
+    if (!transferCampus || !transferDate) {
+      alert("Please select campus and effective date.");
+      return;
+    }
+    setShowTransferModal(false);
+    setShowTransferSuccess(true);
   };
 
   return (
@@ -235,8 +253,8 @@ const AdminPassRequests = () => {
                         <td className="p-4 font-medium text-slate-700">{pass.company}</td>
                         <td className="p-4 text-xs text-slate-600 leading-tight">From: {pass.validFrom}<br/>To: {pass.validTo}</td>
                         <td className="p-4 text-right flex items-center justify-end gap-2">
-                          <button onClick={() => setSelectedPass(pass)} className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Eye className="w-5 h-5"/></button>
-                          <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Download className="w-5 h-5"/></button>
+                          <button onClick={() => setSelectedPass(pass)} title="View Pass" className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Eye className="w-5 h-5"/></button>
+                          <button title="Download PDF" className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Download className="w-5 h-5"/></button>
                         </td>
                       </tr>
                     ))}
@@ -331,25 +349,49 @@ const AdminPassRequests = () => {
              </div>
            )}
 
-           {/* Step 3: Visit Period */}
+                      {/* Step 3: Visit Period */}
            {wizardStep === 3 && (
              <div className="space-y-6 max-w-2xl mx-auto">
                <h4 className="font-bold text-lg text-slate-700 border-b pb-4">3. Requested Visit Period</h4>
                {periodError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3"><AlertCircle className="w-5 h-5 shrink-0" /><p className="font-bold text-sm">{periodError}</p></div>}
                
-               <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-200">
-                 <div><label className="text-sm font-bold block mb-1">Start Date *</label><input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
-                 <div><label className="text-sm font-bold block mb-1">End Date *</label><input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
+               <div className="space-y-4 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                 <div>
+                   <label className="text-sm font-bold block mb-1 text-slate-700">Target Campus *</label>
+                   <select 
+                     value={visitPeriod.campus || "Dubai Men's College"} 
+                     onChange={(e) => setVisitPeriod({...visitPeriod, campus: e.target.value})}
+                     className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue bg-white font-semibold text-slate-800 text-sm"
+                   >
+                     <option value="Abu Dhabi Men's College">Abu Dhabi Men's College</option>
+                     <option value="Abu Dhabi Women's College">Abu Dhabi Women's College</option>
+                     <option value="Al Ain Men's College">Al Ain Men's College</option>
+                     <option value="Al Ain Women's College">Al Ain Women's College</option>
+                     <option value="Dubai Men's College">Dubai Men's College</option>
+                     <option value="Dubai Women's College">Dubai Women's College</option>
+                     <option value="Fujairah Men's College">Fujairah Men's College</option>
+                     <option value="Fujairah Women's College">Fujairah Women's College</option>
+                     <option value="Ras Al Khaimah Men's College">Ras Al Khaimah Men's College</option>
+                     <option value="Ras Al Khaimah Women's College">Ras Al Khaimah Women's College</option>
+                     <option value="Sharjah Men's College">Sharjah Men's College</option>
+                     <option value="Sharjah Women's College">Sharjah Women's College</option>
+                   </select>
+                 </div>
+
+                 <div className="grid grid-cols-2 gap-4">
+                   <div><label className="text-sm font-bold block mb-1">Start Date *</label><input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
+                   <div><label className="text-sm font-bold block mb-1">End Date *</label><input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none" /></div>
+                 </div>
                </div>
                
                <div className="flex justify-between pt-6 border-t">
                  <button onClick={() => setWizardStep(2)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
-                 <button onClick={handlePeriodNext} disabled={!visitPeriod.startDate || !visitPeriod.endDate} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                 <button onClick={handlePeriodNext} disabled={!visitPeriod.startDate || !visitPeriod.endDate || !visitPeriod.campus} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
                </div>
              </div>
            )}
 
-           {/* Step 4: HSE & Declaration */}
+            {/* Step 4: HSE & Declaration */}
            {wizardStep === 4 && (
              <div className="space-y-8 max-w-3xl mx-auto">
                <div>
@@ -539,6 +581,111 @@ const AdminPassRequests = () => {
                 <p className="text-sm text-slate-500 italic">No documents available.</p>
               )}
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Transfer Visitor Modal */}
+      {showTransferModal && transferPassData && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowTransferModal(false)} />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden z-10">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/80 dark:bg-slate-800/50">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <RefreshCw className="w-5 h-5 text-hct-blue" />
+                Transfer Visitor
+              </h3>
+              <button 
+                type="button"
+                onClick={() => setShowTransferModal(false)} 
+                className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleTransferSubmit} className="p-6 space-y-5">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Transfer visitor <span className="font-bold text-slate-900 dark:text-white">{transferPassData.empName}</span> to another campus.
+              </p>
+              
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Select Campus *</label>
+                <select 
+                  required 
+                  value={transferCampus} 
+                  onChange={(e) => setTransferCampus(e.target.value)} 
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm font-semibold"
+                >
+                  <option value="">Select Campus</option>
+                  <option value="Abu Dhabi Men's Campus">Abu Dhabi Men's Campus</option>
+                  <option value="Abu Dhabi Women's Campus">Abu Dhabi Women's Campus</option>
+                  <option value="Dubai Men's Campus">Dubai Men's Campus</option>
+                  <option value="Dubai Women's Campus">Dubai Women's Campus</option>
+                  <option value="Sharjah Men's Campus">Sharjah Men's Campus</option>
+                  <option value="Al Ain Campus">Al Ain Campus</option>
+                  <option value="Fujairah Campus">Fujairah Campus</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Select Date *</label>
+                <input 
+                  required 
+                  type="date" 
+                  min={new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]} 
+                  value={transferDate} 
+                  onChange={(e) => setTransferDate(e.target.value)} 
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm font-medium" 
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Notes</label>
+                <textarea 
+                  rows="3" 
+                  value={transferNotes} 
+                  onChange={(e) => setTransferNotes(e.target.value)} 
+                  placeholder="Add any specific instructions or reasons for transfer..." 
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm resize-none"
+                ></textarea>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setShowTransferModal(false)} 
+                  className="flex-1 py-3.5 px-4 rounded-2xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 py-3.5 px-4 rounded-2xl bg-[#001a66] hover:bg-[#001144] text-white font-bold transition-colors shadow-md text-sm"
+                >
+                  Transfer
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Transfer Success Modal */}
+      {showTransferSuccess && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowTransferSuccess(false)} />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-sm p-8 text-center overflow-hidden z-10">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-emerald-50 dark:border-emerald-900/10">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+            </div>
+            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Transfer Successful!</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Visitor <span className="font-bold text-slate-700 dark:text-slate-300">{transferPassData?.empName}</span> has been transferred to <span className="font-bold text-slate-700 dark:text-slate-300">{transferCampus}</span> on <span className="font-bold text-slate-700 dark:text-slate-300">{transferDate}</span>.
+            </p>
+            <button onClick={() => setShowTransferSuccess(false)} className="w-full py-3 rounded-xl bg-[#001a66] text-white font-bold hover:bg-[#001144] transition-colors">
+              Done
+            </button>
           </motion.div>
         </div>
       )}

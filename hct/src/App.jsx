@@ -4,6 +4,7 @@ import { Users, UserCheck, Shield, Briefcase, Activity, CheckCircle, Clock, Buil
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from './components/layout/Layout';
 import VisitorList from './components/visitor/VisitorList';
+import VisitorApprovals from './components/visitor/VisitorApprovals';
 import HostPortal from './components/host/HostPortal';
 import SecurityPortal from './components/security/SecurityPortal';
 import ContractorApprovals from './components/security/ContractorApprovals';
@@ -33,6 +34,7 @@ import IntegrationsDashboard from './components/settings/IntegrationsDashboard';
 import UserManagement from './components/settings/UserManagement';
 import SSOConfiguration from './components/settings/SSOConfiguration';
 import UserProfilePage from './components/profile/UserProfilePage';
+import NotificationCenter from './components/notifications/NotificationCenter';
 import Login from './components/Login';
 import DashboardView from './components/dashboard/DashboardView';
 import { useRole } from './context/RoleContext';
@@ -71,7 +73,9 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<DashboardView />} />
+        <Route path="visitor" element={<ProtectedRoute portalId="visitor"><VisitorList /></ProtectedRoute>} />
         <Route path="visitor-list" element={<ProtectedRoute portalId="visitor"><VisitorList /></ProtectedRoute>} />
+        <Route path="visitor-approvals" element={<ProtectedRoute portalId="visitor"><VisitorApprovals /></ProtectedRoute>} />
         <Route path="host" element={<ProtectedRoute portalId="host"><HostPortal /></ProtectedRoute>} />
         <Route path="security" element={<ProtectedRoute portalId="security"><SecurityPortal /></ProtectedRoute>} />
         <Route path="contractors-hub" element={<ProtectedRoute portalId="security"><ContractorHub /></ProtectedRoute>} />
@@ -105,7 +109,7 @@ function App() {
         {/* Global/Common Views */}
         <Route path="profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
         <Route path="restricted" element={<ProtectedRoute portalId="security"><BlockedVisitors /></ProtectedRoute>} />
-        <Route path="notifications" element={<ProtectedRoute><div className="flex items-center justify-center min-h-[60vh]"><p className="text-slate-500 font-semibold">You have no new notifications.</p></div></ProtectedRoute>} />
+        <Route path="notifications" element={<ProtectedRoute><NotificationCenter /></ProtectedRoute>} />
       </Route>
     </Routes>
   );

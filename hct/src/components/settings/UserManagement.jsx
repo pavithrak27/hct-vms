@@ -18,7 +18,7 @@ const CAMPUSES = [
   { id: 'CMP-06', name: 'Dubai Women\'s Campus' },
 ];
 
-const ROLES = ['Superadmin', 'Campus Admin', 'Host', 'Security', 'Reception', 'Approver', 'Contractor'];
+const ROLES = ['Superadmin', 'Campus Admin', 'Host', 'Security', 'Reception', 'Contractor'];
 
 const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -136,7 +136,7 @@ const UserManagement = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-6">
+                    {/* <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2"><Lock className="w-4 h-4 text-hct-blue" /> Password</label>
                         <div className="relative">
@@ -155,7 +155,7 @@ const UserManagement = () => {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </>
                 )}
                 

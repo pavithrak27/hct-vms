@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Camera, Car, UserCheck, Shield, Trash2, Edit2, Check, Signature, ShieldAlert, Lock, Mail, Send, RefreshCw, XCircle, Clock, ChevronLeft, FileText, ShieldCheck } from 'lucide-react';
+import { Search, Filter, Download, MoreVertical, Eye, CheckCircle2, UserPlus, Camera, Car, UserCheck, Shield, Trash2, Edit2, Check, Signature, ShieldAlert, Lock, Mail, Send, RefreshCw, XCircle, Clock, ChevronLeft, FileText, ShieldCheck, X } from 'lucide-react';
 import { useRole } from '../../context/RoleContext';
 
 const initialVisitors = [
@@ -10,10 +10,14 @@ const initialVisitors = [
     emiratesId: { idNumber: '784-1985-7654321-9', cardNumber: '209183746', fullName: 'Michael Chang', dob: '1985-08-22', nationality: 'China', gender: 'M', issueDate: '2021-06-15', expiryDate: '2026-06-14', occupation: 'Contractor', employer: 'Global Services', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
   { id: 'V-1024', name: 'Emma Wilson', company: 'Ministry of Education', host: 'Prof. Tariq', type: 'Walk-In', date: '2026-10-05', time: '01:00 PM', status: 'Pending', phone: '+971 54 333 9999', email: 'e.wilson@moe.gov.ae', vehicleNumber: 'SHJ C 77123', docId: '784-1992-1112223-4', docType: 'Emirates ID', isBlocked: false,
     emiratesId: { idNumber: '784-1992-1112223-4', cardNumber: '317294851', fullName: 'Emma Wilson', dob: '1992-11-05', nationality: 'United Kingdom', gender: 'F', issueDate: '2023-03-20', expiryDate: '2028-03-19', occupation: 'Education Specialist', employer: 'Ministry of Education', issuingPlace: 'Sharjah', country: 'United Arab Emirates' } },
-  { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Walk-In', date: '2026-10-05', time: '02:45 PM', status: 'Pending', phone: '+971 56 777 8888', email: 'david.l@abccleaning.com', vehicleNumber: 'DXB M 90812', docId: 'P-11223344', docType: 'Passport', isBlocked: true,
+  { id: 'V-1025', name: 'David Lee', company: 'ABC Cleaning', host: 'Jane Doe', type: 'Walk-In', date: '2026-10-05', time: '02:45 PM', status: 'Checked Out', checkInTime: '08:30 AM', checkOutTime: '02:45 PM', gate: 'Gate 02 (Main Gate)', gatekeeper: 'Sgt. Rashid', phone: '+971 56 777 8888', email: 'david.l@abccleaning.com', vehicleNumber: 'DXB M 90812', docId: 'P-11223344', docType: 'Passport', isBlocked: false,
     emiratesId: { idNumber: '784-2002-4977006-4', cardNumber: '129647381', fullName: 'David Lee', dob: '2002-07-05', nationality: 'India', gender: 'M', issueDate: '2023-06-07', expiryDate: '2025-06-06', occupation: 'Building Labourer', employer: 'ABC Cleaning LLC', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
   { id: 'V-1026', name: 'Robert Taylor', company: 'Apex Logistics', host: 'Dr. Ahmed Al-Maktoum', type: 'Walk-In', date: '2026-10-05', time: '03:15 PM', status: 'Rejected', rejectionReason: 'Security clearances not met / expired document', phone: '+971 50 888 1234', email: 'r.taylor@apexlogistics.com', vehicleNumber: 'DXB K 55432', docId: '784-1988-9988776-5', docType: 'Emirates ID', isBlocked: false,
     emiratesId: { idNumber: '784-1988-9988776-5', cardNumber: '456789123', fullName: 'Robert Taylor', dob: '1988-04-12', nationality: 'Canada', gender: 'M', issueDate: '2020-05-10', expiryDate: '2025-05-09', occupation: 'Logistics Manager', employer: 'Apex Logistics', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
+  { id: 'V-1027', name: 'Sarah Parker', company: 'Ministry of Education', host: 'Jane Doe', type: 'Pre-approved', date: '2026-10-05', time: '04:00 PM', status: 'Approved', checkInTime: '09:15 AM', checkOutTime: '04:00 PM', phone: '+971 50 999 1122', email: 's.parker@moe.gov.ae', vehicleNumber: 'DXB C 99182', docId: '784-1994-5544332-1', docType: 'Emirates ID', isBlocked: false,
+    emiratesId: { idNumber: '784-1994-5544332-1', cardNumber: '556677889', fullName: 'Sarah Parker', dob: '1994-02-18', nationality: 'United States', gender: 'F', issueDate: '2021-08-12', expiryDate: '2026-08-11', occupation: 'Consultant', employer: 'MOE', issuingPlace: 'Dubai', country: 'United Arab Emirates' } },
+  { id: 'V-1028', name: 'Khalfan Al-Nuaimi', company: 'Emirates Telecom', host: 'IT Dept', type: 'Walk-In', date: '2026-10-05', time: '04:30 PM', status: 'Checked In', checkInTime: '04:30 PM', checkOutTime: '-', gate: 'Gate 01 (North Gate)', gatekeeper: 'Officer Tariq', phone: '+971 50 444 3322', email: 'khalfan@du.ae', vehicleNumber: 'AUH E 33211', docId: '784-1991-8877665-0', docType: 'Emirates ID', isBlocked: false,
+    emiratesId: { idNumber: '784-1991-8877665-0', cardNumber: '998877665', fullName: 'Khalfan Al-Nuaimi', dob: '1991-09-09', nationality: 'United Arab Emirates', gender: 'M', issueDate: '2022-04-01', expiryDate: '2027-03-31', occupation: 'Network Engineer', employer: 'Emirates Telecom', issuingPlace: 'Abu Dhabi', country: 'United Arab Emirates' } },
 ];
 
 const VisitorList = () => {
@@ -30,6 +34,7 @@ const VisitorList = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   const [activeMenuId, setActiveMenuId] = useState(null);
+  const [fullPhotoUrl, setFullPhotoUrl] = useState(null);
 
   // --- FORM STATE ---
   const [step, setStep] = useState(2); // Starting at 2 to skip the "3 methods" step
@@ -102,19 +107,19 @@ const VisitorList = () => {
     }
     switch(visitor.status) {
       case 'Checked In': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Checked In</span>;
+      case 'Checked Out': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">Checked Out</span>;
       case 'Approved': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Approved</span>;
       case 'Rejected': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Rejected</span>;
-      case 'Pending': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Pending</span>;
-      case 'Completed': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">Completed</span>;
-      default: return <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Unknown</span>;
+      case 'Pending': return <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400">Pending</span>;
+      default: return <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{visitor.status || 'Unknown'}</span>;
     }
   };
 
   const handleCheckInOut = (id) => {
     setVisitorsList(visitorsList.map(v => {
       if (v.id === id) {
-        if (v.status === 'Pending') return { ...v, status: 'Checked In' };
-        if (v.status === 'Checked In') return { ...v, status: 'Completed' };
+        if (v.status === 'Pending' || v.status === 'Approved') return { ...v, status: 'Checked In' };
+        if (v.status === 'Checked In') return { ...v, status: 'Checked Out' };
       }
       return v;
     }));
@@ -290,7 +295,7 @@ const VisitorList = () => {
       {/* Header & Main Tabs */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-800 dark:text-white">Visitor Management</h2>
+          <h2 className="text-base font-bold text-slate-800 dark:text-white">Visitor List</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2">Manage all registered visitors and new registrations.</p>
         </div>
         
@@ -402,7 +407,7 @@ const VisitorList = () => {
                   </button>
                   {isFilterOpen && (
                     <div className="absolute top-full right-0 mt-2 w-44 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
-                      {['All', 'Pending', 'Approved', 'Checked In', 'Rejected', 'Completed', 'Blocked'].map(status => (
+                      {['All', 'Pending', 'Approved', 'Checked In', 'Checked Out', 'Rejected', 'Blocked'].map(status => (
                         <button
                           key={status}
                           onClick={() => { setStatusFilter(status); setIsFilterOpen(false); }}
@@ -436,6 +441,7 @@ const VisitorList = () => {
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Host</th>
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Type</th>
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Date</th>
+                      <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Check-In / Out Details</th>
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Status</th>
                       <th className="px-5 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest text-right">Actions</th>
                     </tr>
@@ -444,7 +450,7 @@ const VisitorList = () => {
                   <tbody>
                     {filteredVisitors.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="px-6 py-16 text-center">
+                        <td colSpan="8" className="px-6 py-16 text-center">
                           <div className="flex flex-col items-center gap-2">
                             <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                               <Search className="w-5 h-5 text-slate-400" />
@@ -467,7 +473,11 @@ const VisitorList = () => {
                         {/* Visitor */}
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-xs flex-shrink-0 shadow-sm">
+                            <div 
+                              onClick={() => setFullPhotoUrl(visitor.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(visitor.name)}&background=0284c7&color=fff`)}
+                              className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-xs flex-shrink-0 shadow-sm cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
+                              title="Click to view full photo"
+                            >
                               {visitor.name.charAt(0)}
                             </div>
                             <div>
@@ -494,6 +504,24 @@ const VisitorList = () => {
                           <p className="font-semibold text-slate-700 dark:text-slate-300 text-xs">{visitor.date}</p>
                         </td>
 
+                        {/* Check-In / Out Details */}
+                        <td className="px-5 py-3.5">
+                          {visitor.status === 'Checked In' || visitor.status === 'Checked Out' || visitor.checkInTime ? (
+                            <div className="text-[11px] font-semibold space-y-0.5">
+                              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span>In: {visitor.checkInTime || visitor.time || '08:30 AM'}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
+                                <span>Out: {visitor.status === 'Checked Out' ? (visitor.checkOutTime || '05:00 PM') : '-'}</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 text-[11px] font-medium">—</span>
+                          )}
+                        </td>
+
                         {/* Status */}
                         <td className="px-5 py-3.5">
                           {getStatusBadge(visitor)}
@@ -502,51 +530,13 @@ const VisitorList = () => {
                         {/* Actions */}
                         <td className="px-5 py-3.5">
                           <div className="flex justify-end items-center gap-1.5">
-                            {((isHost || isAdmin) && visitor.status === 'Pending') && (
-                              <>
-                                <button onClick={() => setConfirmAction({ type: 'Approve', visitor })} className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 border border-emerald-200 dark:border-emerald-800">
-                                  <CheckCircle2 className="w-3 h-3" /> Approve
-                                </button>
-                                <button onClick={() => setConfirmAction({ type: 'Reject', visitor })} className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-500 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 border border-red-200 dark:border-red-800">
-                                  <XCircle className="w-3 h-3" /> Reject
-                                </button>
-                              </>
-                            )}
-                            <button onClick={() => setSelectedVisitor(visitor)} className="p-1.5 text-slate-400 hover:text-hct-blue bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors" title="View Details">
-                              <Eye className="w-3.5 h-3.5" />
+                            <button
+                              onClick={() => setSelectedVisitor(visitor)}
+                              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-hct-blue dark:text-blue-400 font-bold text-xs rounded-xl border border-blue-200 dark:border-blue-800/60 shadow-sm flex items-center gap-1.5 transition-all hover:shadow cursor-pointer"
+                              title="View Details"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> View Details
                             </button>
-                            <div className="relative">
-                              <button
-                                onClick={() => setActiveMenuId(activeMenuId === visitor.id ? null : visitor.id)}
-                                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                              >
-                                <MoreVertical className="w-3.5 h-3.5" />
-                              </button>
-                              {activeMenuId === visitor.id && (
-                                <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
-                                  {(isHost || isAdmin) && (visitor.status === 'Approved' || visitor.status === 'Pending') && (
-                                    <button
-                                      onClick={() => { setVisitorToTransfer(visitor); setShowTransferModal(true); setActiveMenuId(null); }}
-                                      className="w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 text-hct-blue hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 border-b border-slate-100 dark:border-slate-700"
-                                    >
-                                      <RefreshCw className="w-4 h-4" />
-                                      Transfer Visit
-                                    </button>
-                                  )}
-                                  <button
-                                    onClick={() => { setVisitorToBlock(visitor); setSecurityActionType(visitor.isBlocked ? 'temp' : 'deny'); setShowBlockModal(true); setActiveMenuId(null); }}
-                                    className={`w-full text-left px-4 py-3 text-xs font-bold transition-colors flex items-center gap-2 ${
-                                      visitor.isBlocked
-                                        ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
-                                        : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'
-                                    }`}
-                                  >
-                                    <ShieldAlert className="w-4 h-4" />
-                                    {visitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
                           </div>
                         </td>
                       </tr>
@@ -931,7 +921,13 @@ const VisitorList = () => {
             {/* Scrollable body */}
             <div className="overflow-y-auto flex-1 p-8">
               <div className="flex items-center gap-4 mb-6">
-                <img src={selectedVisitor.photo || `https://i.pravatar.cc/150?u=${selectedVisitor.id || 'visitor'}`} alt="Captured Photo" className="w-16 h-16 rounded-full object-cover shadow-sm border border-slate-200" />
+                <img 
+                  src={selectedVisitor.photo || `https://i.pravatar.cc/300?u=${selectedVisitor.id || 'visitor'}`} 
+                  alt="Captured Photo" 
+                  onClick={() => setFullPhotoUrl(selectedVisitor.photo || `https://i.pravatar.cc/300?u=${selectedVisitor.id || 'visitor'}`)}
+                  className="w-16 h-16 rounded-full object-cover shadow-sm border border-slate-200 cursor-pointer hover:ring-4 hover:ring-hct-blue/30 hover:scale-105 transition-all" 
+                  title="Click to view full photo"
+                />
                 <div>
                   <h3 className="text-lg font-bold text-slate-800 dark:text-white">Visitor Details</h3>
                   <p className="text-xs text-slate-500 mt-0.5">ID: {selectedVisitor.id}</p>
@@ -961,6 +957,38 @@ const VisitorList = () => {
                 <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
                   <span className="text-slate-500 font-medium text-sm">Status</span>
                   {getStatusBadge(selectedVisitor)}
+                </div>
+                <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-500 font-medium text-sm">Identity Document</span>
+                  <button
+                    onClick={() => setShowDocModal(true)}
+                    className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-hct-blue dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300 rounded-xl font-bold text-xs flex items-center gap-1.5 border border-blue-200 dark:border-blue-800 transition-colors shadow-sm"
+                  >
+                    <FileText className="w-3.5 h-3.5" /> View Document
+                  </button>
+                </div>
+              </div>
+
+              {/* Check-In & Check-Out Activity Card */}
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 mb-6">
+                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-hct-blue"/> Check-In & Check-Out Activity Details
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <p className="text-slate-400 font-bold uppercase text-[10px]">Check-In Time</p>
+                    <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm mt-0.5">
+                      {selectedVisitor.checkInTime || selectedVisitor.time || '08:30 AM'}
+                    </p>
+                    <p className="text-[10px] text-slate-400 mt-1">{selectedVisitor.gate || 'Gate 01 (Main Gate)'}</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <p className="text-slate-400 font-bold uppercase text-[10px]">Check-Out Time</p>
+                    <p className="font-bold text-slate-700 dark:text-slate-200 text-sm mt-0.5">
+                      {selectedVisitor.status === 'Checked Out' ? (selectedVisitor.checkOutTime || '05:15 PM') : '—'}
+                    </p>
+                    <p className="text-[10px] text-slate-400 mt-1">{selectedVisitor.gatekeeper ? `Gate Keeper: ${selectedVisitor.gatekeeper}` : 'Gate Keeper: Security Guard'}</p>
+                  </div>
                 </div>
               </div>
 
@@ -1000,32 +1028,21 @@ const VisitorList = () => {
 
             {/* Action Buttons — pinned at bottom */}
             <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col gap-3">
-              {((isHost || isAdmin) && selectedVisitor.status === 'Pending') && (
-                <div className="flex gap-3 w-full">
-                  <button onClick={() => {
-                    setConfirmAction({ type: 'Approve', visitor: selectedVisitor });
-                    setSelectedVisitor(null);
-                  }} className="flex-1 px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-400 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800">
-                    <CheckCircle2 className="w-4 h-4" /> Approve
-                  </button>
-                  <button onClick={() => {
-                    setConfirmAction({ type: 'Reject', visitor: selectedVisitor });
-                    setSelectedVisitor(null);
-                  }} className="flex-1 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 border border-red-200 dark:border-red-800">
-                    <XCircle className="w-4 h-4" /> Reject
-                  </button>
-                </div>
-              )}
-              <div className="flex gap-3 w-full">
-                <button onClick={() => setShowDocModal(true)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
+              <div className="flex flex-wrap sm:flex-nowrap gap-2.5 w-full">
+                {/* <button onClick={() => setShowDocModal(true)} className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 py-3 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700">
                   <FileText className="w-4 h-4"/> View Document
-                </button>
+                </button> */}
+                {(isHost || isAdmin) && (selectedVisitor.status === 'Approved' || selectedVisitor.status === 'Pending') && (
+                  <button onClick={() => { setVisitorToTransfer(selectedVisitor); setShowTransferModal(true); setSelectedVisitor(null); }} className="flex-1 bg-blue-50 hover:bg-blue-100 text-hct-blue dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300 py-3 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 border border-blue-200 dark:border-blue-800">
+                    <RefreshCw className="w-4 h-4"/> Transfer Visit
+                  </button>
+                )}
                 <button onClick={() => {
                   setVisitorToBlock(selectedVisitor);
                   setSecurityActionType(selectedVisitor.isBlocked ? 'temp' : 'deny');
                   setShowBlockModal(true);
                   setSelectedVisitor(null);
-                }} className={`flex-1 ${selectedVisitor.isBlocked ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'} text-white py-3 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center gap-2`}>
+                }} className={`flex-1 ${selectedVisitor.isBlocked ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'} text-white py-3 rounded-xl font-bold text-xs shadow-md transition-colors flex items-center justify-center gap-2`}>
                   <ShieldAlert className="w-4 h-4"/> {selectedVisitor.isBlocked ? 'Unblock Visitor' : 'Block Visitor'}
                 </button>
               </div>
@@ -1038,14 +1055,18 @@ const VisitorList = () => {
       {showTransferModal && visitorToTransfer && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowTransferModal(false)} />
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden z-10">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <RefreshCw className="w-5 h-5 text-hct-blue dark:text-blue-400" />
                 Transfer Visitor
               </h3>
-              <button onClick={() => setShowTransferModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-                <XCircle className="w-6 h-6" />
+              <button 
+                type="button"
+                onClick={() => setShowTransferModal(false)} 
+                className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
             
@@ -1055,29 +1076,61 @@ const VisitorList = () => {
               </p>
               
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Campus *</label>
-                <select required value={transferCampus} onChange={(e) => setTransferCampus(e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Select Campus *</label>
+                <select 
+                  required 
+                  value={transferCampus} 
+                  onChange={(e) => setTransferCampus(e.target.value)} 
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm font-semibold"
+                >
                   <option value="">Select Campus</option>
                   <option value="Abu Dhabi Men's Campus">Abu Dhabi Men's Campus</option>
+                  <option value="Abu Dhabi Women's Campus">Abu Dhabi Women's Campus</option>
                   <option value="Dubai Men's Campus">Dubai Men's Campus</option>
                   <option value="Dubai Women's Campus">Dubai Women's Campus</option>
                   <option value="Sharjah Men's Campus">Sharjah Men's Campus</option>
+                  <option value="Al Ain Campus">Al Ain Campus</option>
+                  <option value="Fujairah Campus">Fujairah Campus</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Select Date *</label>
-                <input required type="date" min={new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]} value={transferDate} onChange={(e) => setTransferDate(e.target.value)} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm" />
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Select Date *</label>
+                <input 
+                  required 
+                  type="date" 
+                  min={new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]} 
+                  value={transferDate} 
+                  onChange={(e) => setTransferDate(e.target.value)} 
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm font-medium" 
+                />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Notes</label>
-                <textarea rows="3" value={transferNotes} onChange={(e) => setTransferNotes(e.target.value)} placeholder="Add any specific instructions or reasons for transfer..." className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm resize-none"></textarea>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Notes</label>
+                <textarea 
+                  rows="3" 
+                  value={transferNotes} 
+                  onChange={(e) => setTransferNotes(e.target.value)} 
+                  placeholder="Add any specific instructions or reasons for transfer..." 
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm resize-none"
+                ></textarea>
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setShowTransferModal(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl bg-hct-blue hover:bg-[#001a66] text-white font-bold transition-colors shadow-md shadow-blue-900/20">Transfer</button>
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setShowTransferModal(false)} 
+                  className="flex-1 py-3.5 px-4 rounded-2xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 py-3.5 px-4 rounded-2xl bg-[#001a66] hover:bg-[#001144] text-white font-bold transition-colors shadow-md text-sm"
+                >
+                  Transfer
+                </button>
               </div>
             </form>
           </motion.div>
@@ -1415,6 +1468,36 @@ const VisitorList = () => {
           </div>
         </div>
       )}
+      {/* Full Photo Modal */}
+      <AnimatePresence>
+        {fullPhotoUrl && (
+          <div 
+            className="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4"
+            onClick={() => setFullPhotoUrl(null)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }} 
+              className="relative max-w-3xl max-h-[85vh] overflow-hidden rounded-3xl shadow-2xl border border-white/20 bg-slate-900 p-2 flex flex-col items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setFullPhotoUrl(null)}
+                className="absolute top-4 right-4 z-10 p-2 bg-black/60 hover:bg-black text-white rounded-full transition-colors"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <img 
+                src={fullPhotoUrl} 
+                alt="Full View" 
+                className="max-h-[80vh] max-w-full object-contain rounded-2xl shadow-lg" 
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

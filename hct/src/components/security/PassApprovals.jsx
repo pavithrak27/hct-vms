@@ -5,7 +5,8 @@ import { useContractor } from '../../context/ContractorContext';
 
 const mockContractors = [
   { id: 'CON-2026-102', name: 'Global Facilities Mgt', contractNumber: 'FM-2026-1122', status: 'Pending Approval', date: '2026-10-04', jobDesc: 'Facilities Management', expiry: '2028-10-14', docs: [{ title: 'Trade License', size: '1.2 MB' }, { title: 'VAT Certificate', size: '0.8 MB' }] },
-  { id: 'CON-2026-103', name: 'Apex Builders', contractNumber: 'AB-2026-3311', status: 'Pending Approval', date: '2026-10-05', jobDesc: 'Construction', expiry: '2027-12-31', docs: [{ title: 'Trade License', size: '1.5 MB' }, { title: 'Commercial Register', size: '2.1 MB' }] }
+  { id: 'CON-2026-103', name: 'Apex Builders', contractNumber: 'AB-2026-3311', status: 'Pending Approval', date: '2026-10-05', jobDesc: 'Construction', expiry: '2027-12-31', docs: [{ title: 'Trade License', size: '1.5 MB' }, { title: 'Commercial Register', size: '2.1 MB' }] },
+  { id: 'CON-2026-101', name: 'Tech Solutions LLC', contractNumber: 'CT-2025-9981', status: 'Approved', date: '2025-11-01', jobDesc: 'IT Infrastructure & Maintenance', expiry: '2027-11-01', docs: [{ title: 'Contract Agreement', size: '3.4 MB' }] }
 ];
 
 const PassApprovals = () => {
@@ -29,6 +30,12 @@ const PassApprovals = () => {
   const filteredRequests = requests.filter(r => 
     activeTab === 'pending' ? r.status.includes('Pending') : r.status === 'Approved' || r.status === 'Rejected'
   );
+
+  const pendingCount = mainTab === 'gate-passes' 
+    ? requests.filter(r => r.status.includes('Pending')).length 
+    : mainTab === 'contractors' 
+    ? mockContractors.filter(c => c.status.includes('Pending')).length 
+    : employees.filter(e => e.status.includes('Pending')).length;
 
   const openReq = (req) => {
     setSelectedReq(req);
@@ -86,7 +93,7 @@ const PassApprovals = () => {
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="flex p-2 bg-slate-50 border-b border-slate-200 justify-between items-center">
           <div className="flex gap-2">
-            <button onClick={() => setActiveTab('pending')} className={`px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'pending' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Pending ({requests.filter(r => r.status.includes('Pending')).length})</button>
+            <button onClick={() => setActiveTab('pending')} className={`px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'pending' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Pending ({pendingCount})</button>
             <button onClick={() => setActiveTab('history')} className={`px-6 py-2.5 rounded-xl font-bold transition-all ${activeTab === 'history' ? 'bg-white text-hct-blue shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>History</button>
           </div>
         </div>
@@ -116,9 +123,9 @@ const PassApprovals = () => {
 
           {mainTab === 'contractors' && (
             <div className="grid grid-cols-1 gap-4 animate-in fade-in">
-              {activeTab === 'history' ? (
-                <div className="text-center py-12 text-slate-500">No history found.</div>
-              ) : mockContractors.map(c => (
+              {mockContractors.filter(c => activeTab === 'pending' ? c.status.includes('Pending') : !c.status.includes('Pending')).length === 0 ? (
+                <div className="text-center py-12 text-slate-500">No requests found.</div>
+              ) : mockContractors.filter(c => activeTab === 'pending' ? c.status.includes('Pending') : !c.status.includes('Pending')).map(c => (
                 <div key={c.id} onClick={() => setSelectedContractorReq(c)} className="border border-slate-200 rounded-xl p-5 bg-white flex justify-between items-center cursor-pointer hover:shadow-md transition-all">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center"><Building2 className="w-6 h-6" /></div>
@@ -127,11 +134,18 @@ const PassApprovals = () => {
                       <p className="text-sm text-slate-500">Contract: {c.contractNumber} • Submitted: {c.date}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={(e) => { e.stopPropagation(); setSelectedContractorReq(c); setShowRejectModal(true); }} className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-200">Reject</button>
-                    <button onClick={(e) => { e.stopPropagation(); alert('Contractor Approved'); }} className="px-4 py-2 bg-emerald-500 rounded-lg text-sm font-bold text-white hover:bg-emerald-600 shadow-md">Approve</button>
-                    <ChevronRight className="w-5 h-5 text-slate-400 ml-2" />
-                  </div>
+                  {activeTab === 'pending' ? (
+                    <div className="flex items-center gap-2">
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedContractorReq(c); setShowRejectModal(true); }} className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-200">Reject</button>
+                      <button onClick={(e) => { e.stopPropagation(); alert('Contractor Approved'); }} className="px-4 py-2 bg-emerald-500 rounded-lg text-sm font-bold text-white hover:bg-emerald-600 shadow-md">Approve</button>
+                      <ChevronRight className="w-5 h-5 text-slate-400 ml-2" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${c.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{c.status}</span>
+                      <ChevronRight className="w-5 h-5 text-slate-400" />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

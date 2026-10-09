@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useContractor } from '../../../context/ContractorContext';
 import { useRole } from '../../../context/RoleContext';
 import { Building2, UserCheck, FileSignature, CheckCircle, XCircle } from 'lucide-react';
@@ -6,6 +7,7 @@ import { motion } from 'framer-motion';
 
 export default function ApproverDashboard() {
   const { sessionUser } = useRole();
+  const navigate = useNavigate();
   const { employees, passRequests } = useContractor();
 
   // The context data is already scoped to the Approver's assigned companies.
@@ -41,6 +43,7 @@ export default function ApproverDashboard() {
       {/* STAT CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard 
+          onClick={() => navigate('/contractor-approvals')}
           title="Contractor Approvals" 
           value={pendingContractors} 
           subtitle="Companies pending review"
@@ -48,6 +51,7 @@ export default function ApproverDashboard() {
           theme="blue"
         />
         <StatCard 
+          onClick={() => navigate('/employee-approvals')}
           title="Employee Approvals" 
           value={pendingEmployees.length} 
           subtitle="Staff pending clearance"
@@ -55,6 +59,7 @@ export default function ApproverDashboard() {
           theme="emerald"
         />
         <StatCard 
+          onClick={() => navigate('/pass-approvals')}
           title="Pass Requests" 
           value={pendingPasses.length} 
           subtitle="Requests pending issuance"
@@ -148,7 +153,7 @@ const StatCard = ({ title, value, subtitle, icon, theme }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4, scale: 1.01 }}
-      className={`relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl border border-white/20 shadow-xl shadow-slate-200/40 dark:shadow-slate-900/40 cursor-default group border-l-4 ${borderColors[theme]}`}
+      onClick={onClick} className={`relative overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl border border-white/20 shadow-xl shadow-slate-200/40 dark:shadow-slate-900/40 cursor-pointer group border-l-4 ${borderColors[theme]}`}
     >
       <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 group-hover:rotate-12">
         {icon}

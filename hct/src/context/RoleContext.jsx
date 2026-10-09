@@ -27,11 +27,11 @@ export const roles = [
   },
   { 
     id: 'campusadmin', label: 'Campus Admin', portals: ['dashboard', 'visitor', 'contractor', 'security', 'reporting', 'campus-settings'],
-    defaultPermissions: ['view_visitors', 'view_active_visits', 'view_visit_history', 'view_reports', 'view_contractors'], defaultCampuses: ['CMP-01']
+    defaultPermissions: ['view_visitors', 'view_active_visits', 'view_visit_history', 'view_reports', 'view_contractors'], defaultCampuses: ['CMP-01', 'ALL']
   },
   { 
-    id: 'host', label: 'Host', portals: ['dashboard', 'visitor-list', 'pre-scheduled', 'host-approvals', 'reports'],
-    defaultPermissions: ['view_visitors', 'create_visitor', 'approve_visitor', 'reject_visitor'], defaultCampuses: ['CMP-01']
+    id: 'host', label: 'Host', portals: ['dashboard', 'visitor', 'host', 'security', 'contractor', 'reporting', 'visitor-list', 'pre-scheduled', 'host-approvals', 'contractor-approvals', 'employee-approvals', 'pass-approvals', 'registered-contractors', 'employees', 'passes', 'approval-history', 'reports'],
+    defaultPermissions: ['view_visitors', 'create_visitor', 'approve_visitor', 'reject_visitor', 'approve_contractor', 'approve_employees', 'approve_pass_request', 'view_contractors'], defaultCampuses: ['CMP-01', 'ALL']
   },
   { 
     id: 'security', label: 'Security', portals: ['dashboard', 'visitor-list', 'contractor-passes', 'qr-scanner', 'check-in-out', 'active-visits', 'restricted', 'reports-visitor', 'reports-contractor'],
@@ -44,10 +44,6 @@ export const roles = [
   {
     id: 'contractor', label: 'Contractor', portals: ['dashboard', 'my-company', 'employees', 'pass-requests', 'generated-passes', 'reports'],
     defaultPermissions: ['view_employees', 'create_pass_request'], defaultCampuses: ['ALL']
-  },
-  {
-    id: 'approver', label: 'Approver', portals: ['dashboard', 'contractor-approvals', 'employee-approvals', 'pass-approvals', 'registered-contractors', 'employees', 'passes', 'approval-history'],
-    defaultPermissions: ['approve_contractor', 'approve_employees', 'approve_pass_request'], defaultCampuses: ['ALL']
   },
   {
     id: 'visitor', label: 'Visitor', portals: ['registration', 'my-visit', 'my-pass'],
@@ -66,22 +62,24 @@ export const RoleProvider = ({ children }) => {
   const [activeCampus, setActiveCampus] = useState('ALL'); // For the top-nav selector
 
   const login = (roleId, customUser = null) => {
-    const role = roles.find(r => r.id === roleId);
+    // If someone attempts to log in as approver, map to host
+    const effectiveRoleId = roleId === 'approver' ? 'host' : roleId;
+    const role = roles.find(r => r.id === effectiveRoleId);
     if (role) {
       setCurrentRole(role);
       
       let mappedUser = customUser;
       if (!mappedUser) {
         // Pre-defined mock profiles for robust RBAC testing
-        switch (roleId) {
+        switch (effectiveRoleId) {
           case 'superadmin':
             mappedUser = { id: 'USR-ADMIN', name: 'Super Admin', email: 'admin@hct.ac.ae', role: 'superadmin', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
             break;
           case 'campusadmin':
-            mappedUser = { id: 'USR-CAMPUS-01', name: 'Campus Admin ADMC', email: 'cadmin@hct.ac.ae', role: 'campusadmin', portals: role.portals, campuses: ['CMP-01'], permissions: role.defaultPermissions };
+            mappedUser = { id: 'USR-CAMPUS-01', name: 'Campus Admin ADMC', email: 'cadmin@hct.ac.ae', role: 'campusadmin', portals: role.portals, campuses: ['CMP-01', 'ALL'], permissions: role.defaultPermissions };
             break;
           case 'host':
-            mappedUser = { id: 'USR-HOST-01', name: 'Prof. Tariq', email: 'tariq@hct.ac.ae', role: 'host', hostId: 'Dr. Ahmed Al-Maktoum', portals: role.portals, campuses: ['CMP-01'], permissions: role.defaultPermissions };
+            mappedUser = { id: 'USR-HOST-01', name: 'Prof. Tariq (Host & Approver)', email: 'tariq@hct.ac.ae', role: 'host', hostId: 'Dr. Ahmed Al-Maktoum', approvalScope: ['Tech Solutions LLC', 'Global Services Group'], portals: role.portals, campuses: ['CMP-01', 'ALL'], permissions: role.defaultPermissions };
             break;
           case 'security':
             mappedUser = { id: 'USR-SEC-01', name: 'Security ADMC Gate 2', email: 'sec@hct.ac.ae', role: 'security', portals: role.portals, campuses: ['CMP-01'], gateId: 'GATE-02', permissions: role.defaultPermissions };
@@ -92,14 +90,11 @@ export const RoleProvider = ({ children }) => {
           case 'contractor':
             mappedUser = { id: 'USR-CON-01', name: 'ABC Cleaning Admin', email: 'admin@abccleaning.com', role: 'contractor', companyId: 'Tech Solutions LLC', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
             break;
-          case 'approver':
-            mappedUser = { id: 'USR-APP-01', name: 'Approver Level 1', email: 'app@hct.ac.ae', role: 'approver', approvalScope: ['Tech Solutions LLC', 'Global Services Group'], portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
-            break;
           case 'visitor':
             mappedUser = { id: 'USR-VIS-01', name: 'John Smith', email: 'john@example.com', role: 'visitor', visitorId: 'V-101', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
             break;
           default:
-            mappedUser = { id: `USR-${Math.floor(Math.random()*9000)+1000}`, name: `Mock ${role.label}`, email: `user@hct.ac.ae`, role: roleId, portals: role.portals, campuses: role.defaultCampuses, permissions: role.defaultPermissions };
+            mappedUser = { id: `USR-${Math.floor(Math.random()*9000)+1000}`, name: `Mock ${role.label}`, email: `user@hct.ac.ae`, role: effectiveRoleId, portals: role.portals, campuses: role.defaultCampuses, permissions: role.defaultPermissions };
         }
       }
       

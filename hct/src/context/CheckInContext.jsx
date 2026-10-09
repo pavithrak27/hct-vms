@@ -21,6 +21,9 @@ export const CheckInProvider = ({ children }) => {
       checkInTime: '2026-10-04 09:15 AM',
       checkInMethod: 'QR',
       gate: 'North Gate',
+      expectedCheckOutTime: '2026-10-04 05:00 PM',
+      checkOutGate: 'North Gate Exit',
+      checkOutMethod: 'Pending Exit (QR)',
       status: 'Checked In',
       photo: 'https://i.pravatar.cc/300?img=33'
     },
@@ -36,6 +39,9 @@ export const CheckInProvider = ({ children }) => {
       checkInTime: '2026-10-04 10:30 AM',
       checkInMethod: 'Manual',
       gate: 'Main Reception',
+      expectedCheckOutTime: '2026-10-04 04:30 PM',
+      checkOutGate: 'Main Reception Exit',
+      checkOutMethod: 'Pending Exit (Manual)',
       status: 'Checked In',
       photo: 'https://i.pravatar.cc/300?img=47'
     }

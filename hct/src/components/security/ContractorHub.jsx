@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X, UploadCloud, Trash2, Camera, Calendar, History, Eye, Download, MapPin, Phone, Check } from 'lucide-react';
+import { Building2, Users, FileSignature, CheckCircle2, Search, ArrowRight, ShieldCheck, CheckSquare, Plus, FileText, ChevronLeft, QrCode, Mail, Send, RefreshCw, X, UploadCloud, Trash2, Camera, Calendar, History, Eye, Download, MapPin, Phone, Check, User, ArrowRightLeft, ShieldAlert, Lock, Unlock, Clock, Ban } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ContractorRegistration from '../contractor/ContractorRegistration';
 import { useRole } from '../../context/RoleContext';
@@ -33,6 +33,63 @@ const generatedPassesData = {
   ],
   'CON-2026-102': [
     { passId: 'PASS-00127', empName: 'Mike Ross', empId: 'EMP-CT-003', status: 'Active', validFrom: '01-Sep-2026 07:00 AM', validTo: '30-Nov-2026 05:00 PM', photo: 'https://i.pravatar.cc/150?u=a048581f4e29026701d' }
+  ]
+};
+
+const mockRenewalHistory = {
+  'CON-2026-101': [
+    {
+      id: 'REN-2026-01',
+      contractorId: 'CON-2026-101',
+      contractorName: 'Tech Solutions LLC',
+      contractNumber: 'CT-2025-9981',
+      dateOfRenewal: '2026-09-15',
+      previousExpiry: '2026-11-01',
+      newExpiry: '2027-11-01',
+      renewedBy: 'Ahmed Hassan (Security Admin)',
+      status: 'Approved',
+      documents: ['Trade_License_2026.pdf', 'Contract_Extension_v2.pdf']
+    },
+    {
+      id: 'REN-2025-01',
+      contractorId: 'CON-2026-101',
+      contractorName: 'Tech Solutions LLC',
+      contractNumber: 'CT-2025-9981',
+      dateOfRenewal: '2025-08-22',
+      previousExpiry: '2025-11-01',
+      newExpiry: '2026-11-01',
+      renewedBy: 'Security Admin',
+      status: 'Approved',
+      documents: ['Initial_Contract_2025.pdf']
+    }
+  ],
+  'CON-2026-102': [
+    {
+      id: 'REN-2026-02',
+      contractorId: 'CON-2026-102',
+      contractorName: 'Global Facilities Mgt',
+      contractNumber: 'FM-2026-1122',
+      dateOfRenewal: '2026-10-01',
+      previousExpiry: '2026-10-15',
+      newExpiry: '2028-10-14',
+      renewedBy: 'Sarah Jenkins (Facility Lead)',
+      status: 'Pending Approval',
+      documents: ['Renewal_Application_2026.pdf', 'Commercial_Register.pdf']
+    }
+  ],
+  'CON-2026-103': [
+    {
+      id: 'REN-2023-01',
+      contractorId: 'CON-2026-103',
+      contractorName: 'Al Jaber Construction',
+      contractNumber: 'AJC-2022-005',
+      dateOfRenewal: '2023-11-20',
+      previousExpiry: '2022-12-01',
+      newExpiry: '2023-12-01',
+      renewedBy: 'Mohammed Al Jaber',
+      status: 'Expired',
+      documents: ['Contract_Amendment_2023.pdf']
+    }
   ]
 };
 
@@ -110,6 +167,103 @@ const ContractorHub = () => {
   // Mock State
   const [employees, setEmployees] = useState(mockEmployees);
   const [passRequests, setPassRequests] = useState(mockPassRequests);
+  const [generatedPasses, setGeneratedPasses] = useState(generatedPassesData);
+
+  // Transfer Flow State
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferTargetItem, setTransferTargetItem] = useState(null);
+  const [transferTargetType, setTransferTargetType] = useState('employee'); // 'employee' | 'pass'
+  const [transferCampus, setTransferCampus] = useState("Abu Dhabi Men's Campus");
+  const [transferHost, setTransferHost] = useState('');
+  const [transferDate, setTransferDate] = useState(new Date(Date.now() + 86400000).toISOString().split('T')[0]);
+  const [transferNotes, setTransferNotes] = useState('');
+  const [showTransferSuccess, setShowTransferSuccess] = useState(false);
+
+  // Block / Security Action State
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  const [blockTargetItem, setBlockTargetItem] = useState(null);
+  const [blockTargetType, setBlockTargetType] = useState('employee'); // 'employee' | 'pass'
+  const [securityActionType, setSecurityActionType] = useState('block'); // 'block' | 'temp' | 'perm'
+  const [securityReleaseDate, setSecurityReleaseDate] = useState(new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
+  const [blockNotes, setBlockNotes] = useState('');
+
+  const handleOpenTransfer = (item, type) => {
+    setTransferTargetItem(item);
+    setTransferTargetType(type);
+    setTransferCampus("Abu Dhabi Men's Campus");
+    setTransferHost('');
+    setTransferDate(new Date(Date.now() + 86400000).toISOString().split('T')[0]);
+    setTransferNotes('');
+    setShowTransferModal(true);
+  };
+
+  const handleTransferSubmit = (e) => {
+    e.preventDefault();
+    if (!transferTargetItem) return;
+    const cid = selectedContractor?.id || 'CON-2026-101';
+
+    if (transferTargetType === 'employee') {
+      const updatedList = (employees[cid] || []).map(emp => 
+        emp.id === transferTargetItem.id 
+          ? { ...emp, campus: transferCampus, transferredTo: transferHost, transferNotes } 
+          : emp
+      );
+      setEmployees({ ...employees, [cid]: updatedList });
+    } else {
+      const updatedList = (generatedPasses[cid] || []).map(pass => 
+        pass.passId === transferTargetItem.passId 
+          ? { ...pass, campus: transferCampus, transferredTo: transferHost, transferNotes } 
+          : pass
+      );
+      setGeneratedPasses({ ...generatedPasses, [cid]: updatedList });
+    }
+
+    setShowTransferModal(false);
+    setShowTransferSuccess(true);
+    showToast(`Transferred ${transferTargetItem.name || transferTargetItem.empName} to ${transferCampus}`);
+  };
+
+  const handleOpenBlock = (item, type) => {
+    setBlockTargetItem(item);
+    setBlockTargetType(type);
+    setSecurityActionType(item.status === 'Blocked' ? 'temp' : 'block');
+    setBlockNotes('');
+    setShowBlockModal(true);
+  };
+
+  const handleBlockConfirm = () => {
+    if (!blockNotes.trim()) {
+      alert("Mandatory reason / note required for security action.");
+      return;
+    }
+    if (!blockTargetItem) return;
+    const cid = selectedContractor?.id || 'CON-2026-101';
+
+    let newStatus = 'Approved';
+    if (securityActionType === 'block') newStatus = 'Blocked';
+    if (securityActionType === 'temp') newStatus = 'Temporarily Released';
+    if (securityActionType === 'perm') newStatus = blockTargetType === 'pass' ? 'Active' : 'Approved';
+
+    if (blockTargetType === 'employee') {
+      const updatedList = (employees[cid] || []).map(emp => 
+        emp.id === blockTargetItem.id 
+          ? { ...emp, status: newStatus, isBlocked: securityActionType === 'block', blockReason: blockNotes } 
+          : emp
+      );
+      setEmployees({ ...employees, [cid]: updatedList });
+    } else {
+      const updatedList = (generatedPasses[cid] || []).map(pass => 
+        pass.passId === blockTargetItem.passId 
+          ? { ...pass, status: newStatus, isBlocked: securityActionType === 'block', blockReason: blockNotes } 
+          : pass
+      );
+      setGeneratedPasses({ ...generatedPasses, [cid]: updatedList });
+    }
+
+    setShowBlockModal(false);
+    setBlockTargetItem(null);
+    showToast(`Security action updated: ${newStatus}`);
+  };
 
   const addDocument = () => {
     if (empDocs.length >= 4) return;
@@ -145,7 +299,7 @@ const ContractorHub = () => {
   };
 
   const handlePeriodNext = () => {
-    if (!visitPeriod.startDate || !visitPeriod.endDate) {
+    if (!visitPeriod.startDate || !visitPeriod.endDate || !visitPeriod.campus) {
       setPeriodError('Please fill in all date fields.');
       return;
     }
@@ -170,11 +324,19 @@ const ContractorHub = () => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full relative">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-[150] bg-slate-900 text-white px-5 py-3 rounded-xl shadow-xl font-bold text-sm border border-slate-700 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          {toastMessage}
+        </div>
+      )}
+
       <div className="flex justify-between items-end mb-8">
         <div>
           <h2 className="text-4xl font-bold text-slate-800 dark:text-white">Contractors Hub</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage contractors, employees, and pass requests from one unified dashboard.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage contractors, employees, transfers, and security controls from one unified dashboard.</p>
         </div>
         {isAdmin && !selectedContractor && !isAddingContractor && (
           <div className="flex gap-3">
@@ -234,8 +396,6 @@ const ContractorHub = () => {
                     <span className="flex items-center gap-1 text-sm font-bold text-hct-blue group-hover:underline">Manage <ArrowRight className="w-4 h-4"/></span>
                   </div>
                 </div>
-
-
               </div>
             ))}
           </div>
@@ -328,8 +488,6 @@ const ContractorHub = () => {
                     ))}
                   </div>
                 </div>
-
-
               </div>
             )}
 
@@ -345,22 +503,26 @@ const ContractorHub = () => {
                     <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500">
                       <tr>
                         <th className="p-4 font-bold uppercase">Employee</th>
-                        <th className="p-4 font-bold uppercase">ID Number</th>
+                        <th className="p-4 font-bold uppercase">Contractor Employee ID</th>
                         <th className="p-4 font-bold uppercase">Nationality</th>
                         <th className="p-4 font-bold uppercase">Mobile Number</th>
                         <th className="p-4 font-bold uppercase">Role</th>
                         <th className="p-4 font-bold uppercase">Document</th>
                         <th className="p-4 font-bold uppercase">Status</th>
+                        <th className="p-4 font-bold uppercase text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                       {(employees[selectedContractor.id] || []).length === 0 ? (
-                        <tr><td colSpan="7" className="p-8 text-center text-slate-500">No employees found.</td></tr>
+                        <tr><td colSpan="8" className="p-8 text-center text-slate-500">No employees found.</td></tr>
                       ) : (employees[selectedContractor.id] || []).map(emp => (
                         <tr key={emp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                           <td className="p-4 font-bold text-slate-800 dark:text-white flex items-center gap-3">
                             <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(emp.name)}&background=random`} alt={emp.name} className="w-8 h-8 rounded-full border border-slate-200 shrink-0" />
-                            {emp.name}
+                            <div>
+                              <p>{emp.name}</p>
+                              {emp.campus && <p className="text-[10px] text-blue-600 font-semibold">{emp.campus}</p>}
+                            </div>
                           </td>
                           <td className="p-4 text-slate-600 dark:text-slate-400">{emp.id}</td>
                           <td className="p-4 text-slate-600 dark:text-slate-400">{emp.nationality || '-'}</td>
@@ -377,7 +539,46 @@ const ContractorHub = () => {
                             )}
                           </td>
                           <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${emp.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{emp.status}</span>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${
+                              emp.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' :
+                              emp.status === 'Blocked' ? 'bg-red-100 text-red-700' :
+                              emp.status === 'Temporarily Released' ? 'bg-blue-100 text-blue-700' :
+                              'bg-amber-100 text-amber-700'
+                            }`}>
+                              {emp.status}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleOpenTransfer(emp, 'employee')}
+                                title="Transfer Employee"
+                                className="px-2.5 py-1 text-xs font-bold text-slate-700 hover:text-hct-blue bg-slate-100 hover:bg-blue-50 dark:bg-slate-800 dark:text-slate-300 rounded-lg transition-colors border border-slate-200 dark:border-slate-700 flex items-center gap-1"
+                              >
+                                <ArrowRightLeft className="w-3.5 h-3.5 text-hct-blue" />
+                                Transfer
+                              </button>
+                              
+                              {emp.status === 'Blocked' ? (
+                                <button
+                                  onClick={() => handleOpenBlock(emp, 'employee')}
+                                  title="Unblock / Security Action"
+                                  className="px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg flex items-center gap-1 border border-amber-200"
+                                >
+                                  <Unlock className="w-3.5 h-3.5" />
+                                  Unblock
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleOpenBlock(emp, 'employee')}
+                                  title="Block Employee"
+                                  className="px-2.5 py-1 text-xs font-bold bg-red-50 text-red-700 hover:bg-red-100 rounded-lg flex items-center gap-1 border border-red-200"
+                                >
+                                  <Ban className="w-3.5 h-3.5" />
+                                  Block
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -419,14 +620,19 @@ const ContractorHub = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-900">
-                      {(generatedPassesData[selectedContractor.id] || []).length === 0 ? (
+                      {(generatedPasses[selectedContractor.id] || []).length === 0 ? (
                         <tr><td colSpan="6" className="p-8 text-center text-slate-500">No generated passes found.</td></tr>
-                      ) : (generatedPassesData[selectedContractor.id] || []).map(pass => (
+                      ) : (generatedPasses[selectedContractor.id] || []).map(pass => (
                         <tr key={pass.passId} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                           <td className="p-4"><input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-hct-blue focus:ring-hct-blue" /></td>
                           <td className="p-4">
                             <p className="font-bold text-slate-800 dark:text-white">{pass.passId}</p>
-                            <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${pass.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>{pass.status}</span>
+                            <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                              pass.status === 'Active' ? 'bg-emerald-100 text-emerald-700' :
+                              pass.status === 'Blocked' ? 'bg-red-100 text-red-700' :
+                              pass.status === 'Temporarily Released' ? 'bg-blue-100 text-blue-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>{pass.status}</span>
                           </td>
                           <td className="p-4">
                             <div className="flex items-center gap-3">
@@ -437,8 +643,8 @@ const ContractorHub = () => {
                           <td className="p-4 font-medium text-slate-700 dark:text-slate-300">{selectedContractor.name}</td>
                           <td className="p-4 text-xs text-slate-600 dark:text-slate-400 leading-tight">From: {pass.validFrom}<br/>To: {pass.validTo}</td>
                           <td className="p-4 text-right flex items-center justify-end gap-2">
-                            <button onClick={() => setShowQR(pass.passId)} className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors"><Eye className="w-5 h-5"/></button>
-                            <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors"><Download className="w-5 h-5"/></button>
+                            <button onClick={() => setShowQR(pass.passId)} className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors" title="View Pass QR"><Eye className="w-5 h-5"/></button>
+                            <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Download PDF"><Download className="w-5 h-5"/></button>
                           </td>
                         </tr>
                       ))}
@@ -450,38 +656,96 @@ const ContractorHub = () => {
 
             {activeTab === 'renewal' && (
               <div className="animate-in fade-in space-y-6">
-                <h3 className="text-xl font-bold flex items-center gap-2 text-slate-800 dark:text-white"><History className="w-6 h-6 text-slate-400"/> Renewal History</h3>
-                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-xl font-bold flex items-center gap-2 text-slate-800 dark:text-white">
+                      <History className="w-6 h-6 text-hct-blue"/> Renewal History
+                    </h3>
+                    <p className="text-slate-500 text-sm mt-1">Historical log of contractor renewal milestones and contract validity updates.</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => showToast('Renewal History report exported successfully!')} 
+                      className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold shadow-sm transition-all shrink-0 border border-slate-200 dark:border-slate-700"
+                    >
+                      <Download className="w-4 h-4 text-hct-blue"/> Export
+                    </button>
+                    {selectedContractor.status === 'Expired' && (
+                      <button onClick={() => setShowRenewRequest(true)} className="flex items-center gap-2 px-5 py-2.5 bg-hct-blue hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition-all shrink-0">
+                        <RefreshCw className="w-4 h-4"/> Submit Renewal Request
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Renewal Log Table */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center flex-wrap gap-3">
+                    <h4 className="font-bold text-slate-800 dark:text-white text-base">Renewal Audit Log</h4>
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => showToast('Renewal History report exported successfully!')}
+                        className="px-3.5 py-1.5 bg-hct-blue hover:bg-blue-800 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                      >
+                        <Download className="w-3.5 h-3.5" /> Export
+                      </button>
+                      <span className="text-xs font-bold text-slate-500 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
+                        {(mockRenewalHistory[selectedContractor.id] || []).length} Records Found
+                      </span>
+                    </div>
+                  </div>
                   <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500">
                       <tr>
+                        <th className="p-4 font-bold uppercase">Contractor / ID</th>
                         <th className="p-4 font-bold uppercase">Date of Renewal</th>
                         <th className="p-4 font-bold uppercase">Previous Expiry</th>
                         <th className="p-4 font-bold uppercase">New Expiry</th>
                         <th className="p-4 font-bold uppercase">Renewed By</th>
+                        <th className="p-4 font-bold uppercase">Status</th>
                         <th className="p-4 font-bold uppercase text-right">Documents</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="p-4 font-bold text-slate-800 dark:text-white">2026-09-15</td>
-                        <td className="p-4 text-slate-600 dark:text-slate-400">2026-11-01</td>
-                        <td className="p-4 text-slate-600 dark:text-slate-400">2027-11-01</td>
-                        <td className="p-4 text-slate-600 dark:text-slate-400">Ahmed Hassan</td>
-                        <td className="p-4 text-right flex flex-col items-end justify-center gap-1.5">
-                          <button className="text-blue-600 hover:underline text-xs font-bold transition-colors">View Document</button>
-                          <button className="text-blue-600 hover:underline text-xs font-bold transition-colors">View Document</button>
-                        </td>
-                      </tr>
-                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="p-4 font-bold text-slate-800 dark:text-white">2025-08-22</td>
-                        <td className="p-4 text-slate-600 dark:text-slate-400">2025-11-01</td>
-                        <td className="p-4 text-slate-600 dark:text-slate-400">2026-11-01</td>
-                        <td className="p-4 text-slate-600 dark:text-slate-400">Admin</td>
-                        <td className="p-4 text-right flex flex-col items-end justify-center gap-1.5">
-                          <button className="text-blue-600 hover:underline text-xs font-bold transition-colors">View Document</button>
-                        </td>
-                      </tr>
+                      {(mockRenewalHistory[selectedContractor.id] || [
+                        {
+                          id: 'REN-DEFAULT-01',
+                          contractorId: selectedContractor.id,
+                          contractorName: selectedContractor.name,
+                          contractNumber: selectedContractor.contractNumber,
+                          dateOfRenewal: '2026-09-15',
+                          previousExpiry: '2026-11-01',
+                          newExpiry: selectedContractor.expiry,
+                          renewedBy: selectedContractor.contactName || 'Admin User',
+                          status: selectedContractor.status,
+                          documents: ['Trade_License.pdf', 'Contract_Extension.pdf']
+                        }
+                      ]).map((ren, idx) => (
+                        <tr key={ren.id || idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="p-4">
+                            <div className="font-bold text-slate-800 dark:text-white">{ren.contractorName}</div>
+                            <div className="text-xs text-slate-500 font-mono">{ren.contractorId} • {ren.contractNumber}</div>
+                          </td>
+                          <td className="p-4 font-bold text-slate-800 dark:text-white">{ren.dateOfRenewal}</td>
+                          <td className="p-4 text-slate-600 dark:text-slate-400">{ren.previousExpiry}</td>
+                          <td className="p-4 text-slate-600 dark:text-slate-400">{ren.newExpiry}</td>
+                          <td className="p-4 text-slate-600 dark:text-slate-400 font-medium">{ren.renewedBy}</td>
+                          <td className="p-4">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${ren.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30' : ren.status === 'Expired' ? 'bg-red-100 text-red-700 dark:bg-red-900/30' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30'}`}>
+                              {ren.status}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex flex-col items-end gap-1">
+                              {(ren.documents || ['Document_v1.pdf']).map((docName, dIdx) => (
+                                <button key={dIdx} onClick={() => alert(`Downloading/Viewing ${docName} for ${selectedContractor.name}`)} className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-bold transition-colors flex items-center gap-1">
+                                  <FileText className="w-3 h-3"/> {docName}
+                                </button>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -604,257 +868,67 @@ const ContractorHub = () => {
                                </div>
                                <button type="button" onClick={() => handleDocFileUpload(doc.id, null)} className="text-slate-400 hover:text-red-500 shrink-0"><Trash2 className="w-4 h-4"/></button>
                              </div>
-                           ) : (
-                             <label className="flex items-center justify-center gap-2 bg-white border border-slate-300 border-dashed rounded-xl p-4 cursor-pointer hover:bg-slate-50 hover:border-hct-blue transition-colors text-sm font-bold text-slate-600">
-                               <UploadCloud className="w-5 h-5 text-slate-400"/> <span>Browse File</span>
-                               <input type="file" required={!doc.fileName} className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => handleDocFileUpload(doc.id, e.target.files[0])} />
-                             </label>
-                           )}
+                          ) : (
+                            <label className="border border-slate-300 border-dashed rounded-xl p-4 text-center block cursor-pointer hover:border-hct-blue transition-colors bg-white">
+                              <UploadCloud className="w-6 h-6 text-slate-300 mx-auto mb-1"/>
+                              <span className="text-xs font-bold text-hct-blue">Upload File</span>
+                              <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => handleDocFileUpload(doc.id, e.target.files[0])} />
+                            </label>
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
-                
-                <div className="flex justify-end gap-3 border-t border-slate-100 pt-6">
-                  <button type="button" onClick={() => setShowAddEmployee(false)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors">Cancel</button>
-                  <button type="submit" className="px-8 py-3 bg-hct-blue hover:bg-blue-800 text-white rounded-xl font-bold shadow-lg shadow-blue-900/20 transition-all flex items-center gap-2">Add Employee <ArrowRight className="w-4 h-4"/></button>
+
+                <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
+                  <button type="button" onClick={() => setShowAddEmployee(false)} className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors">Cancel</button>
+                  <button type="submit" className="px-8 py-2.5 bg-hct-blue text-white rounded-xl font-bold hover:bg-blue-800 transition-colors shadow-md">Add Employee</button>
                 </div>
               </form>
             </motion.div>
           </div>
         )}
 
-        {showCreatePass && (
-          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl rounded-[24px] shadow-2xl border border-slate-200 dark:border-slate-800 p-8 w-full max-w-4xl relative max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-6 border-b border-slate-200 dark:border-slate-700 pb-4">
-                <h3 className="text-2xl font-bold flex items-center gap-2 text-slate-800 dark:text-white"><FileSignature className="w-6 h-6 text-hct-blue" /> Create Pass Request</h3>
-                <button onClick={() => {setShowCreatePass(false); setPassStep(1); setSelectedEmpsForPass([]);}} className="text-slate-500 font-bold hover:text-slate-800 transition-colors">Cancel & Return</button>
-              </div>
-
-              {passStep === 1 && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-end border-b border-slate-200 dark:border-slate-700 pb-4">
-                    <div>
-                      <h4 className="font-bold text-lg text-slate-800 dark:text-white">1. Select Employees</h4>
-                      <p className="text-slate-500 text-sm mt-1">{selectedContractor?.name}</p>
-                    </div>
-                    <div className="flex gap-4">
-                      <button onClick={() => setSelectedEmpsForPass((employees[selectedContractor?.id] || []).filter(e => e.status === 'Approved').map(e => e.id))} className="text-sm font-bold text-blue-600 hover:underline">Select All</button>
-                      <button onClick={() => setSelectedEmpsForPass([])} className="text-sm font-bold text-slate-500 hover:underline">Clear All</button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {(employees[selectedContractor?.id] || []).filter(e => e.status === 'Approved').map(emp => (
-                      <label key={emp.id} className={`relative rounded-2xl p-5 cursor-pointer transition-all duration-300 flex gap-4 items-center overflow-hidden border ${selectedEmpsForPass.includes(emp.id) ? 'border-hct-blue bg-blue-50/60 dark:bg-blue-900/30 shadow-lg shadow-blue-900/10 scale-[1.01]' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-300 hover:shadow-xl'}`}>
-                        {selectedEmpsForPass.includes(emp.id) && <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full -mr-16 -mt-16 transition-all" />}
-                        
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 shrink-0 transition-all z-10 ${selectedEmpsForPass.includes(emp.id) ? 'bg-hct-blue border-hct-blue text-white shadow-md' : 'border-slate-300 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 hover:border-blue-300'}`}>
-                          {selectedEmpsForPass.includes(emp.id) && <Check className="w-4 h-4"/>}
-                        </div>
-                        <input type="checkbox" className="hidden" checked={selectedEmpsForPass.includes(emp.id)} onChange={(e) => {
-                          if (e.target.checked) setSelectedEmpsForPass([...selectedEmpsForPass, emp.id]);
-                          else setSelectedEmpsForPass(selectedEmpsForPass.filter(id => id !== emp.id));
-                        }} />
-                        
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center font-bold text-slate-500 dark:text-slate-400 text-lg shadow-inner z-10 shrink-0">
-                           {emp.name.split(' ').map(n=>n[0]).join('').substring(0,2)}
-                        </div>
-
-                        <div className="flex-1 z-10 min-w-0 pr-2">
-                           <div className="flex items-center gap-2 mb-1.5">
-                             <p className="font-bold text-[17px] text-slate-800 dark:text-white truncate">{emp.name}</p>
-                             <span className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full font-bold shadow-sm">{emp.id}</span>
-                           </div>
-                           
-                           <div className="flex flex-col gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-1">
-                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                               <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 opacity-60 text-hct-blue"/> <span>{emp.role}</span></div>
-                               <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 opacity-60 text-emerald-500"/> <span>{emp.nationality}</span></div>
-                             </div>
-                             <div className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 opacity-60 text-amber-500"/> <span>{emp.mobile}</span></div>
-                             <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 opacity-60 text-purple-500"/> <span>{emp.email}</span></div>
-                           </div>
-                        </div>
-                        
-                        <div className="shrink-0 self-center z-10">
-                           <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); alert(`Viewing document: ${emp.document || 'Document.pdf'}`); }} 
-                                   className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-slate-600 text-slate-400 hover:text-blue-600 flex items-center justify-center transition-all duration-300 border border-slate-200 dark:border-slate-600 hover:border-blue-200 hover:scale-110 shadow-sm" title="View Document">
-                             <FileText className="w-5 h-5" />
-                           </button>
-                        </div>
-                      </label>
-                    ))}
-                    {(employees[selectedContractor?.id] || []).filter(e => e.status === 'Approved').length === 0 && <p className="text-slate-500 italic col-span-full">No approved employees available.</p>}
-                  </div>
-
-                  <div className="flex justify-between items-center pt-6 border-t border-slate-200 dark:border-slate-700">
-                    <button onClick={() => {setShowCreatePass(false); setPassStep(1);}} className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Back</button>
-                    <button onClick={() => {if(selectedEmpsForPass.length > 0) setPassStep(2); else alert('Select at least one employee');}} className="px-8 py-3 bg-blue-800 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-blue-900 shadow-md">Visit Period <ArrowRight className="w-4 h-4"/></button>
-                  </div>
-                </div>
-              )}
-
-              {passStep === 2 && (
-                <div className="space-y-6">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-4">2. Requested Visit Period</h4>
-                  {periodError && <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl font-bold text-sm border border-red-200">{periodError}</div>}
-                  
-                  <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <div>
-                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">Start Date *</label>
-                      <input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-bold block mb-1 text-slate-700 dark:text-slate-300">End Date *</label>
-                      <input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 focus:ring-hct-blue bg-white dark:bg-slate-700 dark:text-white" />
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
-                    <button onClick={() => setPassStep(1)} className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Back</button>
-                    <button onClick={handlePeriodNext} className="px-8 py-3 bg-blue-800 text-white rounded-xl font-bold hover:bg-blue-900 shadow-md">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
-                  </div>
-                </div>
-              )}
-
-              {passStep === 3 && (
-                <div className="space-y-6">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-4">3. HSE Training & Acknowledgment</h4>
-                  
-                  <div className="bg-slate-900 rounded-2xl h-48 mb-4 flex flex-col items-center justify-center text-white relative">
-                    {hseStatus === 'Completed' ? (
-                      <div className="text-emerald-400 flex flex-col items-center"><CheckCircle2 className="w-12 h-12 mb-2"/> <p className="font-bold">Training Completed</p></div>
-                    ) : hseStatus === 'In Progress' ? (
-                      <div className="text-blue-400 flex flex-col items-center animate-pulse"><ShieldCheck className="w-12 h-12 mb-2"/> <p className="font-bold">Playing Video...</p></div>
-                    ) : (
-                      <button onClick={simulateHseVideo} className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-full font-bold flex items-center gap-2"><ShieldCheck className="w-5 h-5"/> Watch HSE Video</button>
-                    )}
-                  </div>
-
-                  <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <h4 className="font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2"><CheckSquare className="w-5 h-5"/> Admin Declaration</h4>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 italic">"I hereby confirm that I am authorized to request gate passes on behalf of the selected contractor company."</p>
-                    
-                    <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${declaration ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500' : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600'}`}>
-                      <input type="checkbox" checked={declaration} onChange={() => setDeclaration(!declaration)} className="mt-1 w-5 h-5" />
-                      <span className="font-bold text-slate-800 dark:text-white text-sm">I agree to the above declaration.</span>
-                    </label>
-                    
-                    {declaration && (
-                      <div className="mt-4">
-                        <label className="text-xs font-bold text-slate-500 uppercase">Digital Signature (Name)</label>
-                        <input type="text" value={signature} onChange={(e) => setSignature(e.target.value)} placeholder="Type your full name" className="w-full p-3 border-b-2 border-slate-300 dark:border-slate-600 outline-none focus:border-hct-blue bg-transparent font-medium dark:text-white" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
-                    <button onClick={() => setPassStep(2)} className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Back</button>
-                    <button onClick={() => {if(hseStatus === 'Completed' && declaration && signature) setPassStep(4); else alert('Complete HSE, accept declaration and sign.');}} className="px-8 py-3 bg-blue-800 text-white rounded-xl font-bold hover:bg-blue-900 shadow-md">Review Request <ArrowRight className="inline w-4 h-4 ml-1"/></button>
-                  </div>
-                </div>
-              )}
-
-              {passStep === 4 && (
-                <div className="space-y-6">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-4">4. Review Request</h4>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                      <h5 className="font-bold text-slate-500 uppercase tracking-wider mb-4 border-b dark:border-slate-700 pb-2">Contractor Details</h5>
-                      <div className="text-sm space-y-2">
-                        <p className="grid grid-cols-2"><span className="text-slate-500">Company</span><strong className="text-slate-800 dark:text-white">{selectedContractor?.name}</strong></p>
-                        <p className="grid grid-cols-2"><span className="text-slate-500">Contract No</span><strong className="text-slate-800 dark:text-white">{selectedContractor?.contractNumber}</strong></p>
-                      </div>
-                    </div>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
-                      <h5 className="font-bold text-blue-600 uppercase tracking-wider mb-4 border-b border-blue-200 dark:border-blue-800 pb-2">Visit Details</h5>
-                      <div className="text-sm space-y-2">
-                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">Start Date</span><strong className="text-slate-800 dark:text-white">{visitPeriod.startDate}</strong></p>
-                        <p className="grid grid-cols-2"><span className="text-slate-600 dark:text-slate-400">End Date</span><strong className="text-slate-800 dark:text-white">{visitPeriod.endDate}</strong></p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
-                    <h5 className="font-bold text-slate-500 uppercase tracking-wider mb-4 border-b dark:border-slate-700 pb-2">Selected Employees ({selectedEmpsForPass.length})</h5>
-                    <div className="max-h-40 overflow-y-auto">
-                      <table className="w-full text-sm text-left">
-                        <thead><tr className="text-slate-500 border-b dark:border-slate-700"><th>Name</th><th>ID</th></tr></thead>
-                        <tbody>
-                          {selectedEmpsForPass.map(id => {
-                            const emp = (employees[selectedContractor?.id] || []).find(e => e.id === id);
-                            return <tr key={id} className="border-b dark:border-slate-700 last:border-0"><td className="py-2 font-bold dark:text-white">{emp?.name}</td><td className="py-2 dark:text-slate-300">{id}</td></tr>;
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
-                    <button onClick={() => setPassStep(3)} className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Edit</button>
-                    <button onClick={handleCreatePassRequest} className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-500/30">Submit Pass Request</button>
-                  </div>
-                </div>
-              )}
-
-              {passStep === 5 && (
-                 <div className="text-center py-12 animate-in zoom-in-95">
-                   <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-12 h-12 text-emerald-500" /></div>
-                   <h3 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Pass Request Submitted!</h3>
-                   <p className="text-slate-500 max-w-md mx-auto mb-6">Your pass request has been successfully submitted for {selectedEmpsForPass.length} employees and is pending approval.</p>
-                   <button onClick={() => {setShowCreatePass(false); setPassStep(1); setSelectedEmpsForPass([]);}} className="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700">Close</button>
-                 </div>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Send Link Modal */}
-      {showSendLinkModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden relative animate-in zoom-in-95">
-            <button 
-              onClick={() => setShowSendLinkModal(false)}
-              className="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            >
-              ✕
-            </button>
-            <form onSubmit={handleSendLink} className="p-8">
-              <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
-                <Mail className="w-6 h-6 text-indigo-600" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Send Registration Link</h3>
-              <p className="text-sm text-slate-500 mb-6">Send an email with a unique registration link to the contractor.</p>
+        {showSendLinkModal && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4">
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-md w-full shadow-2xl relative border border-slate-200 dark:border-slate-800">
+              <button 
+                onClick={() => setShowSendLinkModal(false)}
+                className="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                <X className="w-5 h-5"/>
+              </button>
               
-              <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+                <Send className="w-5 h-5 text-hct-blue"/> Send Contractor Registration Link
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Send an onboarding invite link directly to the contractor representative.</p>
+
+              <form onSubmit={handleSendLink} className="space-y-4">
                 <div>
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Campus *</label>
                   <select 
-                    required
-                    value={sendLinkData.campus || 'Men\'s College'} 
-                    onChange={(e) => setSendLinkData({...sendLinkData, campus: e.target.value})} 
-                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
+                    value={sendLinkData.campus}
+                    onChange={(e) => setSendLinkData({...sendLinkData, campus: e.target.value})}
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-hct-blue text-sm"
                   >
-                    <option value="Men's College">Men's College</option>
-                    <option value="Women's College">Women's College</option>
-                    <option value="Main Campus">Main Campus</option>
+                    <option value="Abu Dhabi Men's Campus">Abu Dhabi Men's Campus</option>
+                    <option value="Dubai Men's Campus">Dubai Men's Campus</option>
+                    <option value="Dubai Women's Campus">Dubai Women's Campus</option>
+                    <option value="Sharjah Men's Campus">Sharjah Men's Campus</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Contact Number *</label>
                   <input 
-                    type="tel" 
-                    required
-                    value={sendLinkData.contactNumber || ''} 
-                    onChange={(e) => setSendLinkData({...sendLinkData, contactNumber: e.target.value})} 
-                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
-                    placeholder="e.g. +971 50 123 4567"
+                    type="text" 
+                    required 
+                    value={sendLinkData.contactNumber}
+                    onChange={(e) => setSendLinkData({...sendLinkData, contactNumber: e.target.value})}
+                    placeholder="+971 50 123 4567" 
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-hct-blue text-sm"
                   />
                 </div>
 
@@ -862,118 +936,385 @@ const ContractorHub = () => {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1 block">Contractor Email *</label>
                   <input 
                     type="email" 
-                    required
-                    value={sendLinkData.contractorEmail || ''} 
-                    onChange={(e) => setSendLinkData({...sendLinkData, contractorEmail: e.target.value})} 
-                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
-                    placeholder="e.g. contact@example.com"
+                    required 
+                    value={sendLinkData.contractorEmail}
+                    onChange={(e) => setSendLinkData({...sendLinkData, contractorEmail: e.target.value})}
+                    placeholder="representative@contractor.com" 
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-hct-blue text-sm"
                   />
                 </div>
-              </div>
-              
-              <div className="mt-8 flex gap-3">
-                <button type="button" onClick={() => setShowSendLinkModal(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 flex items-center justify-center gap-2">
-                  <Send className="w-4 h-4" /> Send Email
+
+                <div className="flex gap-3 pt-4">
+                  <button type="button" onClick={() => setShowSendLinkModal(false)} className="flex-1 px-4 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200">Cancel</button>
+                  <button type="submit" className="flex-1 px-4 py-3 bg-hct-blue text-white rounded-xl font-bold hover:bg-blue-700 shadow-md">Send Link</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Create Pass Request Modal */}
+        {showCreatePass && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl overflow-y-auto max-h-[90vh] border border-slate-200 dark:border-slate-800 space-y-6">
+              <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div>
+                  <h3 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+                    <FileSignature className="w-6 h-6 text-hct-blue" />
+                    Create Gate Pass Request
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-semibold">
+                    Company: <span className="text-slate-800 dark:text-white font-bold">{selectedContractor?.name}</span> ({selectedContractor?.contractNumber})
+                  </p>
+                </div>
+                <button type="button" onClick={() => setShowCreatePass(false)} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                  <X className="w-5 h-5"/>
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* Toast Notification */}
-      <AnimatePresence>
-        {toastMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed bottom-6 right-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-4 rounded-2xl shadow-2xl z-[200] flex items-center gap-3 font-bold"
-          >
-            <div className="w-8 h-8 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            {toastMessage}
-          </motion.div>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (selectedEmpsForPass.length === 0) {
+                  alert("Please select at least one employee.");
+                  return;
+                }
+                if (!visitPeriod.startDate || !visitPeriod.endDate) {
+                  alert("Please specify the visit start and end dates.");
+                  return;
+                }
+                const cid = selectedContractor?.id || 'CON-2026-101';
+                const newReq = { 
+                  id: `PR-${Math.floor(Math.random() * 900) + 100}`, 
+                  date: new Date().toISOString().split('T')[0], 
+                  employees: selectedEmpsForPass.length, 
+                  status: 'Pending Approval', 
+                  start: visitPeriod.startDate, 
+                  end: visitPeriod.endDate 
+                };
+                setPassRequests({ ...passRequests, [cid]: [...(passRequests[cid] || []), newReq] });
+                
+                // Add generated pass preview entries for active table
+                const selectedEmpsList = (employees[cid] || []).filter(e => selectedEmpsForPass.includes(e.id));
+                const newGeneratedPasses = selectedEmpsList.map((emp, idx) => ({
+                  passId: `PASS-${Math.floor(Math.random() * 90000) + 10000}`,
+                  empName: emp.name,
+                  empId: emp.id,
+                  status: 'Active',
+                  validFrom: `${visitPeriod.startDate} 08:00 AM`,
+                  validTo: `${visitPeriod.endDate} 06:00 PM`,
+                  photo: `https://i.pravatar.cc/150?u=${emp.id}`
+                }));
+                
+                setGeneratedPasses({ ...generatedPasses, [cid]: [...(generatedPasses[cid] || []), ...newGeneratedPasses] });
+
+                setShowCreatePass(false);
+                setSelectedEmpsForPass([]);
+                setVisitPeriod({ startDate: '', endDate: '' });
+                showToast(`Pass Request (${newReq.id}) submitted successfully!`);
+              }} className="space-y-6">
+
+                {/* Employee Selection */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider">
+                    Select Personnel / Employees *
+                  </label>
+                  <div className="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50/50 dark:bg-slate-800/40 space-y-3 max-h-48 overflow-y-auto">
+                    {(employees[selectedContractor?.id] || []).length === 0 ? (
+                      <p className="text-xs text-slate-400 font-semibold text-center py-4">No registered employees found. Please add employees first.</p>
+                    ) : (
+                      (employees[selectedContractor?.id] || []).map(emp => {
+                        const isChecked = selectedEmpsForPass.includes(emp.id);
+                        return (
+                          <label key={emp.id} className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${isChecked ? 'bg-blue-50/80 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300'}`}>
+                            <div className="flex items-center gap-3">
+                              <input 
+                                type="checkbox" 
+                                checked={isChecked}
+                                onChange={(e) => {
+                                  if (e.target.checked) setSelectedEmpsForPass([...selectedEmpsForPass, emp.id]);
+                                  else setSelectedEmpsForPass(selectedEmpsForPass.filter(id => id !== emp.id));
+                                }}
+                                className="w-4 h-4 rounded text-hct-blue focus:ring-hct-blue" 
+                              />
+                              <div>
+                                <p className="font-bold text-xs text-slate-800 dark:text-white">{emp.name}</p>
+                                <p className="text-[10px] text-slate-500 font-mono">{emp.id} • {emp.role}</p>
+                              </div>
+                            </div>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${emp.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'}`}>
+                              {emp.status}
+                            </span>
+                          </label>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Dates & Campus */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Pass Start Date *</label>
+                    <input 
+                      type="date" 
+                      required 
+                      value={visitPeriod.startDate} 
+                      onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} 
+                      className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-hct-blue text-xs font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Pass End Date *</label>
+                    <input 
+                      type="date" 
+                      required 
+                      value={visitPeriod.endDate} 
+                      onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} 
+                      className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-hct-blue text-xs font-semibold"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Target Campus *</label>
+                  <select 
+                    required 
+                    defaultValue="Abu Dhabi Men's Campus"
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-hct-blue text-xs font-semibold"
+                  >
+                    <option value="Abu Dhabi Men's Campus">Abu Dhabi Men's Campus</option>
+                    <option value="Abu Dhabi Women's Campus">Abu Dhabi Women's Campus</option>
+                    <option value="Dubai Men's Campus">Dubai Men's Campus</option>
+                    <option value="Dubai Women's Campus">Dubai Women's Campus</option>
+                    <option value="Sharjah Campus">Sharjah Campus</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">Work Purpose / Notes</label>
+                  <textarea 
+                    rows="2" 
+                    placeholder="Enter work details or job specifications..." 
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-hct-blue text-xs resize-none"
+                  ></textarea>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <button type="button" onClick={() => setShowCreatePass(false)} className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-xs">Cancel</button>
+                  <button type="submit" className="px-8 py-2.5 bg-hct-blue hover:bg-blue-800 text-white rounded-xl font-bold transition-all shadow-md text-xs">Submit Pass Request</button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
-      {showRenewRequest && selectedContractor && (
-        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[110] p-4">
-          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white dark:bg-slate-900 rounded-[24px] max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
-            <button onClick={() => setShowRenewRequest(false)} className="absolute top-6 right-6 p-2 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors z-10"><X className="w-5 h-5"/></button>
-            <div className="p-8 border-b border-slate-200">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Renew Contractor Registration</h2>
-              <p className="text-slate-500 mt-1">Submit updated contract validity dates and documents.</p>
+      {/* Transfer Modal */}
+      {showTransferModal && transferTargetItem && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowTransferModal(false)} />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden z-10">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/80 dark:bg-slate-800/50">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <RefreshCw className="w-5 h-5 text-hct-blue" />
+                Transfer Visitor
+              </h3>
+              <button 
+                type="button"
+                onClick={() => setShowTransferModal(false)} 
+                className="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                {/* Left Column */}
-                <div className="space-y-4">
-                  <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2 border-b pb-2"><Building2 className="w-5 h-5 text-hct-blue"/> Company Details</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Contract Company Name *</label><input type="text" readOnly value={selectedContractor.name} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
-                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Contract Number *</label><input type="text" defaultValue={selectedContractor.contractNumber} onChange={(e) => setRenewForm({...renewForm, contractNumber: e.target.value})} className="w-full p-2 text-sm rounded-lg border border-slate-300 outline-none focus:border-hct-blue" /></div>
-                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Job Description *</label><textarea readOnly value={selectedContractor.jobDescription || "General Maintenance and Facilities Management"} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none h-16" /></div>
-                    <div><label className="text-xs font-bold block mb-1">Primary Contact</label><input type="text" readOnly value={selectedContractor.contactName || '-'} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
-                    <div><label className="text-xs font-bold block mb-1">Contact Mobile</label><input type="text" readOnly value={selectedContractor.contactMobile || '-'} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
-                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Contact Email</label><input type="text" readOnly value={selectedContractor.contactEmail || '-'} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
-                    <div className="col-span-2"><label className="text-xs font-bold block mb-1">Address</label><input type="text" readOnly value={selectedContractor.address || '-'} className="w-full p-2 text-sm rounded-lg border border-slate-300 bg-slate-50 text-slate-600 font-bold outline-none" /></div>
-                  </div>
-                </div>
 
-                {/* Right Column */}
-                <div className="space-y-4">
-                  <h3 className="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2 border-b pb-2"><Calendar className="w-5 h-5 text-hct-blue"/> Contract & Validity Details</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><label className="text-xs font-bold block mb-1">Contract Start *</label><input type="date" value={renewForm.contractStart} onChange={(e) => setRenewForm({...renewForm, contractStart: e.target.value})} className="w-full p-2 text-sm rounded-lg border border-slate-300 outline-none focus:border-hct-blue" /></div>
-                    <div><label className="text-xs font-bold block mb-1">Contract Expiry *</label><input type="date" value={renewForm.contractExpiry} onChange={(e) => setRenewForm({...renewForm, contractExpiry: e.target.value})} className="w-full p-2 text-sm rounded-lg border border-slate-300 outline-none focus:border-hct-blue" /></div>
-                  </div>
+            <form onSubmit={handleTransferSubmit} className="p-6 space-y-5">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Transfer visitor <span className="font-bold text-slate-900 dark:text-white">{transferTargetItem.name || transferTargetItem.empName || transferTargetItem.id}</span> to another campus.
+              </p>
 
-                  <div className="pt-2">
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="text-xs font-bold block">Contract Documents * (PDF, JPG, PNG)</label>
-                      <button onClick={() => setRenewDocs([...renewDocs, {id: Date.now(), title: '', file: null, fileName: '', size: ''}])} className="text-[10px] font-bold text-hct-blue hover:underline flex items-center gap-1"><Plus className="w-3 h-3"/> Add Document</button>
-                    </div>
-                    <div className="space-y-3">
-                      {renewDocs.map((doc, idx) => (
-                        <div key={doc.id} className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200">
-                          <input type="text" placeholder="Document Name (e.g. Trade License)" value={doc.title} onChange={(e) => { const nd = [...renewDocs]; nd[idx].title = e.target.value; setRenewDocs(nd); }} className="flex-1 p-2 rounded-lg border border-slate-300 text-sm outline-none" />
-                          <label className="cursor-pointer border border-slate-300 border-dashed rounded-lg px-4 py-2 text-sm font-bold text-slate-500 hover:text-hct-blue hover:border-hct-blue transition-colors bg-white">
-                            <UploadCloud className="w-4 h-4 inline mr-2"/> {doc.fileName ? 'Change' : 'Upload'} File
-                            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => { const file = e.target.files[0]; if(file) { const nd = [...renewDocs]; nd[idx].file = file; nd[idx].fileName = file.name; nd[idx].size = (file.size/1024/1024).toFixed(2)+' MB'; setRenewDocs(nd); } }} />
-                          </label>
-                          {doc.fileName && <div className="text-xs text-emerald-600 font-bold flex items-center"><CheckCircle2 className="w-4 h-4 mr-1"/> {doc.fileName}</div>}
-                          {renewDocs.length > 1 && <button onClick={() => setRenewDocs(renewDocs.filter((_, i) => i !== idx))} className="text-slate-400 hover:text-red-500 p-1"><Trash2 className="w-4 h-4"/></button>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Select Campus *</label>
+                <select
+                  required
+                  value={transferCampus}
+                  onChange={(e) => setTransferCampus(e.target.value)}
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm font-semibold"
+                >
+                  <option value="">Select Campus</option>
+                  <option value="Abu Dhabi Men's Campus">Abu Dhabi Men's Campus</option>
+                  <option value="Abu Dhabi Women's Campus">Abu Dhabi Women's Campus</option>
+                  <option value="Dubai Men's Campus">Dubai Men's Campus</option>
+                  <option value="Dubai Women's Campus">Dubai Women's Campus</option>
+                  <option value="Sharjah Men's Campus">Sharjah Men's Campus</option>
+                  <option value="Al Ain Campus">Al Ain Campus</option>
+                  <option value="Fujairah Campus">Fujairah Campus</option>
+                </select>
               </div>
-            </div>
-            <div className="p-6 border-t border-slate-200 bg-slate-50 flex justify-end">
-              <button onClick={() => { alert('Renewal request submitted successfully!'); setShowRenewRequest(false); }} className="px-8 py-3 bg-blue-800 text-white rounded-xl font-bold shadow-md hover:bg-blue-900 transition-colors flex items-center gap-2">Submit Renew Request <ArrowRight className="w-4 h-4"/></button>
-            </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Select Date *</label>
+                <input
+                  required
+                  type="date"
+                  min={new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}
+                  value={transferDate}
+                  onChange={(e) => setTransferDate(e.target.value)}
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Notes</label>
+                <textarea
+                  rows="3"
+                  value={transferNotes}
+                  onChange={(e) => setTransferNotes(e.target.value)}
+                  placeholder="Add any specific instructions or reasons for transfer..."
+                  className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-hct-blue outline-none text-sm resize-none"
+                ></textarea>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setShowTransferModal(false)} 
+                  className="flex-1 py-3.5 px-4 rounded-2xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold bg-white dark:bg-slate-800 hover:bg-slate-50 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-1 py-3.5 px-4 rounded-2xl bg-[#001a66] hover:bg-[#001144] text-white font-bold transition-colors shadow-md text-sm"
+                >
+                  Transfer
+                </button>
+              </div>
+            </form>
           </motion.div>
         </div>
       )}
 
+      {/* Transfer Success Modal */}
+      {showTransferSuccess && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowTransferSuccess(false)} />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-sm p-8 text-center overflow-hidden z-10">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-emerald-50 dark:border-emerald-900/10">
+              <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+            </div>
+            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Transfer Successful!</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Contractor <span className="font-bold text-slate-700 dark:text-slate-300">{transferTargetItem?.name || transferTargetItem?.empName}</span> has been transferred to <span className="font-bold text-slate-700 dark:text-slate-300">{transferCampus}</span> effective <span className="font-bold text-slate-700 dark:text-slate-300">{transferDate}</span>.
+            </p>
+            <button onClick={() => setShowTransferSuccess(false)} className="w-full py-3 rounded-xl bg-hct-blue text-white font-bold hover:bg-blue-900 transition-colors">
+              Done
+            </button>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Security Block / Unblock Modal */}
+      {showBlockModal && blockTargetItem && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden relative border border-slate-200 dark:border-slate-800 z-10">
+            <button 
+              onClick={() => { setShowBlockModal(false); setBlockTargetItem(null); }}
+              className="absolute top-4 right-4 p-2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="p-8">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white text-center mb-6 flex items-center justify-center gap-2">
+                <ShieldAlert className="w-6 h-6 text-red-500" />
+                {blockTargetItem.status === 'Blocked' ? 'Select Security Unblock Action' : 'Block Contractor Employee / Pass'}
+              </h3>
+              
+              {blockTargetItem.status === 'Blocked' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  {/* Temporary Unblock */}
+                  <button
+                    type="button"
+                    onClick={() => setSecurityActionType('temp')}
+                    className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition-all ${securityActionType === 'temp' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${securityActionType === 'temp' ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-blue-50 dark:bg-blue-900/20'}`}>
+                      <Clock className={`w-5 h-5 ${securityActionType === 'temp' ? 'text-blue-600' : 'text-blue-400'}`} />
+                    </div>
+                    <span className={`font-bold text-sm ${securityActionType === 'temp' ? 'text-blue-700 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>Temporary Release</span>
+                  </button>
+
+                  {/* Permanent Unblock */}
+                  <button
+                    type="button"
+                    onClick={() => setSecurityActionType('perm')}
+                    className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition-all ${securityActionType === 'perm' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${securityActionType === 'perm' ? 'bg-emerald-100 dark:bg-emerald-900/50' : 'bg-emerald-50 dark:bg-emerald-900/20'}`}>
+                      <Unlock className={`w-5 h-5 ${securityActionType === 'perm' ? 'text-emerald-600' : 'text-emerald-400'}`} />
+                    </div>
+                    <span className={`font-bold text-sm ${securityActionType === 'perm' ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`}>Permanent Unblock</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex justify-center mb-6">
+                  <div className="w-full flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-red-500 bg-red-50 dark:bg-red-900/20">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2 bg-red-100 dark:bg-red-900/50">
+                      <Ban className="w-5 h-5 text-red-600" />
+                    </div>
+                    <span className="font-bold text-red-700 dark:text-red-400 text-sm">Block Contractor Access</span>
+                    <p className="text-xs text-red-600 dark:text-red-300 mt-1 text-center font-medium">
+                      This contractor will be flagged and denied entry across all campus gates.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {securityActionType === 'temp' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mb-4">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Release Expiry Date *</label>
+                  <input 
+                    type="date"
+                    value={securityReleaseDate}
+                    onChange={(e) => setSecurityReleaseDate(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  />
+                  <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1 font-medium">Contractor access is temporarily restored until this date.</p>
+                </motion.div>
+              )}
+
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 mb-6">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-400 block mb-1">Reason / Notes *</label>
+                <textarea 
+                  value={blockNotes}
+                  onChange={(e) => setBlockNotes(e.target.value)}
+                  placeholder="Provide a mandatory reason or explanation for this security action..."
+                  className="w-full p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-slate-500 text-xs resize-none"
+                  rows={3}
+                ></textarea>
+              </div>
+              
+              <div className="flex gap-3 justify-end">
+                <button 
+                  type="button" 
+                  onClick={() => { setShowBlockModal(false); setBlockTargetItem(null); }} 
+                  className="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleBlockConfirm}
+                  className="px-6 py-2.5 bg-slate-900 dark:bg-hct-blue text-white rounded-xl font-bold hover:bg-slate-800 dark:hover:bg-blue-700 transition-colors text-sm shadow-md"
+                >
+                  Confirm Action
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };
 
 export default ContractorHub;
-
-
-
-
-
-
-
-
-

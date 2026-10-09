@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Building2, Users, FileSignature, CheckCircle2, UploadCloud, Camera, Search, UserPlus, Trash2, ArrowRight, Video, FileText, CheckSquare, Plus, AlertCircle, Clock, ShieldCheck, QrCode, Check } from 'lucide-react';
+import { Building2, Users, FileSignature, CheckCircle2, UploadCloud, Camera, Search, UserPlus, Trash2, ArrowRight, Video, FileText, CheckSquare, Plus, AlertCircle, Clock, ShieldCheck, QrCode, Check, KeyRound, Send, Lock, X, Mail } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PassViewer from './PassViewer';
 import { useContractor } from '../../context/ContractorContext';
@@ -22,6 +22,11 @@ const ContractorPortal = () => {
 
   const { employees, addEmployee, updateEmployee, deleteEmployee, passRequests, addPassRequest, generatedPasses } = useContractor();
   const [editingEmp, setEditingEmp] = useState(null);
+
+  // Profile & Password Modal State
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [forgotResetSent, setForgotResetSent] = useState(false);
+  const [resetEmail, setResetEmail] = useState('ahmed@techsolutions.com');
 
   // Add Employee State
   const [addStep, setAddStep] = useState(1);
@@ -89,7 +94,7 @@ const ContractorPortal = () => {
   };
 
   const handlePeriodNext = () => {
-    if (!visitPeriod.startDate || !visitPeriod.endDate) { setPeriodError('Please fill in all date fields.'); return; }
+    if (!visitPeriod.startDate || !visitPeriod.endDate || !visitPeriod.campus) { setPeriodError('Please select a campus and fill in all date fields.'); return; }
     setPeriodError('');
     setPassStep(3);
   };
@@ -123,8 +128,16 @@ const ContractorPortal = () => {
           <h2 className="text-4xl font-bold text-slate-800 dark:text-white">Contractor Portal</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage company profile, employees, and request gate passes.</p>
         </div>
-        <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-200 font-bold flex items-center gap-2">
-          <Building2 className="w-5 h-5" /> {companyInfo.name} ({companyInfo.id})
+        <div className="flex items-center gap-3">
+          <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-200 font-bold flex items-center gap-2">
+            <Building2 className="w-5 h-5" /> {companyInfo.name} ({companyInfo.id})
+          </div>
+          <button 
+            onClick={() => { setForgotResetSent(false); setShowProfileModal(true); }} 
+            className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-sm transition-colors text-sm"
+          >
+            <KeyRound className="w-4 h-4 text-hct-blue"/> Profile & Password
+          </button>
         </div>
       </div>
 
@@ -478,31 +491,54 @@ const ContractorPortal = () => {
                      </div>
                    )}
 
-                   {/* Step 2: Visit Period */}
-                   {passStep === 2 && (
-                     <div className="space-y-6 max-w-2xl mx-auto">
-                       <h4 className="font-bold text-lg text-slate-700 border-b pb-4">2. Requested Visit Period</h4>
-                       {periodError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3"><AlertCircle className="w-5 h-5 shrink-0" /><p className="font-bold text-sm">{periodError}</p></div>}
-                       
-                       <div className="grid grid-cols-2 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-200">
-                         <div>
-                           <label className="text-sm font-bold block mb-1">Start Date *</label>
-                           <input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
-                         </div>
-                         <div>
-                           <label className="text-sm font-bold block mb-1">End Date *</label>
-                           <input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
-                         </div>
-                       </div>
-                       
-                       <div className="flex justify-between pt-6 border-t">
-                         <button onClick={() => setPassStep(1)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
-                         <button onClick={handlePeriodNext} disabled={!visitPeriod.startDate || !visitPeriod.endDate} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold disabled:opacity-50">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
-                       </div>
-                     </div>
-                   )}
+                                       {/* Step 2: Visit Period */}
+                    {passStep === 2 && (
+                      <div className="space-y-6 max-w-2xl mx-auto">
+                        <h4 className="font-bold text-lg text-slate-700 border-b pb-4">2. Requested Visit Period</h4>
+                        {periodError && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3"><AlertCircle className="w-5 h-5 shrink-0" /><p className="font-bold text-sm">{periodError}</p></div>}
+                        
+                        <div className="space-y-4 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                          <div>
+                            <label className="text-sm font-bold block mb-1 text-slate-700">Target Campus *</label>
+                            <select 
+                              value={visitPeriod.campus || "Dubai Men's College"} 
+                              onChange={(e) => setVisitPeriod({...visitPeriod, campus: e.target.value})}
+                              className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue bg-white font-semibold text-slate-800 text-sm"
+                            >
+                              <option value="Abu Dhabi Men's College">Abu Dhabi Men's College</option>
+                              <option value="Abu Dhabi Women's College">Abu Dhabi Women's College</option>
+                              <option value="Al Ain Men's College">Al Ain Men's College</option>
+                              <option value="Al Ain Women's College">Al Ain Women's College</option>
+                              <option value="Dubai Men's College">Dubai Men's College</option>
+                              <option value="Dubai Women's College">Dubai Women's College</option>
+                              <option value="Fujairah Men's College">Fujairah Men's College</option>
+                              <option value="Fujairah Women's College">Fujairah Women's College</option>
+                              <option value="Ras Al Khaimah Men's College">Ras Al Khaimah Men's College</option>
+                              <option value="Ras Al Khaimah Women's College">Ras Al Khaimah Women's College</option>
+                              <option value="Sharjah Men's College">Sharjah Men's College</option>
+                              <option value="Sharjah Women's College">Sharjah Women's College</option>
+                            </select>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-sm font-bold block mb-1">Start Date *</label>
+                              <input type="date" value={visitPeriod.startDate} onChange={(e) => setVisitPeriod({...visitPeriod, startDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
+                            </div>
+                            <div>
+                              <label className="text-sm font-bold block mb-1">End Date *</label>
+                              <input type="date" value={visitPeriod.endDate} onChange={(e) => setVisitPeriod({...visitPeriod, endDate: e.target.value})} className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-hct-blue" />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between pt-6 border-t">
+                          <button onClick={() => setPassStep(1)} className="px-6 py-3 bg-slate-100 rounded-xl font-bold">Back</button>
+                          <button onClick={handlePeriodNext} disabled={!visitPeriod.startDate || !visitPeriod.endDate || !visitPeriod.campus} className="px-8 py-3 bg-hct-blue text-white rounded-xl font-bold disabled:opacity-50">Next: HSE <ArrowRight className="inline w-4 h-4 ml-1"/></button>
+                        </div>
+                      </div>
+                    )}
 
-                   {/* Step 3: HSE & Declaration */}
+                    {/* Step 3: HSE & Declaration */}
                    {passStep === 3 && (
                      <div className="space-y-8 max-w-3xl mx-auto">
                        <div>
@@ -673,6 +709,71 @@ const ContractorPortal = () => {
                 <button onClick={() => setEditingEmp(null)} className="px-4 py-2 bg-slate-100 rounded-lg font-bold text-slate-600">Cancel</button>
                 <button onClick={() => { updateEmployee(editingEmp); setEditingEmp(null); }} className="px-4 py-2 bg-hct-blue text-white rounded-lg font-bold">Save Changes</button>
               </div>
+            </motion.div>
+          </div>
+        )}
+        {showProfileModal && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-lg w-full shadow-2xl relative border border-slate-200 dark:border-slate-800">
+              <button onClick={() => setShowProfileModal(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"><X className="w-5 h-5"/></button>
+
+              <div className="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-hct-blue flex items-center justify-center font-bold">
+                  <Building2 className="w-6 h-6"/>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-white">{companyInfo.name} Profile</h3>
+                  <p className="text-xs text-slate-500 font-mono">ID: {companyInfo.id} • Ref: {companyInfo.contractNumber}</p>
+                </div>
+              </div>
+
+              {!forgotResetSent ? (
+                <div className="space-y-6">
+                  <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 text-sm">
+                    <div className="flex justify-between"><span className="text-slate-500 font-medium">Account Representative:</span> <strong className="text-slate-800 dark:text-white">Ahmed Hassan</strong></div>
+                    <div className="flex justify-between"><span className="text-slate-500 font-medium">Registered Email:</span> <strong className="text-slate-800 dark:text-white">{resetEmail}</strong></div>
+                    <div className="flex justify-between"><span className="text-slate-500 font-medium">Company Status:</span> <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">{companyInfo.status}</span></div>
+                  </div>
+
+                  <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+                    <h4 className="font-bold text-slate-800 dark:text-white text-base mb-1 flex items-center gap-2">
+                      <KeyRound className="w-5 h-5 text-hct-blue"/> Password Security & Recovery
+                    </h4>
+                    <p className="text-xs text-slate-500 mb-4">Forgot your current password or need to issue a password reset link for your contractor portal profile?</p>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs font-bold block mb-1 text-slate-700 dark:text-slate-300">Registered Email Address</label>
+                        <input 
+                          type="email" 
+                          value={resetEmail} 
+                          onChange={(e) => setResetEmail(e.target.value)} 
+                          className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold outline-none focus:ring-2 focus:ring-hct-blue" 
+                        />
+                      </div>
+                      <button 
+                        onClick={() => setForgotResetSent(true)} 
+                        className="w-full py-3 bg-hct-blue hover:bg-blue-800 text-white font-bold rounded-xl text-sm shadow-md flex items-center justify-center gap-2 transition-colors"
+                      >
+                        <Send className="w-4 h-4"/> Request Password Reset Link
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-4 space-y-4">
+                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-8 h-8"/>
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-800 dark:text-white">Password Reset Dispatched</h4>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm">
+                    A secure password reset link has been dispatched to <strong className="text-slate-800 dark:text-white">{resetEmail}</strong>. Follow the instructions in the email to update your profile password.
+                  </p>
+                  <button onClick={() => setShowProfileModal(false)} className="w-full py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-sm transition-colors">
+                    Close Window
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}

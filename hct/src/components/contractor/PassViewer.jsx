@@ -44,7 +44,7 @@ const PassViewer = ({ pass, onClose }) => {
                      <p className="text-lg font-bold text-slate-800">{pass.empName}</p>
                    </div>
                    <div>
-                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Employee ID</p>
+                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Contractor Employee ID</p>
                      <p className="text-lg font-bold text-slate-800">{pass.empId}</p>
                    </div>
                  </div>

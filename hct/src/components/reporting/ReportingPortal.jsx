@@ -149,13 +149,12 @@ const ReportingPortal = () => (
       <h2 className="text-base font-black text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
         <TrendingUp className="w-4 h-4 text-hct-blue" /> Report Metrics
       </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Users,       label: 'Total Visitors',      value: '1,250', trend: 'up',   trendVal: '+12%', color: 'blue',    bars: [30,45,28,60,42,80,95], delay: 0.05 },
           { icon: Users,       label: "Today's Visitors",    value: '42',    trend: 'up',   trendVal: '+3',   color: 'emerald', bars: [10,18,22,15,20,35,42], delay: 0.10 },
           { icon: Briefcase,   label: 'Contractors Active',  value: '12',    trend: 'down', trendVal: '-1',   color: 'indigo',  bars: [8,12,14,10,13,12,12],  delay: 0.15 },
-          { icon: ShieldAlert, label: 'Restricted Visitors', value: '125',   trend: 'down', trendVal: '-8%',  color: 'red',     bars: [20,18,22,30,28,24,22], delay: 0.20 },
-          { icon: Database,    label: 'Audit Actions',       value: '84K',   trend: 'up',   trendVal: '+2%',  color: 'slate',   bars: [55,60,70,65,80,75,84], delay: 0.25 },
+          { icon: Database,    label: 'Audit Actions',       value: '84K',   trend: 'up',   trendVal: '+2%',  color: 'slate',   bars: [55,60,70,65,80,75,84], delay: 0.20 },
         ].map((c, i) => <CountCard key={i} {...c} />)}
       </div>
     </div>
@@ -173,7 +172,6 @@ const ReportingPortal = () => (
           { to: '/reports/contractor-onboarded', icon: HardHat,        title: 'Contractor Onboarded', description: 'Status of contractor companies, validity periods, and employee counts.',                badge: 'Contractors', count: '15',    accent: 'amber',   delay: 0.20 },
           { to: '/reports/contractor-visitor',   icon: FileSpreadsheet,title: 'Contractor Visits',    description: 'Detailed log of gate passes and visits generated for contractors on-site.',             badge: 'Contractors', count: '340',   accent: 'indigo',  delay: 0.25 },
           { to: '/reports/audit',                icon: Database,       title: 'Audit Log Report',     description: 'Comprehensive immutable log of all system actions, decisions, and security events.',    badge: 'Audit',       count: '84K',   accent: 'slate',   delay: 0.30 },
-          { to: '/reports/visitor',              icon: FileText,       title: 'Custom Report',        description: 'Build and export a fully customised report with your own date ranges and field filters.', badge: 'Flexible',    count: null,    accent: 'rose',    delay: 0.35 },
         ].map((r, i) => <ReportCard key={i} {...r} />)}
       </div>
     </div>

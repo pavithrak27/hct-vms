@@ -29,7 +29,7 @@ export default function DashboardView() {
     case 'contractor':
       return <ContractorDashboard />;
     case 'approver':
-      return <ApproverDashboard />;
+      return <HostDashboard />;
     case 'reception':
       return <ReceptionDashboard />;
     default:

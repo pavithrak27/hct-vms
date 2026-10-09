@@ -87,7 +87,7 @@ const HostPortal = () => {
   const completeRegistration = () => {
     setShowEmailSimulation(false);
     // Navigate to visitor portal with state
-    navigate('/visitor', { 
+    navigate('/visitor-list', { 
       state: { 
         preScheduled: true, 
         visitData: {

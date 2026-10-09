@@ -20,8 +20,8 @@ const ContractorVisitorReport = () => {
       checkInTime: '08:00 AM',
       checkOutTime: '12:00 PM',
       passStatus: 'Approved',
-      visitStatus: 'Completed',
-      qrStatus: 'Invalidated'
+      visitStatus: 'Checked out',
+      qrStatus: 'Expired'
     },
     {
       passRequestId: 'PR-2026-002',
@@ -59,6 +59,7 @@ const ContractorVisitorReport = () => {
       checkOutTime: '-',
       passStatus: 'Approved',
       visitStatus: 'Pending',
+       qrStatus: 'InActive'
     },
     {
       passRequestId: 'PR-2026-004',
@@ -77,7 +78,7 @@ const ContractorVisitorReport = () => {
       checkOutTime: '-',
       passStatus: 'Approved',
       visitStatus: 'Pending',
-      qrStatus: 'Active'
+      qrStatus: 'InActive'
     },
     {
       passRequestId: 'PR-2026-005',
@@ -95,8 +96,8 @@ const ContractorVisitorReport = () => {
       checkInTime: '09:05 AM',
       checkOutTime: '05:00 PM',
       passStatus: 'Approved',
-      visitStatus: 'Completed',
-      qrStatus: 'Invalidated'
+      visitStatus: 'Checked out',
+      qrStatus: 'Expired'
     }
   ];
 

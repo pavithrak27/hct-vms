@@ -12,9 +12,9 @@ class AuthorizationService {
       case 'visitor':
         return ['campusadmin', 'host', 'reception', 'security', 'superadmin'].includes(role);
       case 'security':
-        return ['campusadmin', 'security', 'reception', 'superadmin', 'approver'].includes(role);
+        return ['campusadmin', 'security', 'reception', 'superadmin', 'approver', 'host'].includes(role);
       case 'contractor':
-        return ['campusadmin', 'contractor', 'approver', 'superadmin'].includes(role);
+        return ['campusadmin', 'contractor', 'approver', 'superadmin', 'host', 'security'].includes(role);
       case 'reporting':
         return ['campusadmin', 'security', 'host', 'superadmin', 'contractor', 'approver'].includes(role);
       case 'host':
@@ -39,7 +39,7 @@ class AuthorizationService {
 
   canAccessCompany(user, companyId) {
     if (!user) return false;
-    if (user.role === 'superadmin' || user.role === 'campusadmin') return true;
+    if (['superadmin', 'campusadmin', 'host', 'security'].includes(user.role)) return true;
     if (user.role === 'approver') {
       return user.approvalScope && user.approvalScope.includes(companyId);
     }

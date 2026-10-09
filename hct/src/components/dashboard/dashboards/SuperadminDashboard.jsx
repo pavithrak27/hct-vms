@@ -70,11 +70,12 @@ export default function SuperadminDashboard() {
 
   // Sample Expected Visitors data
   const [visitorsList, setVisitorsList] = useState([
-    { id: 'V-101', name: 'Michael Chang', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', date: '2026-10-05', time: '09:00 AM - 11:00 AM', status: 'Arrived', gate: 'Gate 2 Main Entrance', passType: 'Pre-Approved' },
-    { id: 'V-102', name: 'Sarah Parker', company: 'Ministry of Education', host: 'Jane Doe', date: '2026-10-05', time: '01:00 PM - 03:00 PM', status: 'Expected', gate: 'Gate 1 North Wing', passType: 'VIP Guest' },
-    { id: 'V-103', name: 'Ali Hassan', company: 'Global Services Group', host: 'Facilities Dept', date: '2026-10-05', time: '02:30 PM - 05:00 PM', status: 'Expected', gate: 'Gate 4 Service Bay', passType: 'Contractor Pass' },
-    { id: 'V-104', name: 'Elena Rostova', company: 'CyberTech Emirates', host: 'Eng. Khalid Mansoor', date: '2026-10-05', time: '11:15 AM - 01:45 PM', status: 'Checked In', gate: 'Gate 2 Main Entrance', passType: 'Pre-Approved' },
-    { id: 'V-105', name: 'David K. Miller', company: 'Independent Consultant', host: 'Dean Office', date: '2026-10-05', time: '09:41 AM - 12:00 PM', status: 'Denied', gate: 'Turnstile 3', passType: 'Restricted' },
+    { id: 'V-101', name: 'Michael Chang', company: 'Tech Solutions LLC', host: 'Dr. Ahmed Al-Maktoum', date: '2026-10-05', time: '09:00 AM - 11:00 AM', status: 'Pending', gate: 'Gate 2 Main Entrance', passType: 'Pre-Approved' },
+    { id: 'V-102', name: 'Sarah Parker', company: 'Ministry of Education', host: 'Jane Doe', date: '2026-10-05', time: '01:00 PM - 03:00 PM', status: 'Approved', gate: 'Gate 1 North Wing', passType: 'VIP Guest' },
+    { id: 'V-103', name: 'Ali Hassan', company: 'Global Services Group', host: 'Facilities Dept', date: '2026-10-05', time: '02:30 PM - 05:00 PM', status: 'Checked In', gate: 'Gate 4 Service Bay', passType: 'Contractor Pass' },
+    { id: 'V-104', name: 'Elena Rostova', company: 'CyberTech Emirates', host: 'Eng. Khalid Mansoor', date: '2026-10-05', time: '11:15 AM - 01:45 PM', status: 'Checked Out', gate: 'Gate 2 Main Entrance', passType: 'Pre-Approved' },
+    { id: 'V-105', name: 'David K. Miller', company: 'Independent Consultant', host: 'Dean Office', date: '2026-10-05', time: '09:41 AM - 12:00 PM', status: 'Rejected', gate: 'Turnstile 3', passType: 'Restricted' },
+    { id: 'V-106', name: 'Robert Taylor', company: 'Apex Logistics', host: 'Dr. Ahmed Al-Maktoum', date: '2026-10-05', time: '03:15 PM', status: 'Blocked', gate: 'Gate 1 Main Entry', passType: 'Walk-In' }
   ]);
 
   const mockCounts = useMemo(() => {
@@ -206,7 +207,8 @@ export default function SuperadminDashboard() {
         <motion.div 
           whileHover={{ y: -3 }}
           transition={{ duration: 0.2 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between"
+          onClick={() => navigate('/visitor-list')}
+          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-blue-400 hover:shadow-lg transition-all"
         >
           <div>
             <div className="flex justify-between items-start">
@@ -233,11 +235,12 @@ export default function SuperadminDashboard() {
           </div>
         </motion.div>
 
-        {/* Card 2: Checked-In On-Premises (Removed occupancy rate) */}
+        {/* Card 2: Checked-In On-Premises */}
         <motion.div 
           whileHover={{ y: -3 }}
           transition={{ duration: 0.2 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between"
+          onClick={() => navigate('/active-visits')}
+          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-emerald-400 hover:shadow-lg transition-all"
         >
           <div>
             <div className="flex justify-between items-start">
@@ -263,11 +266,12 @@ export default function SuperadminDashboard() {
           </div>
         </motion.div>
 
-        {/* Card 3: Checked-Out Today (Removed avg visit time) */}
+        {/* Card 3: Checked-Out Today */}
         <motion.div 
           whileHover={{ y: -3 }}
           transition={{ duration: 0.2 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between"
+          onClick={() => navigate('/visit-history')}
+          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-slate-400 hover:shadow-lg transition-all"
         >
           <div>
             <div className="flex justify-between items-start">
@@ -292,11 +296,12 @@ export default function SuperadminDashboard() {
           </div>
         </motion.div>
 
-        {/* Card 4: Overstay / Pending Exit (Removed host alert dispatched) */}
+        {/* Card 4: Overstay / Pending Exit */}
         <motion.div 
           whileHover={{ y: -3 }}
           transition={{ duration: 0.2 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between"
+          onClick={() => navigate('/active-visits')}
+          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-amber-400 hover:shadow-lg transition-all"
         >
           <div>
             <div className="flex justify-between items-start">
@@ -325,7 +330,8 @@ export default function SuperadminDashboard() {
         <motion.div 
           whileHover={{ y: -3 }}
           transition={{ duration: 0.2 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between"
+          onClick={() => navigate('/security-reviews')}
+          className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-rose-400 hover:shadow-lg transition-all"
         >
           <div>
             <div className="flex justify-between items-start">
@@ -450,7 +456,7 @@ export default function SuperadminDashboard() {
 
             {/* Breakdown Legend Items */}
             <div className="space-y-2.5">
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100/70 dark:hover:bg-slate-800 transition-colors">
+              <div onClick={() => navigate('/visitor')} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-blue-50/70 dark:hover:bg-slate-800 cursor-pointer transition-all">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Pre-Approved Host Passes</span>
@@ -460,7 +466,7 @@ export default function SuperadminDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100/70 dark:hover:bg-slate-800 transition-colors">
+              <div onClick={() => navigate('/visitor')} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-emerald-50/70 dark:hover:bg-slate-800 cursor-pointer transition-all">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Walk-ins</span>
@@ -470,7 +476,7 @@ export default function SuperadminDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100/70 dark:hover:bg-slate-800 transition-colors">
+              <div onClick={() => navigate('/security-reviews')} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-rose-50/70 dark:hover:bg-slate-800 cursor-pointer transition-all">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Denied / Watchlist Blocked</span>
@@ -503,7 +509,7 @@ export default function SuperadminDashboard() {
             {/* 3-Column Metric Tiles (Removed Revoked/Suspended) */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 mb-5">
               {/* Tile 1: Active Contractors */}
-              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+              <div onClick={() => navigate('/contractors-hub')} className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between cursor-pointer hover:border-blue-400 dark:hover:border-blue-700 hover:shadow-sm transition-all">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block leading-tight">
                   Active<br />Contractors
                 </span>
@@ -514,7 +520,7 @@ export default function SuperadminDashboard() {
               </div>
 
                             {/* Tile 1b: Contractor Check In */}
-              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+              <div onClick={() => navigate('/contractors-hub')} className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-700 hover:shadow-sm transition-all">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block leading-tight">
                   Contractor<br />Check In
                 </span>
@@ -524,7 +530,7 @@ export default function SuperadminDashboard() {
               </div>
 
               {/* Tile 1c: Contractor Check Out */}
-              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+              <div onClick={() => navigate('/contractors-hub')} className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between cursor-pointer hover:border-slate-400 dark:hover:border-slate-600 hover:shadow-sm transition-all">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block leading-tight">
                   Contractor<br />Check Out
                 </span>
@@ -534,7 +540,7 @@ export default function SuperadminDashboard() {
               </div>
 
               {/* Tile 1d: Employees Count */}
-              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+              <div onClick={() => navigate('/employee-approvals')} className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-700 hover:shadow-sm transition-all">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block leading-tight">
                   Total<br />Employees
                 </span>
@@ -544,7 +550,7 @@ export default function SuperadminDashboard() {
               </div>
 
               {/* Tile 2: Expired Passes */}
-              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+              <div onClick={() => navigate('/contractors-hub')} className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between cursor-pointer hover:border-red-400 dark:hover:border-red-700 hover:shadow-sm transition-all">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block leading-tight">
                   Expired<br />Passes
                 </span>
@@ -555,7 +561,7 @@ export default function SuperadminDashboard() {
               </div>
 
               {/* Tile 3: Onboard Requests */}
-              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+              <div onClick={() => navigate('/contractor-approvals')} className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col justify-between cursor-pointer hover:border-amber-400 dark:hover:border-amber-700 hover:shadow-sm transition-all">
                 <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block leading-tight">
                   Onboard<br />Requests
                 </span>
@@ -732,13 +738,15 @@ export default function SuperadminDashboard() {
               <select
                 value={visitorFilter}
                 onChange={(e) => setVisitorFilter(e.target.value)}
-                className="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 font-semibold outline-none"
+                className="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 font-semibold outline-none cursor-pointer"
               >
                 <option value="ALL">All Status</option>
-                <option value="Arrived">Arrived</option>
-                <option value="Expected">Expected</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
                 <option value="Checked In">Checked In</option>
-                <option value="Denied">Denied</option>
+                <option value="Checked Out">Checked Out</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Blocked">Blocked</option>
               </select>
             </div>
           )}
@@ -777,24 +785,34 @@ export default function SuperadminDashboard() {
                       <span className="block text-[11px] text-slate-400">{row.passType}</span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      {row.status === 'Arrived' && (
-                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60">
-                          Arrived
+                      {row.status === 'Pending' && (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200">
+                          Pending
                         </span>
                       )}
-                      {row.status === 'Expected' && (
-                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60">
-                          Expected
+                      {row.status === 'Approved' && (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200">
+                          Approved
                         </span>
                       )}
                       {row.status === 'Checked In' && (
-                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200">
                           Checked In
                         </span>
                       )}
-                      {row.status === 'Denied' && (
-                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/60">
-                          Denied
+                      {row.status === 'Checked Out' && (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200">
+                          Checked Out
+                        </span>
+                      )}
+                      {row.status === 'Rejected' && (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 border border-rose-200">
+                          Rejected
+                        </span>
+                      )}
+                      {row.status === 'Blocked' && (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 border border-red-200 inline-flex items-center gap-1">
+                          <Ban className="w-3 h-3 text-red-600"/> Blocked
                         </span>
                       )}
                     </td>
@@ -811,7 +829,7 @@ export default function SuperadminDashboard() {
             {[
               { title: 'Visitor Management', desc: 'Fast Pass & walk-in check-in', to: '/visitor-list', icon: Users, badge: 'Fast Pass', color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' },
               { title: 'Host Approvals', desc: 'Staff approval queues & VIP requests', to: '/host', icon: UserCheck, badge: '12 Pending', color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30' },
-              { title: 'Security Reviews', desc: 'Blocklist review & temporary release', to: '/security-reviews', icon: FileSearch, badge: '1 Pending', color: 'text-amber-600 bg-amber-50 dark:bg-amber-900/30' },
+              { title: 'Security', desc: 'Blocklist management, reviews & release', to: '/security-reviews', icon: FileSearch, badge: '1 Pending', color: 'text-amber-600 bg-amber-50 dark:bg-amber-900/30' },
               { title: 'Contractor Desk', desc: 'Permits, passes & induction roster', to: '/contractors-hub', icon: Briefcase, badge: '45 On-Site', color: 'text-purple-600 bg-purple-50 dark:bg-purple-900/30' }
             ].map((mod, i) => (
               <Link

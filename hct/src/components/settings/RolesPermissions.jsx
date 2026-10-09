@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ShieldCheck, Search, Users, Check, Save, Plus, Edit2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const INITIAL_ROLES = ['Superadmin', 'Campus Admin', 'Host', 'Security', 'Reception', 'Visitor', 'Contractor', 'Approver'];
+const INITIAL_ROLES = ['Superadmin', 'Campus Admin', 'Host', 'Security', 'Reception', 'Visitor', 'Contractor'];
 
 const WEB_MODULES = [
   { name: 'Visitor Management', perms: ['web_View Visitors', 'web_Create Visitor', 'web_Edit Visitor', 'web_Delete Visitor'] },

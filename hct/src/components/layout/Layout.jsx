@@ -20,10 +20,18 @@ const Layout = () => {
   const [newCampusName, setNewCampusName] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
+  const [showNotificationPopover, setShowNotificationPopover] = useState(false);
+  const [notificationFilter, setNotificationFilter] = useState('ALL');
+  const [notifications, setNotifications] = useState([
+    { id: 1, type: 'approval', category: 'Approvals', title: 'New Visitor Approval Request', desc: 'John Smith requested access for Abu Dhabi Men\'s Campus', time: '5 mins ago', read: false, link: '/visitor-approvals' },
+    { id: 2, type: 'security', category: 'Security', title: 'Security Alert: Expired Pass', desc: 'Robert Taylor attempted turnstile entry with expired credentials', time: '20 mins ago', read: false, link: '/security-reviews' },
+    { id: 3, type: 'contractor', category: 'Contractor', title: 'Gate Pass Request Submitted', desc: 'Tech Solutions LLC submitted pass request PR-102 for 3 technicians', time: '1 hour ago', read: false, link: '/pass-approvals' },
+    { id: 4, type: 'system', category: 'System', title: 'Daily Audit Log Backup Complete', desc: 'System completed automated snapshot backup for all campuses', time: '3 hours ago', read: true, link: '/reports/audit' }
+  ]);
 
 
-  const toggleMenu = (menuName) => {
-    setExpandedMenus(prev => ({ ...prev, [menuName]: prev[menuName] === undefined ? false : !prev[menuName] }));
+  const toggleMenu = (menuName, currentlyExpanded) => {
+    setExpandedMenus(prev => ({ ...prev, [menuName]: !currentlyExpanded }));
   };
 
   const handleAddCampus = (e) => {
@@ -36,9 +44,17 @@ const Layout = () => {
   const ROLE_NAVIGATION = {
     host: [
       { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
-      { id: 'visitor-list', name: 'Visitor List', href: '/visitor-list', icon: FileText },
-      { id: 'reports', name: 'Visitor Reports', href: '/reports/visitor', icon: BarChart3 },
-      { id: 'visitor-directory', name: 'Visitor Directory', href: '/reports/directory', icon: Users },
+      
+      { isHeader: true, name: 'Visitor', icon: Users },
+      { id: 'visitor-list', name: 'Visitor List', href: '/visitor-list', icon: FileText, isSubItem: true },
+      { id: 'visitor-approvals', name: 'Visitor Approvals', href: '/visitor-approvals', icon: CheckSquare, isSubItem: true },
+      { id: 'active-visits', name: 'Active Visits', href: '/active-visits', icon: ShieldCheck, isSubItem: true },
+      
+      { id: 'pass-approvals', name: 'Contractor Approvals', href: '/pass-approvals', icon: CheckSquare },
+      
+      { isHeader: true, name: 'Reports', icon: BarChart3 },
+      { id: 'reports', name: 'Visitor Reports', href: '/reports/visitor', icon: BarChart3, isSubItem: true },
+      { id: 'reports-contractor', name: 'Contractor Visitor Report', href: '/reports/contractor-visitor', icon: FileSpreadsheet, isSubItem: true },
     ],
     visitor: [
       { id: 'registration', name: 'Registration', href: '/visitor-list', icon: FileText },
@@ -48,26 +64,32 @@ const Layout = () => {
     ],
     security: [
       { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
-      { id: 'check-in-out', name: 'Check-in / Check-out', href: '/check-in-out', icon: CheckSquare },
-      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
-      { id: 'visitor-list', name: 'Security Visitor List', href: '/visitor-list', icon: FileText },
-      { id: 'contractor-passes', name: 'Contractor Passes', href: '/admin/pass-requests', icon: Briefcase },
-      { id: 'reports-visitor', name: 'Visitors Report', href: '/reports/visitor', icon: FileText },
-      { id: 'reports-contractor', name: 'Contractor Pass Report', href: '/reports/contractor-visitor', icon: FileSpreadsheet },
+      
+      { isHeader: true, name: 'Operations & Security', icon: ShieldCheck },
+      { id: 'check-in-out', name: 'Check-in / Check-out', href: '/check-in-out', icon: CheckSquare, isSubItem: true },
+      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert, isSubItem: true },
+      
+      { isHeader: true, name: 'Visitor', icon: Users },
+      { id: 'visitor-list', name: 'Visitor List', href: '/visitor-list', icon: FileText, isSubItem: true },
+      { id: 'visitor-approvals', name: 'Visitor Approvals', href: '/visitor-approvals', icon: CheckSquare, isSubItem: true },
+      
+      { isHeader: true, name: 'Contractor', icon: Briefcase },
+      { id: 'contractor-passes', name: 'Contractor Passes', href: '/admin/pass-requests', icon: Briefcase, isSubItem: true },
+      
+      { isHeader: true, name: 'Reports', icon: BarChart3 },
+      { id: 'reports-visitor', name: 'Visitors Report', href: '/reports/visitor', icon: FileText, isSubItem: true },
+      { id: 'reports-contractor', name: 'Contractor Visitor Report', href: '/reports/contractor-visitor', icon: FileSpreadsheet, isSubItem: true },
     ],
     contractor: [
-      { id: 'dashboard', name: 'Contractor Management', href: '/', icon: LayoutDashboard },
-      { id: 'reports-onboarded', name: 'Onboarded Report', href: '/reports/contractor-onboarded', icon: FileText },
-      { id: 'reports-visitor', name: 'Visitor Report', href: '/reports/contractor-visitor', icon: FileSpreadsheet },
-    ],
-    approver: [
       { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
-      { id: 'pass-approvals', name: 'Pass Request Approvals', href: '/pass-approvals', icon: CheckSquare },
+      { id: 'contractor-hub', name: 'My Company', href: '/contractor', icon: Building },
+      { id: 'reports-visitor', name: 'Contractor Visitor Report', href: '/reports/contractor-visitor', icon: FileSpreadsheet },
     ],
     reception: [
       { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { id: 'walk-in', name: 'Walk-in Registration', href: '/visitor-list?new=true', icon: Plus },
       { id: 'visitor-list', name: 'Visitor List', href: '/visitor-list', icon: FileText },
+      { id: 'visitor-approvals', name: 'Visitor Approvals', href: '/visitor-approvals', icon: CheckSquare },
       { id: 'qr-scanner', name: 'QR Scanner', href: '/qr-scanner', icon: ScanLine },
       { id: 'check-in-out', name: 'Check-in / Check-out', href: '/check-in-out', icon: CheckSquare },
       { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
@@ -77,32 +99,53 @@ const Layout = () => {
     ],
     campusadmin: [
       { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
-      { id: 'visitor', name: 'Visitor Management', href: '/visitor-list', icon: FileText },
-      { id: 'contractor', name: 'Contractor Management', href: '/contractors-hub', icon: Building },
-      { id: 'pass-requests', name: 'Pass Requests', href: '/admin/pass-requests', icon: FileSignature },
-      { id: 'approvals', name: 'Approvals', href: '/pass-approvals', icon: CheckSquare },
-      { id: 'security', name: 'Active Visits', href: '/active-visits', icon: ShieldCheck },
-      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
-      { id: 'restricted', name: 'Restricted Visitors', href: '/restricted', icon: ShieldAlert },
-      { id: 'reports', name: 'Reports', href: '/reporting', icon: BarChart3 },
-      { id: 'users', name: 'Users', href: '/settings/users', icon: UserCog },
-      { id: 'audit', name: 'Audit Logs', href: '/reports/audit', icon: Database },
+      
+      { isHeader: true, name: 'Visitor', icon: Users },
+      { id: 'visitor-list', name: 'Visitor List', href: '/visitor-list', icon: FileText, isSubItem: true },
+      { id: 'visitor-approvals', name: 'Visitor Approvals', href: '/visitor-approvals', icon: CheckSquare, isSubItem: true },
+      { id: 'active-visits', name: 'Active Visits', href: '/active-visits', icon: ShieldCheck, isSubItem: true },
+      
+      { isHeader: true, name: 'Contractor', icon: Briefcase },
+      { id: 'contractor-hub', name: 'Contractor Management', href: '/contractors-hub', icon: Building, isSubItem: true },
+      { id: 'pass-requests', name: 'Pass Request', href: '/admin/pass-requests', icon: FileSignature, isSubItem: true },
+      { id: 'pass-approvals', name: 'Approvals', href: '/pass-approvals', icon: CheckSquare, isSubItem: true },
+
+      { isHeader: true, name: 'Reports & Operations', icon: BarChart3 },
+      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert, isSubItem: true },
+      { id: 'reports', name: 'Reports', href: '/reporting', icon: BarChart3, isSubItem: true },
+      { id: 'audit', name: 'Audit Logs', href: '/reports/audit', icon: Database, isSubItem: true },
+
+      { isHeader: true, name: 'Settings', icon: Settings },
+      { id: 'users', name: 'Users', href: '/settings/users', icon: UserCog, isSubItem: true },
+      { id: 'roles', name: 'Roles & Permissions', href: '/settings/roles', icon: ShieldCheck, isSubItem: true },
+      { id: 'campus-settings', name: 'Campus Settings', href: '/settings/campus', icon: Building2, isSubItem: true },
+      { id: 'system-settings', name: 'System Settings', href: '/settings/system', icon: Settings, isSubItem: true },
+      { id: 'profile', name: 'Profile', href: '/profile', icon: UserCog, isSubItem: true },
     ],
     superadmin: [
       { id: 'dashboard', name: 'Dashboard', href: '/', icon: LayoutDashboard },
-      { id: 'visitor', name: 'Visitor Management', href: '/visitor-list', icon: FileText },
-      { id: 'contractor', name: 'Contractor Management', href: '/contractors-hub', icon: Building },
-      { id: 'pass-requests', name: 'Pass Requests', href: '/admin/pass-requests', icon: FileSignature },
-      { id: 'approvals', name: 'Approvals', href: '/pass-approvals', icon: CheckSquare },
-      { id: 'security', name: 'Active Visits', href: '/active-visits', icon: ShieldCheck },
-      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert },
-      { id: 'restricted', name: 'Restricted Visitors', href: '/restricted', icon: ShieldAlert },
-      { id: 'reports', name: 'Reports', href: '/reporting', icon: BarChart3 },
-      { id: 'users', name: 'Users', href: '/settings/users', icon: UserCog },
-      { id: 'roles', name: 'Roles & Permissions', href: '/settings/roles', icon: ShieldCheck },
-      { id: 'campus-settings', name: 'Campus Settings', href: '/settings/campus', icon: Building2 },
-      { id: 'settings', name: 'System Settings', href: '/settings/system', icon: Settings },
-      { id: 'audit', name: 'Audit Logs', href: '/reports/audit', icon: Database },
+      
+      { isHeader: true, name: 'Visitor', icon: Users },
+      { id: 'visitor-list', name: 'Visitor List', href: '/visitor-list', icon: FileText, isSubItem: true },
+      { id: 'visitor-approvals', name: 'Visitor Approvals', href: '/visitor-approvals', icon: CheckSquare, isSubItem: true },
+      { id: 'active-visits', name: 'Active Visits', href: '/active-visits', icon: ShieldCheck, isSubItem: true },
+      
+      { isHeader: true, name: 'Contractor', icon: Briefcase },
+      { id: 'contractor-hub', name: 'Contractor Management', href: '/contractors-hub', icon: Building, isSubItem: true },
+      { id: 'pass-requests', name: 'Pass Request', href: '/admin/pass-requests', icon: FileSignature, isSubItem: true },
+      { id: 'pass-approvals', name: 'Approvals', href: '/pass-approvals', icon: CheckSquare, isSubItem: true },
+
+      { isHeader: true, name: 'Reports & Operations', icon: BarChart3 },
+      { id: 'security-reviews', name: 'Security Review', href: '/security-reviews', icon: ShieldAlert, isSubItem: true },
+      { id: 'reports', name: 'Reports', href: '/reporting', icon: BarChart3, isSubItem: true },
+      { id: 'audit', name: 'Audit Logs', href: '/reports/audit', icon: Database, isSubItem: true },
+
+      { isHeader: true, name: 'Settings', icon: Settings },
+      { id: 'users', name: 'Users', href: '/settings/users', icon: UserCog, isSubItem: true },
+      { id: 'roles', name: 'Roles & Permissions', href: '/settings/roles', icon: ShieldCheck, isSubItem: true },
+      { id: 'campus-settings', name: 'Campus Settings', href: '/settings/campus', icon: Building2, isSubItem: true },
+      { id: 'system-settings', name: 'System Settings', href: '/settings/system', icon: Settings, isSubItem: true },
+      { id: 'profile', name: 'Profile', href: '/profile', icon: UserCog, isSubItem: true },
     ]
   };
 
@@ -159,11 +202,28 @@ const Layout = () => {
                 
                 if (item.isHeader) {
                   currentHeader = item.name;
-                  const isExpanded = expandedMenus[item.name] !== false; // Default true
+                  
+                  // Determine if any child item under this header is currently active
+                  let hasActiveChild = false;
+                  for (let i = index + 1; i < navigation.length; i++) {
+                    if (navigation[i].isHeader) break;
+                    if (navigation[i].isSubItem) {
+                      const subHref = navigation[i].href;
+                      if (subHref && subHref !== '#' && (location.pathname === subHref || (subHref !== '/' && location.pathname.startsWith(subHref)))) {
+                        hasActiveChild = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  const isExpanded = expandedMenus[item.name] !== undefined 
+                    ? expandedMenus[item.name] 
+                    : hasActiveChild; // Default collapsed unless a child item is active
+
                   return (
                     <button 
                       key={`header-${index}`} 
-                      onClick={() => toggleMenu(item.name)}
+                      onClick={() => toggleMenu(item.name, isExpanded)}
                       className={`w-full pt-6 pb-2 flex items-center justify-between group outline-none ${isCollapsed ? 'justify-center px-4' : 'px-6'}`}
                     >
                       <div className="flex items-center gap-3">
@@ -177,8 +237,32 @@ const Layout = () => {
                   );
                 }
 
-                if (item.isSubItem && currentHeader && expandedMenus[currentHeader] === false && !isCollapsed) {
-                  return null;
+                // Check header expansion state for sub-items
+                if (item.isSubItem && currentHeader && !isCollapsed) {
+                  let hasActiveChild = false;
+                  for (let i = 0; i < navigation.length; i++) {
+                    if (navigation[i].isHeader && navigation[i].name === currentHeader) {
+                      for (let j = i + 1; j < navigation.length; j++) {
+                        if (navigation[j].isHeader) break;
+                        if (navigation[j].isSubItem) {
+                          const subHref = navigation[j].href;
+                          if (subHref && subHref !== '#' && (location.pathname === subHref || (subHref !== '/' && location.pathname.startsWith(subHref)))) {
+                            hasActiveChild = true;
+                            break;
+                          }
+                        }
+                      }
+                      break;
+                    }
+                  }
+                  
+                  const isHeaderExpanded = expandedMenus[currentHeader] !== undefined 
+                    ? expandedMenus[currentHeader] 
+                    : hasActiveChild;
+
+                  if (!isHeaderExpanded) {
+                    return null;
+                  }
                 }
 
 
@@ -251,15 +335,22 @@ const Layout = () => {
              >
                <Menu className="w-6 h-6" />
              </button>
-             <h1 className="text-xl font-bold text-white capitalize flex items-center gap-2">
-               <span className="text-slate-400 font-normal">{currentRole.label} View /</span>
+             <h1 className="text-xl font-bold text-white capitalize flex items-center gap-2 flex-wrap">
+               <span className="text-slate-400 font-normal flex items-center gap-2">
+                 {currentRole.label} View
+                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 flex items-center gap-1 normal-case">
+                   <MapPin className="w-3 h-3 text-blue-400" />
+                   {currentRole.id === 'campusadmin' ? (activeCampus !== 'ALL' ? (CAMPUSES.find(c => c.id === activeCampus)?.name || activeCampus) : "Abu Dhabi Men's Campus") : (activeCampus === 'ALL' ? 'All Campuses' : (CAMPUSES.find(c => c.id === activeCampus)?.name || activeCampus || "Abu Dhabi Men's Campus"))}
+                 </span>
+                 /
+               </span>
                {location.pathname === '/' ? 'Dashboard' : location.pathname.split('/')[1].replace('-', ' ')}
              </h1>
            </div>
            
            <div className="flex items-center gap-4">
              {/* Campus Selector */}
-             {(userCampuses.length > 1 || userCampuses.includes('ALL')) && (
+             {currentRole.id !== 'campusadmin' && (userCampuses.length > 1 || userCampuses.includes('ALL')) && (
                <div className="relative">
                  <button 
                    onClick={() => setShowCampusMenu(!showCampusMenu)}
@@ -290,9 +381,109 @@ const Layout = () => {
                  )}
                </div>
              )}
+                            {/* Compact Notification Popover Bell */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotificationPopover(!showNotificationPopover)}
+                  className="relative p-2.5 rounded-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/50 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-white/20 transition-all shadow-sm flex items-center justify-center outline-none"
+                  title="Notifications"
+                >
+                  <Bell className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white font-bold text-[10px] rounded-full flex items-center justify-center shadow-md animate-pulse">
+                      {notifications.filter(n => !n.read).length}
+                    </span>
+                  )}
+                </button>
 
-             <button
-               onClick={toggleTheme}
+                {showNotificationPopover && (
+                  <div className="absolute top-full right-0 mt-3 w-80 sm:w-96 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl z-50 overflow-hidden">
+                    
+                    {/* Popover Header */}
+                    <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-800/40">
+                      <div className="flex items-center gap-2">
+                        <Bell className="w-4 h-4 text-hct-blue" />
+                        <h4 className="font-bold text-sm text-slate-800 dark:text-white">Notifications</h4>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                          {notifications.filter(n => !n.read).length} New
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setNotifications(notifications.map(n => ({ ...n, read: true })))}
+                        className="text-[11px] font-bold text-hct-blue hover:underline"
+                      >
+                        Mark all read
+                      </button>
+                    </div>
+
+
+
+                    {/* Notification Items */}
+                    <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60">
+                      {notifications.map(item => (
+                          <div
+                            key={item.id}
+                            onClick={() => setNotifications(notifications.map(n => n.id === item.id ? { ...n, read: true } : n))}
+                            className={`p-3.5 flex items-start gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer ${
+                              !item.read ? 'bg-blue-50/30 dark:bg-blue-950/20' : ''
+                            }`}
+                          >
+                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                              item.type === 'approval' ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400' :
+                              item.type === 'security' ? 'bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400' :
+                              item.type === 'contractor' ? 'bg-blue-100 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400' :
+                              'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            }`}>
+                              {item.type === 'approval' && <CheckSquare className="w-4 h-4" />}
+                              {item.type === 'security' && <ShieldAlert className="w-4 h-4" />}
+                              {item.type === 'contractor' && <Briefcase className="w-4 h-4" />}
+                              {item.type === 'system' && <Settings className="w-4 h-4" />}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1 mb-0.5">
+                                <p className={`text-xs truncate ${!item.read ? 'font-bold text-slate-900 dark:text-white' : 'font-medium text-slate-700 dark:text-slate-300'}`}>
+                                  {item.title}
+                                </p>
+                                {!item.read && <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>}
+                              </div>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight mb-1">
+                                {item.desc}
+                              </p>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-semibold text-slate-400">{item.time}</span>
+                                {item.link && (
+                                  <Link
+                                    to={item.link}
+                                    onClick={() => setShowNotificationPopover(false)}
+                                    className="text-[10px] font-bold text-hct-blue hover:underline"
+                                  >
+                                    View
+                                  </Link>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+
+                    {/* Popover Footer */}
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
+                      <span className="text-[11px] text-slate-400 font-medium">{notifications.length} Total Alerts</span>
+                      <button
+                        onClick={() => setNotifications([])}
+                        className="text-[11px] font-bold text-red-500 hover:underline"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={toggleTheme}
                className="p-2.5 rounded-full bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/50 dark:border-white/10 text-amber-500 dark:text-cyan-400 hover:bg-white dark:hover:bg-white/20 transition-all shadow-sm"
                aria-label="Toggle Dark Mode"
              >

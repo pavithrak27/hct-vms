@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../context/RoleContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Network, AlertCircle, RefreshCw } from 'lucide-react';
+import { ShieldCheck, Network, AlertCircle, RefreshCw, KeyRound, Send, CheckCircle2, X } from 'lucide-react';
 
 const Login = () => {
   const { login, roles } = useRole();
@@ -15,6 +15,11 @@ const Login = () => {
   const [authState, setAuthState] = useState('idle'); // 'idle', 'saml_redirect', 'ad_mapping', 'error'
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Forgot Password States
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotStep, setForgotStep] = useState('input'); // 'input', 'sent'
+
   const handleLogin = (e) => {
     e.preventDefault();
     
@@ -23,7 +28,7 @@ const Login = () => {
       const eLower = email.toLowerCase();
       if (eLower.includes('super')) roleToLog = 'superadmin';
       else if (eLower.includes('campus')) roleToLog = 'campusadmin';
-      else if (eLower.includes('host')) roleToLog = 'host';
+      else if (eLower.includes('host') || eLower.includes('approver')) roleToLog = 'host';
       else if (eLower.includes('security')) roleToLog = 'security';
       else if (eLower.includes('reception')) roleToLog = 'reception';
       else if (eLower.includes('contractor')) roleToLog = 'contractor';
@@ -50,7 +55,7 @@ const Login = () => {
         else if (roleToLog === 'campusadmin') navigate('/');
         else if (roleToLog === 'host') navigate('/');
         else if (roleToLog === 'security') navigate('/');
-        else if (roleToLog === 'reception') navigate('/visitor');
+        else if (roleToLog === 'reception') navigate('/visitor-list');
         else if (roleToLog === 'contractor') navigate('/contractor');
         else navigate('/');
 
@@ -95,13 +100,22 @@ const Login = () => {
                 <div>
                   <label htmlFor="email" className="block text-sm font-bold text-slate-700">Email Address</label>
                   <div className="mt-2">
-                    <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-hct-blue focus:border-hct-blue sm:text-sm font-medium" placeholder="name@hct.ac.ae" />
+                    <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-hct-blue focus:border-hct-blue sm:text-sm font-medium" placeholder="name@hct.ac.ae or contractor@company.com" />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-bold text-slate-700">Password</label>
-                  <div className="mt-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <label htmlFor="password" className="block text-sm font-bold text-slate-700">Password</label>
+                    <button 
+                      type="button" 
+                      onClick={() => { setForgotEmail(email || ''); setForgotStep('input'); setShowForgotPassword(true); }}
+                      className="text-xs font-bold text-hct-blue hover:underline focus:outline-none"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                  <div className="mt-1">
                     <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-hct-blue focus:border-hct-blue sm:text-sm font-medium" placeholder="••••••••" />
                   </div>
                 </div>
@@ -164,6 +178,63 @@ const Login = () => {
 
         </motion.div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotPassword && (
+          <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
+              <button onClick={() => setShowForgotPassword(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"><X className="w-5 h-5"/></button>
+
+              {forgotStep === 'input' && (
+                <div>
+                  <div className="w-12 h-12 bg-blue-50 text-hct-blue rounded-2xl flex items-center justify-center mb-4">
+                    <KeyRound className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-1">Reset Contractor / Profile Password</h3>
+                  <p className="text-slate-500 text-sm mb-6">Enter your registered email address or Contractor ID. We will send a secure password reset link to your email.</p>
+                  
+                  <form onSubmit={(e) => { e.preventDefault(); if (forgotEmail) setForgotStep('sent'); }}>
+                    <div className="mb-6">
+                      <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Email Address / Contractor ID</label>
+                      <input 
+                        type="email" 
+                        required 
+                        value={forgotEmail} 
+                        onChange={e => setForgotEmail(e.target.value)} 
+                        placeholder="e.g. contractor@techsolutions.com" 
+                        className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-hct-blue outline-none text-sm font-medium" 
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button type="button" onClick={() => setShowForgotPassword(false)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm">Cancel</button>
+                      <button type="submit" className="flex-1 py-3 bg-hct-blue hover:bg-blue-800 text-white font-bold rounded-xl text-sm shadow-md flex items-center justify-center gap-2">
+                        Send Reset Link <Send className="w-4 h-4"/>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {forgotStep === 'sent' && (
+                <div className="text-center py-2">
+                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">Reset Link Sent Successfully</h3>
+                  <p className="text-slate-600 text-sm mb-6">
+                    A password recovery link has been sent to <strong className="text-slate-800">{forgotEmail || 'your email'}</strong>. Please check your inbox or spam folder.
+                  </p>
+                  <button onClick={() => { setShowForgotPassword(false); setForgotStep('input'); }} className="w-full py-3 bg-hct-blue text-white font-bold rounded-xl text-sm shadow-md">
+                    Return to Login
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

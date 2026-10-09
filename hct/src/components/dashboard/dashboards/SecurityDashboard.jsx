@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCheckIn } from '../../../context/CheckInContext';
 import { useRole } from '../../../context/RoleContext';
 import { ShieldCheck, Users, QrCode, LogIn, LogOut, ShieldAlert, AlertOctagon, History, ScanLine, UserCheck } from 'lucide-react';
@@ -6,6 +7,7 @@ import { motion } from 'framer-motion';
 
 export default function SecurityDashboard() {
   const { sessionUser } = useRole();
+  const navigate = useNavigate();
   const { expectedPasses, activeVisits, securityReviews, stats } = useCheckIn();
 
   // The context data is already scoped to the Security Officer's campus/gate.
@@ -36,7 +38,7 @@ export default function SecurityDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Active Visits */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-blue-200/60 dark:border-blue-900/30 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onClick={() => navigate('/active-visits')} className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-blue-200/60 dark:border-blue-900/30 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group cursor-pointer">
           <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-blue-500" />
           <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-blue-500/10 blur-2xl group-hover:bg-blue-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3 relative z-10">
@@ -50,7 +52,7 @@ export default function SecurityDashboard() {
         </motion.div>
 
         {/* Today's Check-ins */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-emerald-200/60 dark:border-emerald-900/30 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} onClick={() => navigate('/visit-history')} className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-emerald-200/60 dark:border-emerald-900/30 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group cursor-pointer">
           <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-emerald-500" />
           <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-emerald-500/10 blur-2xl group-hover:bg-emerald-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3 relative z-10">
@@ -64,7 +66,7 @@ export default function SecurityDashboard() {
         </motion.div>
         
         {/* Contractor Passes */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-indigo-200/60 dark:border-indigo-900/30 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} onClick={() => navigate('/contractors-hub')} className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-indigo-200/60 dark:border-indigo-900/30 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group cursor-pointer">
           <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-indigo-500" />
           <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-indigo-500/10 blur-2xl group-hover:bg-indigo-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3 relative z-10">
@@ -78,7 +80,7 @@ export default function SecurityDashboard() {
         </motion.div>
 
         {/* Restricted Alerts */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-red-200/60 dark:border-red-900/50 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} onClick={() => navigate('/security-reviews')} className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-2xl border border-red-200/60 dark:border-red-900/50 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group cursor-pointer">
           <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-red-500" />
           <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-red-500/10 blur-2xl group-hover:bg-red-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3 relative z-10">

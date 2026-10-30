@@ -14,7 +14,7 @@ const ApprovalConfiguration = () => {
   
   // HSE Configuration State
   const [hseConfig, setHseConfig] = useState({
-    videoName: 'HCT_Mandatory_Safety_Induction_2026.mp4',
+    videoName: 'Mandatory_Safety_Induction_2026.mp4',
     videoSize: '24.5 MB',
     videoDuration: '03:45 mins',
     uploadDate: '2026-10-05',
@@ -23,7 +23,7 @@ const ApprovalConfiguration = () => {
     declarationText: 'I hereby confirm that all employees included in this pass request are authorized to work under the registered contractor company. I confirm that the information provided is accurate and that all employees will comply with the applicable site safety, security, and HSE requirements.',
     requireSignature: true,
     requireCheckbox: true,
-    policyDocName: 'HCT_HSE_Policy_Guidelines_2026.pdf',
+    policyDocName: 'HSE_Policy_Guidelines_2026.pdf',
     policyDocSize: '1.4 MB'
   });
 
@@ -33,17 +33,17 @@ const ApprovalConfiguration = () => {
 
   // SMTP Configuration State
   const [smtpConfig, setSmtpConfig] = useState({
-    host: 'smtp.hct.ac.ae',
+    host: 'smtp.campus.ac.ae',
     port: '587',
     encryption: 'TLS', // 'TLS', 'SSL', 'NONE'
     requireAuth: true,
-    username: 'notifications@hct.ac.ae',
+    username: 'notifications@campus.ac.ae',
     password: '••••••••••••••••',
-    senderName: 'HCT Visitor & Contractor Gateway',
-    senderEmail: 'no-reply@hct.ac.ae',
-    replyTo: 'support@hct.ac.ae',
+    senderName: 'Visitor & Contractor Gateway',
+    senderEmail: 'no-reply@campus.ac.ae',
+    replyTo: 'support@campus.ac.ae',
     ccAdmin: true,
-    testRecipient: 'admin@hct.ac.ae'
+    testRecipient: 'admin@campus.ac.ae'
   });
 
   const [showSmtpPassword, setShowSmtpPassword] = useState(false);
@@ -387,7 +387,7 @@ const ApprovalConfiguration = () => {
                       type="text"
                       value={smtpConfig.host}
                       onChange={(e) => setSmtpConfig({...smtpConfig, host: e.target.value})}
-                      placeholder="e.g. smtp.hct.ac.ae or smtp.office365.com"
+                      placeholder="e.g. smtp.campus.ac.ae or smtp.office365.com"
                       className="w-full p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-sm outline-none focus:ring-2 focus:ring-hct-blue"
                     />
                   </div>
@@ -444,7 +444,7 @@ const ApprovalConfiguration = () => {
                           type="text"
                           value={smtpConfig.username}
                           onChange={(e) => setSmtpConfig({...smtpConfig, username: e.target.value})}
-                          placeholder="notifications@hct.ac.ae"
+                          placeholder="notifications@campus.ac.ae"
                           className="w-full p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold text-sm outline-none focus:ring-2 focus:ring-hct-blue"
                         />
                       </div>
@@ -492,7 +492,7 @@ const ApprovalConfiguration = () => {
                       type="text"
                       value={smtpConfig.senderName}
                       onChange={(e) => setSmtpConfig({...smtpConfig, senderName: e.target.value})}
-                      placeholder="HCT Visitor & Contractor Gateway"
+                      placeholder="Visitor & Contractor Gateway"
                       className="w-full p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold text-sm outline-none focus:ring-2 focus:ring-hct-blue"
                     />
                   </div>
@@ -505,7 +505,7 @@ const ApprovalConfiguration = () => {
                       type="email"
                       value={smtpConfig.senderEmail}
                       onChange={(e) => setSmtpConfig({...smtpConfig, senderEmail: e.target.value})}
-                      placeholder="no-reply@hct.ac.ae"
+                      placeholder="no-reply@campus.ac.ae"
                       className="w-full p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold text-sm outline-none focus:ring-2 focus:ring-hct-blue"
                     />
                   </div>
@@ -518,7 +518,7 @@ const ApprovalConfiguration = () => {
                       type="email"
                       value={smtpConfig.replyTo}
                       onChange={(e) => setSmtpConfig({...smtpConfig, replyTo: e.target.value})}
-                      placeholder="support@hct.ac.ae"
+                      placeholder="support@campus.ac.ae"
                       className="w-full p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold text-sm outline-none focus:ring-2 focus:ring-hct-blue"
                     />
                   </div>

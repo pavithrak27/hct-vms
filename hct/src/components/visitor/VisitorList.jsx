@@ -782,7 +782,7 @@ const VisitorList = () => {
                       <label className="flex items-start gap-4 cursor-pointer">
                         <input type="checkbox" checked={declarationAccepted} onChange={(e) => setDeclarationAccepted(e.target.checked)} className="mt-1 w-5 h-5 text-hct-blue rounded border-slate-300" />
                         <span className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                          <strong>I confirm that the information provided is correct and I agree to comply with the visitor management and security policies of Higher Colleges of Technology (HCT).</strong>
+                          <strong>I confirm that the information provided is correct and I agree to comply with the visitor management and security policies.</strong>
                         </span>
                       </label>
                     </div>

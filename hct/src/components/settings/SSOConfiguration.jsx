@@ -12,7 +12,7 @@ const SSOConfiguration = () => {
           <h2 className="text-4xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <KeyRound className="w-8 h-8 text-indigo-500" /> Authentication & Identity
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Configure SAML/SSO integration with HCT Active Directory for seamless role-based logins.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Configure SAML/SSO integration with Active Directory for seamless role-based logins.</p>
         </div>
         <button onClick={() => alert('SSO Configuration saved to Audit Log.')} className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md">
           <Save className="w-5 h-5"/> Save Configuration
@@ -38,15 +38,15 @@ const SSOConfiguration = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">Entity ID / Issuer URL *</label>
-                <input type="text" defaultValue="https://sts.windows.net/hct-tenant-id/" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-indigo-500 font-mono text-sm" />
+                <input type="text" defaultValue="https://sts.windows.net/enterprise-tenant-id/" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-indigo-500 font-mono text-sm" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">Single Sign-On (SSO) Service URL *</label>
-                <input type="text" defaultValue="https://login.microsoftonline.com/hct-tenant/saml2" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-indigo-500 font-mono text-sm" />
+                <input type="text" defaultValue="https://login.microsoftonline.com/tenant/saml2" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-indigo-500 font-mono text-sm" />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">Single Logout (SLO) Service URL</label>
-                <input type="text" defaultValue="https://login.microsoftonline.com/hct-tenant/saml2/logout" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-indigo-500 font-mono text-sm" />
+                <input type="text" defaultValue="https://login.microsoftonline.com/tenant/saml2/logout" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-indigo-500 font-mono text-sm" />
               </div>
             </div>
           </div>
@@ -56,7 +56,7 @@ const SSOConfiguration = () => {
              <div className="mb-4">
                <label className="block text-sm font-bold text-slate-700 mb-1">Public Certificate (Base64) *</label>
                <textarea rows="5" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-indigo-500 font-mono text-xs bg-slate-50 text-slate-600" defaultValue="-----BEGIN CERTIFICATE-----
-MIIDBTCCAe2gAwIBAgIQY29... (Masked for Security) ...HctQ==
+MIIDBTCCAe2gAwIBAgIQY29... (Masked for Security) ...ExtQ==
 -----END CERTIFICATE-----"></textarea>
              </div>
              <p className="text-xs font-medium text-slate-500 flex items-center gap-1"><ShieldAlert className="w-4 h-4 text-amber-500"/> Ensure the certificate matches the identity provider metadata to prevent signature validation failures.</p>
@@ -75,13 +75,13 @@ MIIDBTCCAe2gAwIBAgIQY29... (Masked for Security) ...HctQ==
                <div>
                  <label className="block text-xs font-bold text-slate-400 mb-1">Assertion Consumer Service (ACS) URL</label>
                  <div className="bg-slate-800 p-2.5 rounded-lg border border-slate-700 font-mono text-xs text-indigo-200 break-all select-all">
-                   https://provisit.hct.ac.ae/api/auth/saml/acs
+                   https://provisit.campus.ac.ae/api/auth/saml/acs
                  </div>
                </div>
                <div>
                  <label className="block text-xs font-bold text-slate-400 mb-1">SP Entity ID</label>
                  <div className="bg-slate-800 p-2.5 rounded-lg border border-slate-700 font-mono text-xs text-indigo-200 break-all select-all">
-                   https://provisit.hct.ac.ae/saml/metadata
+                   https://provisit.campus.ac.ae/saml/metadata
                  </div>
                </div>
              </div>

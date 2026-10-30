@@ -73,19 +73,19 @@ export const RoleProvider = ({ children }) => {
         // Pre-defined mock profiles for robust RBAC testing
         switch (effectiveRoleId) {
           case 'superadmin':
-            mappedUser = { id: 'USR-ADMIN', name: 'Super Admin', email: 'admin@hct.ac.ae', role: 'superadmin', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
+            mappedUser = { id: 'USR-ADMIN', name: 'Super Admin', email: 'admin@campus.ac.ae', role: 'superadmin', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
             break;
           case 'campusadmin':
-            mappedUser = { id: 'USR-CAMPUS-01', name: 'Campus Admin ADMC', email: 'cadmin@hct.ac.ae', role: 'campusadmin', portals: role.portals, campuses: ['CMP-01', 'ALL'], permissions: role.defaultPermissions };
+            mappedUser = { id: 'USR-CAMPUS-01', name: 'Campus Admin ADMC', email: 'cadmin@campus.ac.ae', role: 'campusadmin', portals: role.portals, campuses: ['CMP-01', 'ALL'], permissions: role.defaultPermissions };
             break;
           case 'host':
-            mappedUser = { id: 'USR-HOST-01', name: 'Prof. Tariq (Host & Approver)', email: 'tariq@hct.ac.ae', role: 'host', hostId: 'Dr. Ahmed Al-Maktoum', approvalScope: ['Tech Solutions LLC', 'Global Services Group'], portals: role.portals, campuses: ['CMP-01', 'ALL'], permissions: role.defaultPermissions };
+            mappedUser = { id: 'USR-HOST-01', name: 'Prof. Tariq (Host & Approver)', email: 'tariq@campus.ac.ae', role: 'host', hostId: 'Dr. Ahmed Al-Maktoum', approvalScope: ['Tech Solutions LLC', 'Global Services Group'], portals: role.portals, campuses: ['CMP-01', 'ALL'], permissions: role.defaultPermissions };
             break;
           case 'security':
-            mappedUser = { id: 'USR-SEC-01', name: 'Security ADMC Gate 2', email: 'sec@hct.ac.ae', role: 'security', portals: role.portals, campuses: ['CMP-01'], gateId: 'GATE-02', permissions: role.defaultPermissions };
+            mappedUser = { id: 'USR-SEC-01', name: 'Security ADMC Gate 2', email: 'sec@campus.ac.ae', role: 'security', portals: role.portals, campuses: ['CMP-01'], gateId: 'GATE-02', permissions: role.defaultPermissions };
             break;
           case 'reception':
-            mappedUser = { id: 'USR-REC-01', name: 'Receptionist ADMC', email: 'rec@hct.ac.ae', role: 'reception', portals: role.portals, campuses: ['CMP-01'], permissions: role.defaultPermissions };
+            mappedUser = { id: 'USR-REC-01', name: 'Receptionist ADMC', email: 'rec@campus.ac.ae', role: 'reception', portals: role.portals, campuses: ['CMP-01'], permissions: role.defaultPermissions };
             break;
           case 'contractor':
             mappedUser = { id: 'USR-CON-01', name: 'ABC Cleaning Admin', email: 'admin@abccleaning.com', role: 'contractor', companyId: 'Tech Solutions LLC', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
@@ -94,7 +94,7 @@ export const RoleProvider = ({ children }) => {
             mappedUser = { id: 'USR-VIS-01', name: 'John Smith', email: 'john@example.com', role: 'visitor', visitorId: 'V-101', portals: role.portals, campuses: ['ALL'], permissions: role.defaultPermissions };
             break;
           default:
-            mappedUser = { id: `USR-${Math.floor(Math.random()*9000)+1000}`, name: `Mock ${role.label}`, email: `user@hct.ac.ae`, role: effectiveRoleId, portals: role.portals, campuses: role.defaultCampuses, permissions: role.defaultPermissions };
+            mappedUser = { id: `USR-${Math.floor(Math.random()*9000)+1000}`, name: `Mock ${role.label}`, email: `user@campus.ac.ae`, role: effectiveRoleId, portals: role.portals, campuses: role.defaultCampuses, permissions: role.defaultPermissions };
         }
       }
       

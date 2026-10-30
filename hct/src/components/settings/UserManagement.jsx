@@ -3,11 +3,11 @@ import { UserCog, Search, Plus, Save, Edit, MapPin, ShieldCheck, Mail, AlertTria
 import { motion, AnimatePresence } from 'framer-motion';
 
 const USERS = [
-  { id: 'USR-1001', name: 'Admin User', email: 'admin@hct.ac.ae', role: 'Superadmin', campuses: ['ALL'], status: 'Active' },
-  { id: 'USR-1002', name: 'Khalid Al Hashmi', email: 'kalhashmi@hct.ac.ae', role: 'Campus Admin', campuses: ['CMP-01', 'CMP-02'], status: 'Active' },
-  { id: 'USR-1003', name: 'Sarah Ahmed', email: 'sahmed@hct.ac.ae', role: 'Host', campuses: ['CMP-05'], status: 'Active' },
-  { id: 'USR-1004', name: 'Security Gate 1', email: 'security1@hct.ac.ae', role: 'Security', campuses: ['CMP-01'], status: 'Active' },
-  { id: 'USR-1005', name: 'Reception ADMC', email: 'reception.admc@hct.ac.ae', role: 'Reception', campuses: ['CMP-01'], status: 'Inactive' },
+  { id: 'USR-1001', name: 'Admin User', email: 'admin@campus.ac.ae', role: 'Superadmin', campuses: ['ALL'], status: 'Active' },
+  { id: 'USR-1002', name: 'Khalid Al Hashmi', email: 'kalhashmi@campus.ac.ae', role: 'Campus Admin', campuses: ['CMP-01', 'CMP-02'], status: 'Active' },
+  { id: 'USR-1003', name: 'Sarah Ahmed', email: 'sahmed@campus.ac.ae', role: 'Host', campuses: ['CMP-05'], status: 'Active' },
+  { id: 'USR-1004', name: 'Security Gate 1', email: 'security1@campus.ac.ae', role: 'Security', campuses: ['CMP-01'], status: 'Active' },
+  { id: 'USR-1005', name: 'Reception ADMC', email: 'reception.admc@campus.ac.ae', role: 'Reception', campuses: ['CMP-01'], status: 'Inactive' },
 ];
 
 const CAMPUSES = [
@@ -124,7 +124,7 @@ const UserManagement = () => {
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-slate-700 mb-2">Email Address (AD Mapped)</label>
-                          <input type="email" placeholder="e.g. jdoe@hct.ac.ae" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
+                          <input type="email" placeholder="e.g. jdoe@campus.ac.ae" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-hct-blue font-medium" />
                         </div>
                       </div>
                       <div className="w-32 shrink-0">

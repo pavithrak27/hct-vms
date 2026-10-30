@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Building2, Search, Edit, Settings, X, Plus, AlertCircle, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const HCT_CAMPUSES = [
+const ALL_CAMPUSES = [
   { id: 'CMP-01', name: 'Abu Dhabi Men\'s Campus', code: 'ADMC', city: 'Abu Dhabi', status: 'Active', gates: 3 },
   { id: 'CMP-02', name: 'Abu Dhabi Women\'s Campus', code: 'ADWC', city: 'Abu Dhabi', status: 'Active', gates: 4 },
   { id: 'CMP-03', name: 'Al Ain Men\'s Campus', code: 'AAMC', city: 'Al Ain', status: 'Active', gates: 2 },
@@ -50,7 +50,7 @@ const CampusConfiguration = () => {
     }
   };
 
-  const filteredCampuses = HCT_CAMPUSES.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.code.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredCampuses = ALL_CAMPUSES.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.code.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full">
@@ -59,7 +59,7 @@ const CampusConfiguration = () => {
           <h2 className="text-4xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             <Building2 className="w-8 h-8 text-hct-blue" /> Campus Configuration
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage all 14 HCT campuses, configure independent security policies, and manage gates.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage all registered campuses, configure independent security policies, and manage gates.</p>
         </div>
         <button onClick={() => setIsAddingCampus(true)} className="bg-hct-blue text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-hct-blue-dark shadow-md">
           <Plus className="w-5 h-5"/> Add Campus

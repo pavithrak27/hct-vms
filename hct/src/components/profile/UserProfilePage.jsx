@@ -15,7 +15,7 @@ const UserProfilePage = () => {
   // Form states
   const [profileForm, setProfileForm] = useState({
     name: sessionUser?.name || 'Global Admin',
-    email: sessionUser?.email || 'admin@hct.ac.ae',
+    email: sessionUser?.email || 'admin@campus.ac.ae',
     phone: sessionUser?.phone || '+971 50 123 4567',
     photo: sessionUser?.photo || null,
   });

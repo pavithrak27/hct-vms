@@ -336,11 +336,11 @@ const ContractorApprovals = () => {
               <div className="p-8">
                 <h2 className="text-2xl font-bold mb-4">Contractor Registration Approved</h2>
                 <div className="prose text-sm text-slate-600">
-                  <p>Your contractor company registration has been fully approved by HCT Security.</p>
+                  <p>Your contractor company registration has been fully approved by Campus Security.</p>
                   <div className="bg-slate-50 p-4 rounded-lg my-4 border">
-                    <p><strong>Portal URL:</strong> contractor.hct.ac.ae</p>
+                    <p><strong>Portal URL:</strong> contractor.portal.ac.ae</p>
                     <p><strong>Username:</strong> admin@techsolutions.com</p>
-                    <p><strong>Temporary Password:</strong> HCTTemp@2026</p>
+                    <p><strong>Temporary Password:</strong> TempPass@2026</p>
                     <p><strong>Contractor ID:</strong> CON-2026-101</p>
                   </div>
                   <p className="text-red-500 font-bold mb-6">You will be required to change this temporary password upon first login.</p>

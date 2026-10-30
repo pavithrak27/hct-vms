@@ -24,7 +24,7 @@ const PassViewer = ({ pass, onClose }) => {
                <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
                <div>
                  <h2 className="text-3xl font-black tracking-tight mb-1">VISITOR / CONTRACTOR PASS</h2>
-                 <p className="text-blue-200 font-medium tracking-widest text-sm uppercase">HCT Campus Security</p>
+                 <p className="text-blue-200 font-medium tracking-widest text-sm uppercase">Campus Security</p>
                </div>
                <Shield className="w-12 h-12 text-white/20" />
             </div>

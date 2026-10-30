@@ -76,7 +76,7 @@ const IntegrationsDashboard = () => {
             <div className="grid grid-cols-2 gap-6">
               <div className="col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">BioStar API Server URL *</label>
-                <input type="text" defaultValue="https://biostar.hct.ac.ae:443/api/v2" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-orange-400 font-mono text-sm" />
+                <input type="text" defaultValue="https://biostar.campus.ac.ae:443/api/v2" className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-orange-400 font-mono text-sm" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">API Key / Username *</label>
@@ -144,7 +144,7 @@ const IntegrationsDashboard = () => {
             <div className="grid grid-cols-2 gap-6">
               <div className="col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">Syslog/Audit Push URL *</label>
-                <input type="text" defaultValue="https://provisit.hct.ac.ae/api/audit/webhook" disabled className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-mono text-sm" />
+                <input type="text" defaultValue="https://provisit.campus.ac.ae/api/audit/webhook" disabled className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 font-mono text-sm" />
                 <p className="text-xs text-slate-500 mt-1">Configure your ICT Controller to push hardware access events to this webhook URL.</p>
               </div>
               <div>

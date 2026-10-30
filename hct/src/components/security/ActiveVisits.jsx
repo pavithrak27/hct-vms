@@ -218,7 +218,7 @@ const ActiveVisits = () => {
                </div>
 
                <h3 className="text-2xl font-black text-center mb-2">Visitor Feedback Survey</h3>
-               <p className="text-center text-slate-500 mb-8">How was your visit to HCT Campus?</p>
+               <p className="text-center text-slate-500 mb-8">How was your visit to our Campus?</p>
                
                <div className="flex justify-center gap-2 mb-8">
                  {[1,2,3,4,5].map(star => (

@@ -206,7 +206,7 @@ const RolesPermissions = () => {
             <div className="flex items-end gap-4">
               <div className="flex-1">
                 <label className="block text-sm font-bold text-slate-700 mb-1">Mapped AD Group (for Auto-Assignment)</label>
-                <input type="text" defaultValue={selectedRole === 'Security Admin' ? 'CN=HCT-Security,OU=Groups,DC=hct,DC=ac,DC=ae' : ''} placeholder="e.g. CN=HCT-Reception,OU=Groups..." className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-emerald-400 font-mono text-sm" />
+                <input type="text" defaultValue={selectedRole === 'Security Admin' ? 'CN=Security,OU=Groups,DC=campus,DC=ac,DC=ae' : ''} placeholder="e.g. CN=Reception,OU=Groups..." className="w-full p-3 rounded-xl border border-slate-300 outline-none focus:border-emerald-400 font-mono text-sm" />
               </div>
             </div>
           </div>

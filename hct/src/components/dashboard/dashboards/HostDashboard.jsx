@@ -143,7 +143,7 @@ export default function HostDashboard() {
           <p className="text-slate-600 dark:text-slate-400 mt-2 font-semibold text-lg">Welcome back, {sessionUser?.name}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-slate-500 font-bold tracking-wider uppercase mt-1">HCT Campus A</p>
+          <p className="text-sm text-slate-500 font-bold tracking-wider uppercase mt-1">Campus A</p>
         </div>
       </div>
 

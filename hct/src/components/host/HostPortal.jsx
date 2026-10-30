@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Calendar, Check, X, Bell, UserCheck, ArrowRight, FileText, Send, Mail, UserPlus } from 'lucide-react';
+import { User, Calendar, Check, X, Bell, UserCheck, ArrowRight, FileText, Send, Mail, UserPlus, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -44,7 +44,7 @@ const HostPortal = () => {
   // Mock Host Data (Read-only)
   const hostDetails = {
     hostName: "Dr. Ahmed Ali",
-    hostEmail: "ahmed.ali@hct.ac.ae",
+    hostEmail: "ahmed.ali@campus.ac.ae",
     department: "Engineering Faculty"
   };
 
@@ -364,12 +364,12 @@ const HostPortal = () => {
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
                   <div className="flex justify-between items-start mb-8">
                     <div>
-                      <h1 className="text-2xl font-bold text-slate-800 mb-2">{emailType === 'invite' ? 'Visitor Invitation to HCT' : 'Your Visitor Request Has Been Approved'}</h1>
+                      <h1 className="text-2xl font-bold text-slate-800 mb-2">{emailType === 'invite' ? 'Visitor Invitation to Campus' : 'Your Visitor Request Has Been Approved'}</h1>
                       <div className="flex items-center gap-2 text-sm text-slate-500">
-                        <Mail className="w-4 h-4" /> From: noreply@hct.ac.ae
+                        <Mail className="w-4 h-4" /> From: noreply@campus.ac.ae
                       </div>
                     </div>
-                    <img src="/hct-logo.png" alt="HCT" className="h-10 opacity-80" onError={(e) => e.target.style.display='none'} />
+                    <ShieldCheck className="w-9 h-9 text-blue-600 opacity-80" />
                   </div>
                   
                   <div className="prose prose-slate max-w-none text-slate-700">
@@ -399,7 +399,7 @@ const HostPortal = () => {
                         <div className="bg-slate-50 rounded-lg p-5 border border-slate-100 my-6">
                           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mt-0 mb-3">Visit Details</h3>
                           <p className="mb-2"><strong>Host:</strong> {hostDetails.hostName}</p>
-                          <p className="mb-2"><strong>Campus:</strong> HCT Campus</p>
+                          <p className="mb-2"><strong>Campus:</strong> Main Campus</p>
                           <p className="mb-2"><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
                           <p className="mb-0"><strong>Pass ID:</strong> {generatedRequestId}</p>
                         </div>

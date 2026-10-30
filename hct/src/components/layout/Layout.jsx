@@ -6,10 +6,6 @@ import { useRole, CAMPUSES } from '../../context/RoleContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useCampus } from '../../context/CampusContext';
 
-const HctLogo = ({ className }) => (
-  <img src="/hct-logo.png" alt="HCT Logo" className={className} style={{ width: "auto", height: "auto" }} />
-);
-
 const Layout = () => {
   const location = useLocation();
   const { currentRole, logout, sessionUser, userCampuses, activeCampus, setActiveCampus } = useRole();
@@ -175,11 +171,17 @@ const Layout = () => {
       {/* Sidebar */}
       <div className={`${isCollapsed ? 'w-[88px]' : 'w-[280px]'} transition-all duration-300 ease-in-out bg-gradient-to-b from-[#000a29] via-[#00144d] to-[#00249c] dark:bg-slate-950 backdrop-blur-xl border-r border-[#00249c]/30 dark:border-white/10 shrink-0 flex flex-col fixed h-full z-20 shadow-[10px_0_40px_rgba(0,20,77,0.15)] overflow-hidden`}>
         <div className={`p-6 ${isCollapsed ? 'px-4' : ''}`}>
-          <div className={`flex flex-col items-center gap-3 ${isCollapsed ? 'justify-center' : 'px-2'}`}>
-            <div className="bg-white p-2 rounded-xl shadow-md w-full flex justify-center">
-              <HctLogo className={`${isCollapsed ? 'h-8' : 'h-10'} w-auto object-contain`} />
+          <div className="bg-white/10 p-[1px] rounded-2xl shadow-lg shadow-black/20">
+            <div className={`bg-[#001a66] dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
+              <div className="w-10 h-10 bg-hct-blue rounded-xl flex items-center justify-center shrink-0 shadow-inner">
+                <ShieldCheck className="w-6 h-6 text-white" />
+              </div>
+              {!isCollapsed && (
+                <div>
+                  <h1 className="font-black text-white leading-tight text-lg">Pro-Visit</h1>
+                </div>
+              )}
             </div>
-
           </div>
         </div>
         
@@ -542,7 +544,7 @@ const Layout = () => {
                       <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-3">
                            <label className="text-sm font-bold text-slate-700">SMTP Server (FR-CFG-02)</label>
-                           <input type="text" defaultValue="smtp.hct.ac.ae:587" className="w-full p-2 border rounded bg-slate-50" />
+                           <input type="text" defaultValue="smtp.campus.ac.ae:587" className="w-full p-2 border rounded bg-slate-50" />
                         </div>
                         <div className="space-y-3">
                            <label className="text-sm font-bold text-slate-700">SMS Gateway API (FR-CFG-03)</label>
@@ -600,7 +602,7 @@ const Layout = () => {
                         <Building className="w-5 h-5 text-hct-blue" />
                         Campus Configuration (FR-CFG-01)
                       </h4>
-                      <p className="text-sm text-slate-500 mb-4">Manage the centralized list of registered campuses across the HCT network.</p>
+                      <p className="text-sm text-slate-500 mb-4">Manage the centralized list of registered campuses across the campus network.</p>
                       
                       {/* Add Campus Form */}
                       <form onSubmit={handleAddCampus} className="flex gap-2 mb-6">

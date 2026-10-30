@@ -473,7 +473,7 @@ const AdminPassRequests = () => {
              
              <div className="bg-[#00249c] p-6 text-white text-center">
                <h2 className="text-xl font-black tracking-tight mb-1">VISITOR / CONTRACTOR PASS</h2>
-               <p className="text-blue-200 font-medium tracking-widest text-[10px] uppercase">HCT Campus Security</p>
+               <p className="text-blue-200 font-medium tracking-widest text-[10px] uppercase">Campus Security</p>
              </div>
              
              <div className="p-6">
